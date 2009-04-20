@@ -103,14 +103,6 @@ class LightCompositeHelper :
         a=[(panel,loc) for panel,loc in zip(self.panels, self.panellocs) if row>=loc[0] and row<loc[0]+panel.height]
         p,l = zip(*a)
         return LightCompositeColumnHelper(row,p,l)
-    def __iter__(self) :
-        height = 0
-        for panel,loc in zip(self.panels,self.panellocs) :
-            height = max(height, panel.height+loc[0])
-        for row in range(0, height) :
-            a=[(panel,loc) for panel,loc in zip(self.panels, self.panellocs) if row>=loc[0] and row<loc[0]+panel.height]
-            p,l = zip(*a)
-            yield LightCompositeColumnHelper(row,p,l)
 
 class LightCompositeColumnHelper :
     def __init__(self, row, panels, panellocs) :
@@ -121,37 +113,20 @@ class LightCompositeColumnHelper :
         for panel,loc in zip(self.panels, self.panellocs) :
             if col>=loc[1] and col<loc[1]+panel.width :
                 return panel.lights[self.row-loc[0]][col-loc[1]]
-        return None
     def __setitem__(self, col, v) :
         for panel,loc in zip(self.panels, self.panellocs) :
             if col>=loc[1] and col<loc[1]+panel.width :
                 panel.lights[self.row-loc[0]][col-loc[1]] = v
                 break
-    def __iter__(self) :
-        width = 0
-        for panel,loc in zip(self.panels,self.panellocs) :
-            width = max(width, panel.width+loc[1])
-        col = 0
-        while col < width :
-            for panel,loc in zip(self.panels,self.panellocs) :
-                if col >= loc[1] and col < loc[1] + panel.width :
-                    for c in range(0, panel.width) :
-                        col += 1
-                        yield panel.lights[self.row][c]
-                    break
 
 class PanelComposite :
     def __init__(self) :
         self.panels = []
         self.panelloc = []
         self.lights = LightCompositeHelper(self.panels, self.panelloc)
-        self.width = 0
-        self.height = 0
     def addPanel(self, panel, llrow, llcol) :
         self.panels.append(panel)
         self.panelloc.append((llrow, llcol))
-        self.width=max(self.width, llcol+panel.width)
-        self.height=max(self.height, llrow+panel.height)
     def output(self) :
         for panel in self.panels :
             panel.output()
@@ -163,18 +138,18 @@ if __name__=="__main__" :
     panel = LightPanel("18.224.3.100", 6038, 0)
     a = PanelComposite()
     a.addPanel(panel, 0, 0)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
+    for y in range(0,12) :
+        for x in range(0,12) :
             a.lights[y][x].r=1.0
             a.output()
             time.sleep(1.0/20)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
+    for y in range(0,12) :
+        for x in range(0,12) :
             a.lights[y][x].g=1.0
             a.output()
             time.sleep(1.0/20)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
+    for y in range(0,12) :
+        for x in range(0,12) :
             a.lights[y][x].b=1.0
             a.output()
             time.sleep(1.0/20)
