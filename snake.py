@@ -6,7 +6,9 @@ stdscr = curses.initscr()
 stdscr.keypad(1)
 stdscr.nodelay(1)
 
-panel = dmx.LightPanel("18.224.3.100", 6038, 0)
+panel1 = dmx.LightPanel("18.224.3.100", 6038, 0)
+panel = dmx.PanelComposite()
+panel.addPanel(panel1,0,0)
 
 snake = []
 direct=(0,0)
@@ -31,9 +33,9 @@ def disp_board() :
             pixel.g = 0
             pixel.b = 0
     for loc in snake :
-        panel.lights[(loc[0]+18-centerrow)%12][(loc[1]+18-centercol)%12].r = 1.0
+        panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].r = 1.0
     for loc in food :
-        panel.lights[(loc[0]+18-centerrow)%12][(loc[1]+18-centercol)%12].g = 1.0
+        panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].g = 1.0
     panel.outputAndWait(6)
 
 def move_forward() :
@@ -41,9 +43,10 @@ def move_forward() :
     global snake
     global direct
     global food
+    global panel
     if alive :
         head=snake[-1]
-        new_head = ((head[0]+direct[0])%12,(head[1]+direct[1])%12)
+        new_head = ((head[0]+direct[0])%panel.height,(head[1]+direct[1])%panel.width)
         
         for comp in snake :
             if new_head==comp :
@@ -67,7 +70,7 @@ def move_forward() :
             snake.pop(0)
 
     if random.random() < 0.02 :
-        food.append((random.randrange(12),random.randrange(12)))
+        food.append((random.randrange(panel.height),random.randrange(panel.width)))
 
 try :
     while True :
