@@ -60,9 +60,9 @@ class RGBLight :
             else :
                 self.g=0
                 self.r=angle-5.0
-        self.r=min(max(brightness-saturation, 0.0), 1.0)*self.r+saturation
-        self.g=min(max(brightness-saturation, 0.0), 1.0)*self.g+saturation
-        self.b=min(max(brightness-saturation, 0.0), 1.0)*self.b+saturation
+        self.r=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.r+saturation)
+        self.g=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.g+saturation)
+        self.b=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.b+saturation)
 
 class LightPanel :
     def __init__(self, address, port, dmx_port) :
@@ -85,7 +85,7 @@ class LightPanel :
                 colors[3*(r+12*c)-3+1]=self.lights[r][c].g
                 colors[3*(r+12*c)-3+2]=self.lights[r][c].b
         for i in range(0,len(colors)) :
-            out+=chr(int(255*min(max(float(colors[i])**2,0),1.0)))
+            out+=chr(int(255*min(max(float(colors[i]),0),1.0)))
         while(len(out)<512) :
             out+=chr(0x00)
         out+=chr(255)+chr(191)
@@ -95,8 +95,49 @@ class LightPanel :
         self.output()
         time.sleep(1.0/fps)
 
+class LightCompositeHelper :
+    def __init__(self, panels, panellocs) :
+        self.panels = panels
+        self.panellocs = panellocs
+    def __getitem__(self, row) :
+        a=[(panel,loc) for panel,loc in zip(self.panels, self.panellocs) if row>=loc[0] and row<loc[0]+panel.height]
+        p,l = zip(*a)
+        return LightCompositeColumnHelper(row,p,l)
+
+class LightCompositeColumnHelper :
+    def __init__(self, row, panels, panellocs) :
+        self.panels = panels
+        self.panellocs = panellocs
+        self.row = row
+    def __getitem__(self, col) :
+        for panel,loc in zip(self.panels, self.panellocs) :
+            if col>=loc[1] and col<loc[1]+panel.width :
+                return panel.lights[self.row-loc[0]][col-loc[1]]
+    def __setitem__(self, col, v) :
+        for panel,loc in zip(self.panels, self.panellocs) :
+            if col>=loc[1] and col<loc[1]+panel.width :
+                panel.lights[self.row-loc[0]][col-loc[1]] = v
+                break
+
+class PanelComposite :
+    def __init__(self) :
+        self.panels = []
+        self.panelloc = []
+        self.lights = LightCompositeHelper(self.panels, self.panelloc)
+    def addPanel(self, panel, llrow, llcol) :
+        self.panels.append(panel)
+        self.panelloc.append((llrow, llcol))
+    def output(self) :
+        for panel in self.panels :
+            panel.output()
+    def outputAndWait(self, fps) :
+        self.output()
+        time.sleep(1.0/fps)
+
 if __name__=="__main__" :
-    a = LightPanel("18.224.3.100", 6038, 0)
+    panel = LightPanel("18.224.3.100", 6038, 0)
+    a = PanelComposite()
+    a.addPanel(panel, 0, 0)
     for y in range(0,12) :
         for x in range(0,12) :
             a.lights[y][x].r=1.0
