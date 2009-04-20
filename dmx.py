@@ -31,6 +31,11 @@ class RGBLight :
         self.g = 0
         self.b = 0
 
+    def setrgb(self, r, g, b) :
+        self.r = r
+        self.g = g
+        self.b = b
+    
     # h,s,b are from 0 to 1
     def sethue(self, hue, brightness, saturation) :
         angle = hue*6%6.0
