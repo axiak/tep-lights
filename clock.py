@@ -27,19 +27,19 @@ def drawClock(panel, hours, mins, secs):
             if math.sqrt((x-centerx)**2 + (y-centery)**2) >= min(panel.width, panel.height)/2.:
                 panel.lights[x][y].sethue(rimhue, 0.5, 0) 
             #hours
-            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 30*h) <= 7:
+            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 30*h) <= 5:
                 panel.lights[x][y].sethue(hourshue, 1, 0)
-            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 30*h) <= 7:
+            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 30*h) <= 5:
                 panel.lights[x][y].sethue(hourshue, 1, 0)
             #minutes
-            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 6*m) <= 7:
+            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 6*m) <= 5:
                 panel.lights[x][y].sethue(minuteshue, 1, 0)
-            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 6*m) <= 7:
+            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 6*m) <= 5:
                 panel.lights[x][y].sethue(minuteshue, 1, 0)
             #seconds
-            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 6*secs) <= 7:
+            elif math.fabs(math.degrees((math.atan2(centerx-x, y-centery))) + 90 - 6*secs) <= 5:
                 panel.lights[x][y].sethue(secondshue, 1, 0)
-            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 6*secs) <= 7:
+            elif math.fabs(math.degrees((math.atan2(x-centerx, centery-y))) + 270 - 6*secs) <= 5:
                 panel.lights[x][y].sethue(secondshue, 1, 0)
             #center blob
             elif math.fabs(x - centerx) < 1 and math.fabs(y - centery) < 1:
