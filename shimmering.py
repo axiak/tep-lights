@@ -34,7 +34,7 @@ while True :
         dy=-dy
         center_y=-1
 
-    for row in range(0, panel.height) :
-        for col in range(0, panel.width) :
-            setColor(panel, shimmer_angle, hue, (float(col)/panel.width-0.5)*width*2-center_x, (float(row)/panel.height-0.5)*width*2-center_y, row, col)
+    for row in panel.lights:
+        for pixel in row:
+            setColor(panel, shimmer_angle, hue, (float(pixel.col)/panel.width-0.5)*width*2-center_x, (float(pixel.row)/panel.height-0.5)*width*2-center_y, pixel.row, pixel.col)
     panel.outputAndWait(30)
