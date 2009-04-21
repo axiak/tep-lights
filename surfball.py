@@ -1,9 +1,12 @@
 import dmx
 import math
+import random
 
-
-
-panel = dmx.LightPanel("18.224.3.100", 6038, 0)
+panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
+panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
+panel = dmx.PanelComposite()
+panel.addPanel(panel2, 0, 0)
+panel.addPanel(panel1, 0, 12)
 
 def colorset(panel, hue, brightness, x, y):
     panel.lights[int(y)][int(x)].sethue(hue, brightness, 0)
@@ -35,16 +38,16 @@ while True :
     center_x+=dx
     center_y+=dy
     if center_x>(panel.width-1):
-        dx = -dx
+        dx = -dx + random.random()/20.
         center_x = panel.width - 1
     elif center_x<0:
-        dx = -dx
+        dx = -dx + random.random()/20
         center_x = 0
     if center_y>(panel.height-1):
-        dy = -dy
+        dy = -dy + random.random()/20
         center_y = panel.height - 1
     elif center_y<0:
-        dy=-dy
+        dy=-dy + random.random()/20
         center_y = 0
     for row in xrange(panel.height):
         for column in xrange(panel.width):
