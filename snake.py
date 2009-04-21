@@ -27,9 +27,7 @@ def disp_board() :
         centercol = snake[-1][1]
     for row in panel.lights :
         for pixel in row :
-            pixel.r = 0
-            pixel.g = 0
-            pixel.b = 0
+            pixel.setrgb(0,0,0)
     for loc in snake :
         panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].r = 1.0
     for loc in food :
