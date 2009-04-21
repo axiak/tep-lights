@@ -77,6 +77,7 @@ class LightPanel :
         self.width = 12
         self.height = 12
         self.comp = comp
+        self.time = time.time()
     def output(self) :
         out = chr(0x00)
         colors = [0 for i in range(0,500)]
@@ -99,7 +100,10 @@ class LightPanel :
 
     def outputAndWait(self, fps) :
         self.output()
-        time.sleep(1.0/fps)
+        endtime = time.time()-self.time
+        if(1.0/fps > endtime) :
+            time.sleep(1.0/fps-endtime)
+        self.time = time.time()
 
 class LightCompositeHelper :
     def __init__(self, panels, panellocs) :
@@ -162,8 +166,12 @@ class PanelComposite :
         for panel in self.panels :
             panel.output()
     def outputAndWait(self, fps) :
-        self.output()
-        time.sleep(1.0/fps)
+        t = False
+        for panel in self.panels :
+            if t :
+                panel.output()
+            t = True
+        self.panels[0].outputAndWait(fps)
 
 if __name__=="__main__" :
     panel1 = LightPanel("18.224.3.100", 6038, 0, 0)
