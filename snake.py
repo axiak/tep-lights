@@ -71,7 +71,7 @@ def move_forward() :
         else :
             snake.pop(0)
 
-    if random.random() < 0.02 :
+    if random.random() < 0.05 :
         food.append((random.randrange(panel.height),random.randrange(panel.width)))
 
 try :
