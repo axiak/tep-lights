@@ -74,12 +74,13 @@ class RGBLight :
         self.b = blue
         
 class LightPanel :
-    def __init__(self, address, port, dmx_port) :
+    def __init__(self, address, port, dmx_port, comp) :
         self.lights = [[RGBLight() for i in range(0,12)]
                        for j in range(0,12)]
         self.dmx = DmxConnection(address, port, dmx_port)
         self.width = 12
         self.height = 12
+        self.comp = comp
     def output(self) :
         out = chr(0x00)
         colors = [0 for i in range(0,500)]
@@ -90,9 +91,9 @@ class LightPanel :
                 colors[3*(r+12*(5-c))+2]=self.lights[r][c].b
         for c in range(6,12) :
             for r in range(0,12) :
-                colors[3*(r+12*c)-3+0]=self.lights[r][c].r
-                colors[3*(r+12*c)-3+1]=self.lights[r][c].g
-                colors[3*(r+12*c)-3+2]=self.lights[r][c].b
+                colors[3*(r+12*c)+self.comp+0]=self.lights[r][c].r
+                colors[3*(r+12*c)+self.comp+1]=self.lights[r][c].g
+                colors[3*(r+12*c)+self.comp+2]=self.lights[r][c].b
         for i in range(0,len(colors)) :
             out+=chr(int(255*min(max(float(colors[i]),0),1.0)))
         while(len(out)<512) :
@@ -169,9 +170,11 @@ class PanelComposite :
         time.sleep(1.0/fps)
 
 if __name__=="__main__" :
-    panel = LightPanel("18.224.3.100", 6038, 0)
+    panel1 = LightPanel("18.224.3.100", 6038, 0, 0)
+    panel2 = LightPanel("18.224.3.102", 6038, 0, -3)
     a = PanelComposite()
-    a.addPanel(panel, 0, 0)
+    a.addPanel(panel2,0,0)
+    a.addPanel(panel1,0,12)
     for y in range(0,a.height) :
         for x in range(0,a.width) :
             a.lights[y][x].r=1.0
