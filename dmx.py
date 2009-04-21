@@ -173,12 +173,16 @@ class PanelComposite :
             t = True
         self.panels[0].outputAndWait(fps)
 
-if __name__=="__main__" :
+def getDefaultPanel() :
     panel1 = LightPanel("18.224.3.100", 6038, 0, 0)
     panel2 = LightPanel("18.224.3.102", 6038, 0, -3)
-    a = PanelComposite()
-    a.addPanel(panel2,0,0)
-    a.addPanel(panel1,0,12)
+    panel = PanelComposite()
+    panel.addPanel(panel2,0,0)
+    panel.addPanel(panel1,0,12)
+    return panel
+
+if __name__=="__main__" :
+    a = getDefaultPanel()
     for row in a.lights :
         for light in row :
             light.r=1.0
