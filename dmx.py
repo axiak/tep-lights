@@ -171,18 +171,18 @@ if __name__=="__main__" :
     a = PanelComposite()
     a.addPanel(panel2,0,0)
     a.addPanel(panel1,0,12)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
-            a.lights[y][x].r=1.0
+    for row in a.lights :
+        for light in row :
+            light.r=1.0
             a.output()
             time.sleep(1.0/20)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
-            a.lights[y][x].g=1.0
+    for row in a.lights :
+        for light in row :
+            light.g=1.0
             a.output()
             time.sleep(1.0/20)
-    for y in range(0,a.height) :
-        for x in range(0,a.width) :
-            a.lights[y][x].b=1.0
+    for row in a.lights :
+        for light in row :
+            light.b=1.0
             a.output()
             time.sleep(1.0/20)
