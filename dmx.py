@@ -68,7 +68,11 @@ class RGBLight :
         self.r=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.r+saturation)
         self.g=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.g+saturation)
         self.b=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.b+saturation)
-
+    def setrgb(self, red, green, blue):
+        self.r = red
+        self.g = green
+        self.b = blue
+        
 class LightPanel :
     def __init__(self, address, port, dmx_port, comp) :
         self.lights = [[RGBLight() for i in range(0,12)]
