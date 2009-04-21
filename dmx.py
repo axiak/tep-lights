@@ -186,15 +186,12 @@ if __name__=="__main__" :
     for row in a.lights :
         for light in row :
             light.r=1.0
-            a.output()
-            time.sleep(1.0/20)
+            a.outputAndWait(20)
     for row in a.lights :
         for light in row :
             light.g=1.0
-            a.output()
-            time.sleep(1.0/20)
+            a.outputAndWait(20)
     for row in a.lights :
         for light in row :
             light.b=1.0
-            a.output()
-            time.sleep(1.0/20)
+            a.outputAndWait(20)
