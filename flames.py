@@ -2,7 +2,13 @@ import dmx
 import math
 import random
 
-panel = dmx.LightPanel("18.224.3.100", 6038, 0)
+panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
+panel2 = dmx.LightPanel("18.224.3.101", 6038, 0, 0)
+panel3 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
+panel = dmx.PanelComposite()
+panel.addPanel(panel3, 0, 0)
+panel.addPanel(panel1, 0, 12)
+panel.addPanel(panel2, 0, 24)
 
 flamehue = 0.8
 
