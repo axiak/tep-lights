@@ -1,11 +1,7 @@
 import dmx
 import math
 
-panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-panel = dmx.PanelComposite()
-panel.addPanel(panel2, 0, 0)
-panel.addPanel(panel1, 0, 12)
+panel = dmx.getDefaultPanel()
 
 def setColor(panel, shimmer_angle, hue, x, y, lightrow, lightcol) :
     dist = math.cos(shimmer_angle/10)*x*y+math.cos(shimmer_angle)*x*x+math.sin(shimmer_angle)*y*y
