@@ -16,7 +16,7 @@ class DmxConnection :
     def send_dmx(self, data) :
         out=KINET_MAGIC+KINET_VERSION+KINET_TYPE_DMXOUT
         out+=chr(0x00)+chr(0x00)+chr(0x00)+chr(0x00) #seq
-        out+=chr(self.dmx_port) #port number
+        out+=chr(self.dmx_port) # dmx port number
         out+=chr(0x00) #flags
         out+=chr(0x00)+chr(0x00) # timerVal
         out+=chr(0xFF)+chr(0xFF)+chr(0xFF)+chr(0xFF) # uni
@@ -177,12 +177,18 @@ class PanelComposite :
             t = True
         self.panels[0].outputAndWait(fps)
 
-if __name__=="__main__" :
+def getDefaultPanel() :
     panel1 = LightPanel("18.224.3.100", 6038, 0, 0)
     panel2 = LightPanel("18.224.3.102", 6038, 0, -3)
-    a = PanelComposite()
-    a.addPanel(panel2,0,0)
-    a.addPanel(panel1,0,12)
+    panel3 = LightPanel("18.224.3.101", 6038, 0, 0)
+    panel = PanelComposite()
+    panel.addPanel(panel3,0,0)
+    panel.addPanel(panel2,0,12)
+    panel.addPanel(panel1,0,24)
+    return panel
+
+if __name__=="__main__" :
+    a = getDefaultPanel()
     for row in a.lights :
         for light in row :
             light.r=1.0

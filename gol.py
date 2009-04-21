@@ -3,12 +3,7 @@
 import dmx
 import random
 
-panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-panel = dmx.PanelComposite()
-panel.addPanel(panel1, 0, 12)
-panel.addPanel(panel2, 0, 0)
-
+panel = dmx.getDefaultPanel()
 
 board1 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
 board2 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
