@@ -41,4 +41,4 @@ while True :
     for row in range(0, panel.height) :
         for col in range(0, panel.width) :
             setColor(panel, shimmer_angle, hue, (float(col)/panel.width-0.5)*width*2-center_x, (float(row)/panel.height-0.5)*width*2-center_y, row, col)
-    panel.output()
+    panel.outputAndWait(30)
