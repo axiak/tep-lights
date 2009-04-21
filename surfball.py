@@ -3,17 +3,19 @@ import math
 import random
 
 panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
+panel3 = dmx.LightPanel("18.224.3.101", 6038, 0, 0)
 panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
 panel = dmx.PanelComposite()
-panel.addPanel(panel2, 0, 0)
-panel.addPanel(panel1, 0, 12)
+panel.addPanel(panel3, 0, 0)
+panel.addPanel(panel2, 0, 12)
+panel.addPanel(panel1, 0, 24)
 
 def colorset(panel, hue, brightness, x, y):
     panel.lights[int(y)][int(x)].sethue(hue, brightness, 0)
 
 def setColor(panel, hue, x, y, row, col):
     hs = 3               # hue variance
-    bs = 4               # brightness variance
+    bs = 5               # brightness variance
     ss = 3               # saturation variance
     dist = math.sqrt((x - col)**2. + (y - row)**2)
     #panel.lights[row][col].sethue(hue/(1 + 0.4*dist), 2/(0.05 + dist), 0)
@@ -38,16 +40,16 @@ while True :
     center_x+=dx
     center_y+=dy
     if center_x>(panel.width-1):
-        dx = -dx + random.random()/20.
+        dx = -dx + (0.5 - random.random())/10.
         center_x = panel.width - 1
     elif center_x<0:
-        dx = -dx + random.random()/20
+        dx = -dx + (0.5 - random.random())/10
         center_x = 0
     if center_y>(panel.height-1):
-        dy = -dy + random.random()/20
+        dy = -dy + (0.5 - random.random())/10
         center_y = panel.height - 1
     elif center_y<0:
-        dy=-dy + random.random()/20
+        dy=-dy + (0.5 - random.random())/10
         center_y = 0
     for row in xrange(panel.height):
         for column in xrange(panel.width):

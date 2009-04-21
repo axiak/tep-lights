@@ -3,11 +3,11 @@ import math
 #import random
 import datetime
 
-panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-panel = dmx.PanelComposite()
-panel.addPanel(panel2, 0, 0)
-panel.addPanel(panel1, 0, 12)
+#panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
+panel = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
+#panel = dmx.PanelComposite()
+#panel.addPanel(panel2, 0, 0)
+#panel.addPanel(panel1, 0, 12)
 
 rimhue = 1
 secondshue = 0.9
