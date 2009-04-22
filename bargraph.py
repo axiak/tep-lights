@@ -1,6 +1,7 @@
 import dmx
 import math
 import random
+import stockquote
 
 panel = dmx.getDefaultPanel()
 background = (0, 0, 0)
@@ -22,23 +23,25 @@ def run(panel, numcols):
     percol = int(panel.width / numcols)
     columns = [[] for i in xrange(numcols)]
     count = 0
-    print numcols, percol
     for col in xrange(panel.width):
-        print col, count, col-count/percol
         columns[(col-count)/percol].append(col)
         count = (count + 1) % percol
-    print columns
     # main loop
     while True:
-        heights = getheights()
+        heights = getheights(numcols)
         for col in xrange(numcols):
             drawCol(panel, columns[col], heights[col])
         panel.outputAndWait(30)
 
-def getheights():
-    return [random.randint(0, panel.height-1) for i in xrange(numcols)]
+def getheights(numcols):
+    #return [random.randint(0, panel.height-1) for i in xrange(numcols)]
+    return heights
+
 
 if __name__ == "__main__":
-    numcols = panel.width/4
-    print numcols, 
+    companies = ["goog", "aapl", "msft", "ibm", "java", "sun"]
+    numcols = len(companies)
+    heights = []
+    for col in xrange(len(companies)):
+        heights.append(float(stockquote.get_quote(companies[col]))/25)
     run(panel, numcols)
