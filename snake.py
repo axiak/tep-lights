@@ -11,6 +11,8 @@ panel = dmx.getDefaultPanel()
 snake = []
 direct=(0,0)
 food = []
+obstruction = set()
+obstruction.add((0,0))
 
 alive = False
 
@@ -29,9 +31,11 @@ def disp_board() :
         for pixel in row :
             pixel.setrgb(0,0,0)
     for loc in snake :
-        panel.lights[(loc[0]+18-centerrow)%12][(loc[1]+18-centercol)%12].r = 1.0
+        panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].r = 1.0
     for loc in food :
-        panel.lights[(loc[0]+18-centerrow)%12][(loc[1]+18-centercol)%12].g = 1.0
+        panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].g = 1.0
+    for loc in obstruction :
+        panel.lights[(loc[0]+3*panel.height/2-centerrow)%panel.height][(loc[1]+3*panel.width/2-centercol)%panel.width].setrgb(0.5, 0.5, 0.5)
     panel.outputAndWait(6)
 
 def move_forward() :
@@ -39,16 +43,20 @@ def move_forward() :
     global snake
     global direct
     global food
+    global panel
+    global obstruction
     if alive :
         head=snake[-1]
-        new_head = ((head[0]+direct[0])%12,(head[1]+direct[1])%12)
+        new_head = ((head[0]+direct[0])%panel.height,(head[1]+direct[1])%panel.width)
         
-        for comp in snake :
-            if new_head==comp :
+        for part in snake :
+            if new_head[0] == part[0] and new_head[1] == part[1] :
                 alive = False
-                break
+        for ob in obstruction :
+            if new_head[0] == ob[0] and new_head[1] == ob[1] :
+                alive = False
         for f in food :
-            if f==new_head :
+            if f[0] == new_head[0] and f[1] == new_head[1] :
                 snake.append(head)
                 snake.append(head)
                 food.remove(f)
@@ -58,28 +66,48 @@ def move_forward() :
             snake.append(new_head)
     else :
         if len(snake)==0 :
-            snake = [(5,4),(5,5),(5,6)]
-            direct=(0,1)
+            r = (random.randrange(panel.height), random.randrange(panel.width))
+            snake = [r, r, r]
+            direct=(0, 1)
             alive=True
         else :
             snake.pop(0)
 
     if random.random() < 0.07 :
         food.append((random.randrange(panel.height),random.randrange(panel.width)))
+    if random.random() < 0.06 :
+        l = len(obstruction)
+        while l == len(obstruction) :
+            i = random.randrange(l)
+            testob = None
+            for ob in obstruction :
+                if i == 0 :
+                    testob = ob
+                    break
+                i -= 1
+            obstruction.add((random.randrange(-1,2)+testob[0], random.randrange(-1,2)+testob[1]))
 
 try :
     while True :
         c = stdscr.getch()
-        if c=='q' :
+        if c==ord('q') :
             break
+        chdir = False
         if c==curses.KEY_UP :
-            direct = (1,0)
+            chdir = True
+            newdirect = (1,0)
         if c==curses.KEY_DOWN :
-            direct = (-1,0)
+            chdir = True
+            newdirect = (-1,0)
         if c==curses.KEY_LEFT :
-            direct = (0,-1)
+            chdir = True
+            newdirect = (0,-1)
         if c==curses.KEY_RIGHT :
-            direct = (0,1)
+            chdir = True
+            newdirect = (0,1)
+        if chdir :
+            if 10*newdirect[0]+newdirect[1] != -(10*direct[0]+direct[1]) :
+                direct = newdirect
         disp_board()
         move_forward()
 finally :
