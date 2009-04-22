@@ -1,15 +1,25 @@
 # Conway's Game of life
 
-import dmx
+import dmxwidget
 import random
 
-panel1 = dmx.LightPanel("18.224.3.100", 6038, 0)
-panel = dmx.PanelComposite()
-panel.addPanel(panel1,0,0)
-
-board1 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
-board2 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
-board3 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
+class GameOfLife (dmxwidget.Widget) :
+    def init(self, panel) :
+        global board1, board2, board3
+        board1 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
+        board2 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
+        board3 = [[0 for col in range(0, panel.width)] for row in range(0, panel.height)]
+        initialize_board(board1)
+        initialize_board(board2)
+        initialize_board(board3)
+    def draw(self, panel) :
+        for r in range(0, panel.height) :
+            for c in range(0, panel.width) :
+                panel.lights[r][c].r = board1[r][c]
+                panel.lights[r][c].g = board2[r][c]
+                panel.lights[r][c].b = board3[r][c]
+        update_loose_gol()
+        panel.outputAndWait(10)
 
 def initialize_board(board) :
     for r in range(0,len(board)) :
@@ -74,19 +84,6 @@ def update_loose_gol() :
     board2 = generalized_gol(board2, loose_gol_count, next_state_loose_gol)
     board3 = generalized_gol(board3, loose_gol_count, next_state_loose_gol)
 
-def execute_loose_game_of_life() :
-    global panel, board1, board2, board3
-    initialize_board(board1)
-    initialize_board(board2)
-    initialize_board(board3)
 
-    while True :
-        for r in range(0, panel.height) :
-            for c in range(0, panel.width) :
-                panel.lights[r][c].r = board1[r][c]
-                panel.lights[r][c].g = board2[r][c]
-                panel.lights[r][c].b = board3[r][c]
-        update_loose_gol()
-        panel.outputAndWait(10)
-
-execute_loose_game_of_life()
+if __name__=="__main__" :
+    dmxwidget.WidgetServer().run([GameOfLife])
