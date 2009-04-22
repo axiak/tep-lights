@@ -30,7 +30,6 @@ class SurfBall (dmxwidget.Widget) :
                 setColor(panel, self.hue, self.center_x, self.center_y, row, column)
         panel.outputAndWait(30)
 
-
 def colorset(panel, hue, brightness, x, y):
     panel.lights[int(y)][int(x)].sethue(hue, brightness, 0)
 
@@ -51,6 +50,26 @@ def clear(panel):
         for light in row:
             light.sethue(0, 0, 0)
 
+
+while True :
+    center_x+=dx
+    center_y+=dy
+    if center_x>(panel.width-1):
+        dx = -dx + (0.5 - random.random())/10.
+        center_x = panel.width - 1
+    elif center_x<0:
+        dx = -dx + (0.5 - random.random())/10
+        center_x = 0
+    if center_y>(panel.height-1):
+        dy = -dy + (0.5 - random.random())/10
+        center_y = panel.height - 1
+    elif center_y<0:
+        dy=-dy + (0.5 - random.random())/10
+        center_y = 0
+    for row in xrange(panel.height):
+        for column in xrange(panel.width):
+            setColor(panel, hue, center_x, center_y, row, column)
+    panel.outputAndWait(30)
 
 if __name__=="__main__" :
     dmxwidget.WidgetServer().run([SurfBall])

@@ -1,6 +1,5 @@
 import dmxwidget
 import math
-#import random
 import datetime
 
 class Clock (dmxwidget.Widget) :

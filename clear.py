@@ -9,3 +9,4 @@ class Clear (dmxwidget.Widget) :
 
 if __name__=="__main__" :
     dmxwidget.WidgetServer().run([Clear])
+
