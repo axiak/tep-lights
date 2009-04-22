@@ -15,8 +15,10 @@ def drawCol(panel, columns, top, fg=(0.4,1,0), bg=(0,0,0), edge=(0.2,0.6,0)):
                 panel.lights[row][col].sethue(fg[0], fg[1], fg[2])
         
 
-def run(panel, numcols):
-    heights = getheights(numcols)
+def run(panel):
+    global offset
+    heights = getheights()
+    numcols = len(heights)
     percol = int(panel.width / numcols)
     columns = [[] for i in xrange(numcols)]
     count = 0
@@ -28,22 +30,29 @@ def run(panel, numcols):
             rest.append(col)
         count = (count + 1) % percol
     # main loop
+    if numcols == panel.width:
+        offset = (offset+0.4)%2
+    else:
+        offset = 0
     for col in xrange(numcols):
-        drawCol(panel, columns[col], heights[col], fg=(fore[0]*col, fore[1], fore[2]))
+        drawCol(panel, columns[col], int(heights[col]), fg=(fore[0]*col+offset, fore[1], fore[2]))
     for col in rest:
         drawCol(panel, [col], 0, edge=(0, 0, 0))
     panel.output()
 
-def getheights(numcols):
-    #return [random.randint(0, panel.height-1) for i in xrange(numcols)]
+def getheights():
+    heights.insert(0, (float(stockquote.get_quote("goog"))/25))
+    if len(heights) > panel.width:
+        heights.pop()
     return heights
 
 if __name__ == "__main__":
     panel = dmx.getDefaultPanel()
-    fore = (0.4, 1, 0)
-    companies = ["goog", "aapl", "msft", "ibm", "java", "sun"]
-    numcols = len(companies)
+    fore = [0.4, 1, 0]
+    numcols = panel.width
+    offset = 0
     heights = []
-    for col in xrange(len(companies)):
-        heights.append(float(stockquote.get_quote(companies[col]))/25)
-    run(panel, numcols)
+    while True:
+        run(panel)
+        time.sleep(300)
+                       
