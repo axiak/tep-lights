@@ -1,11 +1,21 @@
-import dmx
+import dmxwidget
 import math
 import random
 
-panel = dmx.getDefaultPanel()
+class Flames (dmxwidget.Widget) :
+    heights = []
+    def draw(self, panel) :
+        if len(self.heights) != panel.width :
+            self.heights = [0 for i in xrange(panel.width)]
+        for col in xrange(panel.width):
+            self.heights[col] += random.randint(-1, 1)
+            self.heights[col] = max(min(self.heights[col], panel.height), 1)
+            drawCol(panel, col, self.heights[col])
+        panel.outputAndWait(30)
+
 flamehue = 0.8
 
-def drawCol(panel, column, top):
+def drawCol(panel, col, top):
     for row in xrange(panel.height):
         if row > top:
             #panel.lights[row][col].sethue(0.2, 0.5, 0)
@@ -17,11 +27,5 @@ def clear(panel):
         for light in row:
             light.sethue(0, 0, 0)
 
-heights = [0 for i in xrange(panel.width)]
-
-while True :
-    for col in xrange(panel.width):
-        heights[col] += random.randint(-1, 1)
-        heights[col] = max(min(heights[col], panel.height), 1)
-        drawCol(panel, col, heights[col])
-    panel.outputAndWait(30)
+if __name__=="__main__" :
+    dmxwidget.WidgetServer().run([Flames])
