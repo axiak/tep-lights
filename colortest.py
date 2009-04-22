@@ -12,10 +12,10 @@ class ColorTest (dmxwidget.Widget) :
         panel.outputAndWait(30)
         if self.t < 255 and self.goup :
             self.t += 1
-        elif self.goup and t==255 :
+        elif self.goup and self.t==255 :
             self.goup = False
             self.t -= 1
-        elif t > 0 :
+        elif self.t > 0 :
             self.t -= 1
         else :
             self.goup = True

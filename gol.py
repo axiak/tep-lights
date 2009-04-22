@@ -71,7 +71,7 @@ def next_state_loose_gol(board, count, row, col) :
 
 def update_loose_gol() :
     global board1, board2, board3
-    if random.random()<=1.0/40 :
+    if random.random()<=1.0/500 :
         r = random.random()
         if r <= 1.0/3 :
             board=board1
