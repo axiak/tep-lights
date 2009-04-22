@@ -16,7 +16,7 @@ class DmxConnection :
     def send_dmx(self, data) :
         out=KINET_MAGIC+KINET_VERSION+KINET_TYPE_DMXOUT
         out+=chr(0x00)+chr(0x00)+chr(0x00)+chr(0x00) #seq
-        out+=chr(self.dmx_port) # dmx port number
+        out+=chr(self.dmx_port) #port number
         out+=chr(0x00) #flags
         out+=chr(0x00)+chr(0x00) # timerVal
         out+=chr(0xFF)+chr(0xFF)+chr(0xFF)+chr(0xFF) # uni
@@ -26,12 +26,10 @@ class DmxConnection :
             raise SystemExit(1)
 
 class RGBLight :
-    def __init__(self, row, col) :
+    def __init__(self) :
         self.r = 0
         self.g = 0
         self.b = 0
-        self.row = row
-        self.col = col
 
     def setrgb(self, r, g, b) :
         self.r = r
@@ -70,14 +68,10 @@ class RGBLight :
         self.r=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.r+saturation)
         self.g=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.g+saturation)
         self.b=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.b+saturation)
-    def setrgb(self, red, green, blue):
-        self.r = red
-        self.g = green
-        self.b = blue
-        
+
 class LightPanel :
     def __init__(self, address, port, dmx_port, comp) :
-        self.lights = [[RGBLight(j, i) for i in range(0,12)]
+        self.lights = [[RGBLight() for i in range(0,12)]
                        for j in range(0,12)]
         self.dmx = DmxConnection(address, port, dmx_port)
         self.width = 12
@@ -106,8 +100,10 @@ class LightPanel :
 
     def outputAndWait(self, fps) :
         self.output()
-<<<<<<< HEAD:dmx.py
-        time.sleep(1.0/fps)
+        endtime = time.time()-self.time
+        if(1.0/fps > endtime) :
+            time.sleep(1.0/fps-endtime)
+        self.time = time.time()
 
 class LightCompositeHelper :
     def __init__(self, panels, panellocs) :
@@ -117,6 +113,14 @@ class LightCompositeHelper :
         a=[(panel,loc) for panel,loc in zip(self.panels, self.panellocs) if row>=loc[0] and row<loc[0]+panel.height]
         p,l = zip(*a)
         return LightCompositeColumnHelper(row,p,l)
+    def __iter__(self) :
+        height = 0
+        for panel,loc in zip(self.panels,self.panellocs) :
+            height = max(height, panel.height+loc[0])
+        for row in range(0, height) :
+            a=[(panel,loc) for panel,loc in zip(self.panels, self.panellocs) if row>=loc[0] and row<loc[0]+panel.height]
+            p,l = zip(*a)
+            yield LightCompositeColumnHelper(row,p,l)
 
 class LightCompositeColumnHelper :
     def __init__(self, row, panels, panellocs) :
@@ -127,29 +131,30 @@ class LightCompositeColumnHelper :
         for panel,loc in zip(self.panels, self.panellocs) :
             if col>=loc[1] and col<loc[1]+panel.width :
                 return panel.lights[self.row-loc[0]][col-loc[1]]
+        return None
     def __setitem__(self, col, v) :
         for panel,loc in zip(self.panels, self.panellocs) :
             if col>=loc[1] and col<loc[1]+panel.width :
                 panel.lights[self.row-loc[0]][col-loc[1]] = v
                 break
-=======
-        endtime = time.time()-self.time
-        if(1.0/fps > endtime) :
-            time.sleep(1.0/fps-endtime)
-        self.time = time.time()
->>>>>>> d729b8a3beab0e6dec7c5afadcafcefc7df26626:dmx.py
+    def __iter__(self) :
+        width = 0
+        for panel,loc in zip(self.panels,self.panellocs) :
+            width = max(width, panel.width+loc[1])
+        col = 0
+        while col < width :
+            for panel,loc in zip(self.panels,self.panellocs) :
+                if col >= loc[1] and col < loc[1] + panel.width :
+                    for c in range(0, panel.width) :
+                        col += 1
+                        yield panel.lights[self.row][c]
+                    break
 
 class PanelComposite :
     def __init__(self) :
         self.panels = []
         self.panelloc = []
-<<<<<<< HEAD:dmx.py
         self.lights = LightCompositeHelper(self.panels, self.panelloc)
-    def addPanel(self, panel, llrow, llcol) :
-        self.panels.append(panel)
-        self.panelloc.append((llrow, llcol))
-=======
-        self.lights = [[]]
         self.width = 0
         self.height = 0
     def addPanel(self, panel, llrow, llcol) :
@@ -157,17 +162,6 @@ class PanelComposite :
         self.panelloc.append((llrow, llcol))
         self.width=max(self.width, llcol+panel.width)
         self.height=max(self.height, llrow+panel.height)
-        newlights = [[RGBLight(row, col) for col in range(self.width)] for row in range(self.height)]
-        for row in self.lights :
-            for light in row :
-                newlights[light.row][light.col] = light
-        for row in panel.lights :
-            for light in row :
-                light.row = llrow + light.row
-                light.col = llcol + light.col
-                newlights[light.row][light.col] = light
-        self.lights = newlights
->>>>>>> d729b8a3beab0e6dec7c5afadcafcefc7df26626:dmx.py
     def output(self) :
         for panel in self.panels :
             panel.output()
@@ -179,50 +173,21 @@ class PanelComposite :
             t = True
         self.panels[0].outputAndWait(fps)
 
-def getDefaultPanel() :
-    panel1 = LightPanel("18.224.3.100", 6038, 0, -3)
-    panel2 = LightPanel("18.224.3.102", 6038, 0, 0)
-    panel3 = LightPanel("18.224.3.103", 6038, 0, 0)
-    panel4 = LightPanel("18.224.3.101", 6038, 0, 0)
-    panel = PanelComposite()
-    panel.addPanel(panel1,0,0)
-    panel.addPanel(panel2,0,12)
-    panel.addPanel(panel3,12,0)
-    panel.addPanel(panel4,12,12)
-    return panel
-
 if __name__=="__main__" :
-<<<<<<< HEAD:dmx.py
-    panel = LightPanel("18.224.3.100", 6038, 0)
+    panel1 = LightPanel("18.224.3.100", 6038, 0, 0)
+    panel2 = LightPanel("18.224.3.102", 6038, 0, -3)
     a = PanelComposite()
-    a.addPanel(panel, 0, 0)
-    for y in range(0,12) :
-        for x in range(0,12) :
-            a.lights[y][x].r=1.0
-            a.output()
-            time.sleep(1.0/20)
-    for y in range(0,12) :
-        for x in range(0,12) :
-            a.lights[y][x].g=1.0
-            a.output()
-            time.sleep(1.0/20)
-    for y in range(0,12) :
-        for x in range(0,12) :
-            a.lights[y][x].b=1.0
-            a.output()
-            time.sleep(1.0/20)
-=======
-    a = getDefaultPanel()
+    a.addPanel(panel2,0,0)
+    a.addPanel(panel1,0,12)
     for row in a.lights :
         for light in row :
             light.r=1.0
-            a.outputAndWait(30)
+            a.outputAndWait(20)
     for row in a.lights :
         for light in row :
             light.g=1.0
-            a.outputAndWait(30)
+            a.outputAndWait(20)
     for row in a.lights :
         for light in row :
             light.b=1.0
-            a.outputAndWait(30)
->>>>>>> d729b8a3beab0e6dec7c5afadcafcefc7df26626:dmx.py
+            a.outputAndWait(20)
