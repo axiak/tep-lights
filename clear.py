@@ -1,12 +1,11 @@
-import dmx
+import dmxwidget
 
-panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-panel = dmx.PanelComposite()
-panel.addPanel(panel2, 0, 0)
-panel.addPanel(panel1, 0, 12)
+class Clear (dmxwidget.Widget) :
+    def draw(self, panel) :
+        for row in panel.lights:
+            for light in row:
+                light.sethue(0, 0, 0)
+        panel.outputAndWait(5)
 
-for row in panel.lights:
-    for light in row:
-        light.sethue(0, 0, 0)
-panel.outputAndWait(5)
+if __name__=="__main__" :
+    dmxwidget.WidgetServer().run([Clear])

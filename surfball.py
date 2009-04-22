@@ -1,18 +1,35 @@
-import dmx
+import dmxwidget
 import math
 import random
 
-#panel1 = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-#panel3 = dmx.LightPanel("18.224.3.101", 6038, 0, 0)
-#panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-#panel4 = dmx.LightPanel("18.224.3.103", 6038, 0, 0)
-#panel = dmx.PanelComposite()
-#panel.addPanel(panel4, 12, 12)
-#panel.addPanel(panel3, 12, 0)
-#panel.addPanel(panel2, 0, 0)
-#panel.addPanel(panel1, 0, 12)
+class SurfBall (dmxwidget.Widget) :
+    def init(self, panel) :
+        self.hue = 0.9
+        self.center_x=0.0
+        self.center_y=0.0
+        self.dx=0.4
+        self.dy=0.5
 
-panel = dmx.getDefaultPanel()
+    def draw(self, panel) :
+        self.center_x+=self.dx
+        self.center_y+=self.dy
+        if self.center_x>(panel.width-1):
+            self.dx = -self.dx + (0.5 - random.random())/10.
+            self.center_x = panel.width - 1
+        elif self.center_x<0:
+            self.dx = -self.dx + (0.5 - random.random())/10
+            self.center_x = 0
+        if self.center_y>(panel.height-1):
+            self.dy = -self.dy + (0.5 - random.random())/10
+            self.center_y = panel.height - 1
+        elif self.center_y<0:
+            self.dy=-self.dy + (0.5 - random.random())/10
+            self.center_y = 0
+        for row in xrange(panel.height):
+            for column in xrange(panel.width):
+                setColor(panel, self.hue, self.center_x, self.center_y, row, column)
+        panel.outputAndWait(30)
+
 
 def colorset(panel, hue, brightness, x, y):
     panel.lights[int(y)][int(x)].sethue(hue, brightness, 0)
@@ -34,31 +51,6 @@ def clear(panel):
         for light in row:
             light.sethue(0, 0, 0)
 
-hue = 0.9
-center_x=0.0
-center_y=0.0
-dx=0.4
-dy=0.5
 
-while True :
-    center_x+=dx
-    center_y+=dy
-    if center_x>(panel.width-1):
-        dx = -dx + (0.5 - random.random())/10.
-        center_x = panel.width - 1
-    elif center_x<0:
-        dx = -dx + (0.5 - random.random())/10
-        center_x = 0
-    if center_y>(panel.height-1):
-        dy = -dy + (0.5 - random.random())/10
-        center_y = panel.height - 1
-    elif center_y<0:
-        dy=-dy + (0.5 - random.random())/10
-        center_y = 0
-    for row in xrange(panel.height):
-        for column in xrange(panel.width):
-            setColor(panel, hue, center_x, center_y, row, column)
-    #clear(panel)
-    #drawball(panel, center_x, center_y)
-    #colorset(panel, hue, 1, center_x, center_y)
-    panel.outputAndWait(30)
+if __name__=="__main__" :
+    dmxwidget.WidgetServer().run([SurfBall])

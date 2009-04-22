@@ -1,22 +1,23 @@
-import dmx
+import dmxwidget
 import math
 #import random
 import datetime
 
-#panel2 = dmx.LightPanel("18.224.3.102", 6038, 0, -3)
-#panel = dmx.LightPanel("18.224.3.100", 6038, 0, 0)
-#panel = dmx.PanelComposite()
-#panel.addPanel(panel2, 0, 0)
-#panel.addPanel(panel1, 0, 12)
-panel = dmx.getDefaultPanel()
+class Clock (dmxwidget.Widget) :
+    def draw(self, panel) :
+        global centerx, centery
+        centerx = (panel.width-1)/2.
+        centery = (panel.height-1)/2.
+
+        t = datetime.datetime.now().timetuple()
+        drawClock(panel, t[3], t[4], t[5])
+        panel.outputAndWait(3)
 
 rimhue = 1
 secondshue = 0.9
 minuteshue = 0.5
 hourshue = 0.1
 
-centerx = (panel.width-1)/2.
-centery = (panel.height-1)/2.
 
 def drawClock(panel, hours, mins, secs):
     h = (hours + 1/60.*mins)%12
@@ -47,8 +48,6 @@ def drawClock(panel, hours, mins, secs):
             else:
                 panel.lights[x][y].sethue(0, 0, 0)
             
-            
-while True :
-    t = datetime.datetime.now().timetuple()
-    drawClock(panel, t[3], t[4], t[5])
-    panel.outputAndWait(3)
+
+if __name__=="__main__" :
+    dmxwidget.WidgetServer().run([Clock])
