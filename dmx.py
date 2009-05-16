@@ -2,6 +2,7 @@
 
 import socket
 import time
+import Tkinter
 
 KINET_MAGIC=chr(0x04)+chr(0x01)+chr(0xdc)+chr(0x4a)
 KINET_VERSION=chr(0x01)+chr(0x00)
@@ -32,11 +33,6 @@ class RGBLight :
         self.b = 0
         self.row = row
         self.col = col
-
-    def setrgb(self, r, g, b) :
-        self.r = r
-        self.g = g
-        self.b = b
     
     # h,s,b are from 0 to 1
     def sethue(self, hue, brightness, saturation) :
@@ -70,6 +66,7 @@ class RGBLight :
         self.r=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.r+saturation)
         self.g=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.g+saturation)
         self.b=brightness*(min(max(brightness-saturation, 0.0), 1.0)*self.b+saturation)
+
     def setrgb(self, red, green, blue):
         self.r = red
         self.g = green
@@ -143,6 +140,47 @@ class PanelComposite :
                 panel.output()
             t = True
         self.panels[0].outputAndWait(fps)
+
+class SimPanel:
+    def __init__(self, width=24, height=24, gridsize=20):
+        self.width = width
+        self.height = height
+        self.gridsize = float(gridsize)
+        self.screen = Tkinter.Tk()
+        self.screen.wm_title('Light Panel Simulator')
+        self.background = Tkinter.Canvas(self.screen,
+                                         width=self.gridsize*self.width,
+                                         height=self.gridsize*self.height)
+        self.background.pack()
+        self.background['background'] = 'black'
+        self.lights = [[RGBLight(j,i) for i in range(self.height)]
+                       for j in range(self.width)]
+        self.points = []
+        for i in range(self.height):
+            self.points.append([])
+            for j in range(self.width):
+                x = j*self.gridsize + self.gridsize/2
+                y = i*self.gridsize + self.gridsize/2
+                self.points[i].append(self.background.create_oval((x,y,x,y)))
+        self.time = time.time()
+    def output(self):
+        for i in range(self.height):
+            for j in range(self.width):
+                x = j*self.gridsize + self.gridsize/2
+                y = (self.height - i - 1)*self.gridsize + self.gridsize/2
+                color = '#%02x%02x%02x' % (255*self.lights[i][j].r,
+                                           255*self.lights[i][j].g,
+                                           255*self.lights[i][j].b)
+                #diameter = 3 + 3*max(self.lights[i][j].r, self.lights[i][j].g, self.lights[i][j].b)
+                #self.background.coords(self.points[j][i], (x,y,x+diameter,y+diameter))
+                self.background.coords(self.points[j][i], (x,y,x+5,y+5))
+                self.background.itemconfig(self.points[j][i], fill=color)
+    def outputAndWait(self, fps):
+        self.output()
+        endtime = time.time()-self.time
+        if 1.0/fps > endtime:
+            time.sleep(1.0/fps-endtime)
+        self.time = time.time()
 
 def getDefaultPanel() :
     panel1 = LightPanel("18.224.3.100", 6038, 0, -3)
