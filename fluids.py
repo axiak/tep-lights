@@ -76,7 +76,7 @@ class Fluids (dmxwidget.Widget) :
                 dy = (self.heights[(r+1)%panel.height][c]-self.heights[r][c])
                 intens = (-dx*sunx - dy*suny + sunz)/math.sqrt(1 + dx*dx + dy*dy)
                 intens = (1+intens)/2
-                panel.lights[r][c].sethue(0.8, intens**0.5, max(0.0,4.0*intens-3.0))
+                panel.lights[r][c].sethue(0.8, intens, max(0.0,4.0*intens-3.0))
         panel.outputAndWait(30)
 
 if __name__=="__main__" :
