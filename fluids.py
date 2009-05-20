@@ -35,8 +35,8 @@ class Fluids (dmxwidget.Widget) :
         #self.heights[5][5] = 2.0
         for row in xrange(0, panel.height-0) :
             for col in xrange(0, panel.width-0) :
-                #self.heights[row][col] = math.sin(4*row*2*math.pi/panel.height)
-                #self.veloc[row][col] = math.cos(4*row*2*math.pi/panel.height)
+                self.heights[row][col] = math.sin(4*row*2*math.pi/panel.height)
+                self.veloc[row][col] = math.cos(4*col*2*math.pi/panel.height)
                 pass
         self.boardwidth = 2.0
         self.boardheight = 2.0
@@ -52,14 +52,16 @@ class Fluids (dmxwidget.Widget) :
         width = len(self.veloc[0])
         if random.random() < 0.008 :
             amount = 2.0*random.random()
-            locrow = random.randrange(0, height)
-            loccol = random.randrange(0, width)
+            #locrow = random.randrange(0, height)
+            #loccol = random.randrange(0, width)
+            locrow = height/2
+            loccol = width/2
             for row in xrange(-10, 11) :
                 for col in xrange(-10, 11) :
                     arow = (row+locrow)%height
                     acol = (col+loccol)%width
-                    a2row = (row+4+locrow)%height
-                    a2col = (col+4+loccol)%width
+                    a2row = (row+0+locrow)%height
+                    a2col = (col+0+loccol)%width
                     #self.heights[arow][acol] -= 3*amount/2**(math.sqrt((row)**2+(col)**2))
                     self.veloc[a2row][a2col] -= 20*amount/2**(math.sqrt((row)**2+(col)**2))
         for row in xrange(height) :
@@ -90,7 +92,7 @@ class Fluids (dmxwidget.Widget) :
                 dy = (self.heights[(r+1)%panel.height][c]-self.heights[r][c])
                 intens = (-dx*sunx - dy*suny + sunz)/math.sqrt(1 + dx*dx + dy*dy)
                 intens = (1+intens)/2
-                panel.lights[r][c].sethue(0.8, intens, max(0.0,4.0*intens-3.0))
+                panel.lights[r][c].sethue(0.84-intens/8, intens, max(0.0,4.0*intens-3.0))
         panel.outputAndWait(30)
 
 if __name__=="__main__" :
