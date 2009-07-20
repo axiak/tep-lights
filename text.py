@@ -11,8 +11,21 @@ def write(panel, text, cornerx=None, cornery=None, color=(0,1,0), size=(4,5), cl
         print 'ERROR: selected size not implemented'
         return cornerx, cornery
     chars = CHARS[size]
+    lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
+    first = True # first in line? (i.e. bunk kerning data?)
     for char in text:
-        if cornerx > panel.width-1:
+        if char==' ' :
+            dist = (size[0]+1)/2+1
+            lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
+        else :
+            dist = max([lastkerning[1][i] - KERNING[size][char][0][i] for i in range(0, size[1])]) + 2
+            lastkerning = KERNING[size][char]
+        if not first :
+            cornerx += dist
+        first = False
+        if (cornerx > panel.width-1
+            or (char==' ' and cornerx + size[0] > panel.width-1)
+            or (char != ' ' and WIDTH[size][char] + cornerx > panel.width-1)) :
             cornerx = 0
             cornery -= size[1] + 1 # the +1 is to leave a horizontal gap
         if cornery > panel.height-1:
@@ -25,7 +38,6 @@ def write(panel, text, cornerx=None, cornery=None, color=(0,1,0), size=(4,5), cl
             for x,y in chars[char]:
                 panel.lights[cornery+y][cornerx+x].sethue(hue, sat, lum)
             #print 'added char', char
-            cornerx += size[0]
     if show:
         panel.output()
     return cornerx, cornery
@@ -504,3 +516,27 @@ CHARS_6_7 = {'A': [(0,0),(0,1),(0,2),(0,3),(0,4),(0,5),
 
 CHARS = {(4,5): CHARS_4_5, (6,7): CHARS_6_7}
 
+# set up kerning
+KERNING = dict()
+WIDTH = dict()
+for charset in CHARS.keys() :
+    for char in CHARS[charset].keys() :
+        minx = [1000000 for i in range(0, charset[1])]
+        maxx = [-1 for i in range(0, charset[1])]
+        for elt in CHARS[charset][char] :
+            minx[elt[1]] = min(minx[elt[1]], elt[0])
+            maxx[elt[1]] = max(maxx[elt[1]], elt[0])
+            if not KERNING.has_key(charset) :
+                KERNING[charset] = dict()
+            KERNING[charset][char] = (minx, maxx)
+            if not WIDTH.has_key(charset) :
+                WIDTH[charset] = dict()
+            WIDTH[charset][char] = max(maxx) - min(minx)
+            if WIDTH[charset][char] <= 0 :
+                WIDTH[charset][char] = 0
+                KERNING[charset][char] = ([0 for i in range(0, charset[1])],
+                                          [0 for i in range(0, charset[1])])
+            
+if __name__ == "__main__" :
+    import dmx
+    write(dmx.getDefaultPanel(), "Hi, Tep", size=(6,7), show=True, color=(0,0.4,0))
