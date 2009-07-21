@@ -1,12 +1,12 @@
 
-def write(panel, text, cornerx=None, cornery=None, color=(0,1,0), size=(4,5), clear=True, show=False):
+def write(panel, text, cornerx=None, cornery=None, color=(0,1,0), size=(4,5), clear=True, show=False, scale=1):
     hue, sat, lum = color
     if clear:
         for row in panel.lights:
             for pixel in row:
                 pixel.sethue(0,0,0)
     if cornerx == None: cornerx = 0
-    if cornery == None: cornery = panel.height - size[1]
+    if cornery == None: cornery = panel.height/scale - size[1]
     if size not in CHARS.keys():
         print 'ERROR: selected size not implemented'
         return cornerx, cornery
@@ -17,58 +17,75 @@ def write(panel, text, cornerx=None, cornery=None, color=(0,1,0), size=(4,5), cl
         if char==' ' :
             dist = (size[0]+1)/2+1
             lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
+        elif char=='\n' :
+            dist = 0
+            lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
         else :
             dist = max([lastkerning[1][i] - KERNING[size][char][0][i] for i in range(0, size[1])]) + 2
             lastkerning = KERNING[size][char]
         if not first :
             cornerx += dist
         first = False
-        if (cornerx > panel.width-1
-            or (char==' ' and cornerx + size[0] > panel.width-1)
-            or (char != ' ' and WIDTH[size][char] + cornerx > panel.width-1)) :
+        if (cornerx > panel.width/scale-1
+            or (char=='\n')
+            or (char==' ' and cornerx + size[0] > panel.width/scale-1)
+            or (char != ' ' and WIDTH[size][char] + cornerx > panel.width/scale-1)) :
             cornerx = 0
             cornery -= size[1] + 1 # the +1 is to leave a horizontal gap
-        if cornery > panel.height-1:
+        if cornery > panel.height/scale-1:
             print 'Too much text for the screen!'
             break
         else:
-            if char not in chars:
-                print 'WARNING: character "%s" not implemented.' % char
-                char = '-'
-            for x,y in chars[char]:
-                panel.lights[cornery+y][cornerx+x].sethue(hue, sat, lum)
+            if char != '\n' :
+                if char not in chars :
+                    print 'WARNING: character "%s" not implemented.' % char
+                    char = '-'
+                for x,y in chars[char]:
+                    for xz in range(0, scale) :
+                        for yz in range(0, scale) :
+                            panel.lights[scale*(cornery+y)+yz][scale*(cornerx+x)+xz].sethue(hue, sat, lum)
             #print 'added char', char
     if show:
         panel.output()
     return cornerx, cornery
 
-def scroll(panel, text, box=None, color=(0,1,0), size=(6,7), clear=True, repeat=True, fps=5):
+def scroll(panel, text, box=None, color=(0,1,0), size=(6,7), clear=True, repeat=True, fps=5, scale=1):
     hue, sat, lum = color
     if clear:
         for row in panel.lights:
             for pixel in row:
                 pixel.sethue(0,0,0)
     if box == None:
-        box = (0, panel.width-1, panel.height-size[1]) # it's (xmin, xmax, ymin)
+        box = (0, panel.width/scale-1, panel.height/scale/2-size[1]/2) # it's (xmin, xmax, ymin)
     if size not in CHARS.keys():
         print 'ERROR: selected size not implemented'
         return
     chars = CHARS[size]
     while True:
         for i in xrange(0, box[1]-box[0]+(size[0]*len(text))):
-            for row in panel.lights[box[2]:box[2]+size[1]]:
-                for pixel in row[box[0]:box[1]+1]:
+            for row in panel.lights[scale*box[2]:scale*(box[2]+size[1])]:
+                for pixel in row[scale*box[0]:scale*(box[1]+1)]:
                     pixel.sethue(0,0,0)
             cornerx = box[1] - i
+            lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
             for char in text:
+                dist = 0
+                if char==' ' :
+                    dist = (size[0]+1)/2+1
+                    lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
+                else :
+                    dist = max([lastkerning[1][i] - KERNING[size][char][0][i] for i in range(0, size[1])]) + 2
+                    lastkerning = KERNING[size][char]
+                cornerx += dist
                 if char not in chars:
                     print 'WARNING: character "%s" not implemented.' % char
                     char = '-'
                 for x,y in chars[char]:
                     thisx = cornerx+x
-                    if thisx >= box[0] and thisx <= box[1]:
-                        panel.lights[box[2]+y][thisx].sethue(hue, sat, lum)
-                cornerx += size[0]
+                    for xz in range(0, scale) :
+                        for yz in range(0, scale) :
+                            if thisx >= box[0] and thisx <= box[1]:
+                                panel.lights[yz+scale*(box[2]+y)][xz+scale*thisx].sethue(hue, sat, lum)
                 if cornerx > box[1]:
                     break
             panel.outputAndWait(fps)
@@ -435,7 +452,9 @@ CHARS_6_7 = {'A': [(0,0),(0,1),(0,2),(0,3),(0,4),(0,5),
                    (2,0),(2,2),(2,6),
                    (3,3),(3,6),
                    (4,4),(4,5)],
-             '!': [(2,0),(2,1),(2,3),(2,4),(2,5),(2,6)],
+             '!': [(2,0),(2,2),(2,3),(2,4),(2,5),(2,6),
+                   (3,4),(3,5),
+                   (1,4),(1,5)],
              '-': [(0,3),(1,3),(2,3),(3,3),(4,3)],
              "'": [(1,3),(1,5),(2,4),(2,5)],
              '`': [(1,4),(1,5),(2,3),(2,5)],
@@ -536,7 +555,18 @@ for charset in CHARS.keys() :
                 WIDTH[charset][char] = 0
                 KERNING[charset][char] = ([0 for i in range(0, charset[1])],
                                           [0 for i in range(0, charset[1])])
-            
+     
+
+def flashString(panel, string, fps=20) :
+    while True :
+        for char in string :
+            write(panel, str(char), size=(6,7), color=(0.3,0.7,0), scale=2)
+            panel.outputAndWait(fps)
+       
 if __name__ == "__main__" :
     import dmx
-    write(dmx.getDefaultPanel(), "Hi, Tep", size=(6,7), show=True, color=(0,0.4,0))
+    d = dmx.getDefaultPanel()
+    #flashString(d, "LEMONADE!  ", 5)
+    #write(dmx.getDefaultPanel(), "lemonade! ! ! !", size=(6,7), show=True, color=(0.3,0.7,0))
+    scroll(dmx.getDefaultPanel(), "Lemonade!!!!!!!!!!!!!!!!!!!!!!", size=(6,7), color=(0.3,0.7,0), fps=20, scale=2)
+    #write(d, "21:10:50", show=True, size=(6,7))
