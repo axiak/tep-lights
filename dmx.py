@@ -26,6 +26,21 @@ class DmxConnection :
             print "socket problem"
             raise SystemExit(1)
 
+class sPDS480caConnection :
+    def __init__(self, address, universe) :
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+        self.sock.connect((address, 6038))
+        self.universe = universe
+        self.magic = ("\x04\x01\xdc\x4a" # magic number
+                      +"\x01\x00" # kk version
+                      +"\x08\x01"
+                      +"\x00\x00\x00\x00\x00\x00\x00\x00"
+                      +chr(universe)+"\xD1\x00\x00\x00\x02\x00")
+
+    def send_dmx(self, data) :
+        self.sock.send(self.magic+data)
+        # no error detection! yay!
+
 class RGBLight :
     def __init__(self, row, col) :
         self.r = 0
@@ -73,10 +88,10 @@ class RGBLight :
         self.b = blue
         
 class LightPanel :
-    def __init__(self, address, port, dmx_port, comp) :
+    def __init__(self, dmx, comp) :
         self.lights = [[RGBLight(j, i) for i in range(0,12)]
                        for j in range(0,12)]
-        self.dmx = DmxConnection(address, port, dmx_port)
+        self.dmx = dmx
         self.width = 12
         self.height = 12
         self.comp = comp
@@ -101,6 +116,41 @@ class LightPanel :
         out+=chr(255)+chr(191)
         self.dmx.send_dmx(out)
 
+    def outputAndWait(self, fps) :
+        self.output()
+        endtime = time.time()-self.time
+        if(1.0/fps > endtime) :
+            time.sleep(1.0/fps-endtime)
+        self.time = time.time()
+
+class HalfLightPanel :
+    # direction: 0 is "bottom right corner is (0,0)" and 1 is "bottom left ..."
+    def __init__(self, dmx, direction) :
+        self.width = 6
+        self.height = 12
+        self.direction = direction
+        self.lights = [[RGBLight(j, i) for i in range(0, self.width)]
+                       for j in range(0, self.height)]
+        self.dmx = dmx
+        self.time = time.time()
+    def output(self) :
+        out = chr(0)
+        row = 0
+        col = 0
+        for i in range(0, 72) :
+            row = i%12
+            if self.direction == 0 :
+                col = 5-(i//12)
+            else :
+                col = i//12
+            l = self.lights[row][col]
+            out += chr(int(255*min(max(pow(l.r, 0.9), 0.0), 1.0)))
+            out += chr(int(255*min(max(pow(l.g, 0.9), 0.0), 1.0)))
+            out += chr(int(255*min(max(pow(l.b, 0.9), 0.0), 1.0)))
+        for i in range(12*6, 511) :
+            out += chr(0)
+        out += chr(0xbf)
+        self.dmx.send_dmx(out)
     def outputAndWait(self, fps) :
         self.output()
         endtime = time.time()-self.time
@@ -183,28 +233,26 @@ class SimPanel:
         self.time = time.time()
 
 def getDefaultPanel() :
-    panel1 = LightPanel("18.224.3.100", 6038, 0, -3)
-    panel2 = LightPanel("18.224.3.102", 6038, 0, 0)
-    panel3 = LightPanel("18.224.3.103", 6038, 0, 0)
-    panel4 = LightPanel("18.224.3.101", 6038, 0, 0)
     panel = PanelComposite()
-    panel.addPanel(panel1,0,0)
-    panel.addPanel(panel2,0,12)
-    panel.addPanel(panel3,12,0)
-    panel.addPanel(panel4,12,12)
+    for i in range(1,17) :
+        panel_part = HalfLightPanel(sPDS480caConnection("18.224.1.25", i), 1-(i%2))
+        panel.addPanel(panel_part, 12*(1-((i-1)//8)), 6*((i-1)%8))
     return panel
 
 if __name__=="__main__" :
     a = getDefaultPanel()
-    for row in a.lights :
-        for light in row :
-            light.r=1.0
-            a.outputAndWait(30)
-    for row in a.lights :
-        for light in row :
-            light.g=1.0
-            a.outputAndWait(30)
-    for row in a.lights :
-        for light in row :
-            light.b=1.0
-            a.outputAndWait(30)
+    color = 1.0
+    while True :
+        for row in a.lights :
+            for light in row :
+                light.r=color
+                a.outputAndWait(30)
+        for row in a.lights :
+            for light in row :
+                light.g=color
+                a.outputAndWait(30)
+        for row in a.lights :
+            for light in row :
+                light.b=color
+                a.outputAndWait(30)
+        color = 1.0-color
