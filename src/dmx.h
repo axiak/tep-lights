@@ -18,7 +18,7 @@ typedef struct {
 
 
 /* LED Mapping function */
-typedef int (*ledmap)(int, int);
+/* typedef int (*ledmap)(int, int);*/
 
 typedef struct {
     char * ip;
@@ -26,7 +26,7 @@ typedef struct {
     unsigned char dmxport;
     SZ width;
     SZ height;
-    ledmap * func;
+  ledmap * func;
     LEDArray * leds;
     int sockfd;
     struct sockaddr * server_addr;

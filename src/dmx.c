@@ -241,7 +241,7 @@ void dmxpanel_sendframe(DMXPanel * panel)
 extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
 {
     unsigned int idx;
-    idx = (*(dmxpanel->func))(x, y);
+    idx = (dmxpanel->func)(x, y);
     if (idx < 0 || idx >= dmxpanel->leds->size) {
         _ERROR("Invalid index for leds!");
     }
@@ -254,6 +254,7 @@ extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
 int main(int argc, char ** argv)
 {
     DMXPanel * panel = dmxpanel_create("TEPILEPSY.MIT.EDU", 6038, 0, 12, 12, NULL);
+    pixel_setrgb(dmxpanel_getpixel(panel, 0, 0), 1, 1, 1);
     _dmxpanel_senddata(panel, "TEST", 4);
     printf("TEST %s\n", "\x41");
     return 0;
