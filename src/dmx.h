@@ -26,11 +26,11 @@ typedef struct {
     unsigned char dmxport;
     SZ width;
     SZ height;
-  ledmap * func;
+    int (*func)(int, int);
     LEDArray * leds;
     int sockfd;
     struct sockaddr * server_addr;
-    char * netbuffer;
+    unsigned char * netbuffer;
 } DMXPanel;
 
 
@@ -38,7 +38,7 @@ typedef struct {
 LEDArray * ledarray_create(SZ size);
 
 /* If mapfunc is null, then the default of (r + 12*(5 - c)) */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, ledmap * mapfunc);
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int));
 
 
 /* Destroyers */
@@ -46,10 +46,10 @@ void ledarray_destroy(LEDArray * ledarray);
 void dmxpanel_destroy(DMXPanel * dmxpanel);
 
 /* Other functions */
-void dmxpanel_sendframe(DMXPanel * panel);
+int dmxpanel_sendframe(DMXPanel * panel);
 extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y);
 
-RGBLed * pixel_setrgb(RGBLed * led, unsigned char red, unsigned char green, unsigned char blue);
+RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue);
 RGBLed * pixel_sethue(RGBLed * led, float hue, float brightness, float saturation);
 
 /* These operate such that the destination is dst.
@@ -59,10 +59,10 @@ RGBLed * pixel_add(RGBLed * dst, RGBLed * src);
 RGBLed * pixel_multiply(RGBLed * dst, RGBLed * src);
 
 #ifndef MIN
-#define MIN(a, b) ((a) < (b)) ? (a) : (b)
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 #ifndef MAX
-#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
 

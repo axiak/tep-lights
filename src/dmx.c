@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -20,12 +22,18 @@ static inline void _ERROR(char * s) {
 /* Default map function */
 int ledmap_default(int r, int c)
 {
-    return r + 12 * (5 - c);
+    if (c < 6) {
+        return r + 12 * (5 - c);
+    }
+    else {
+        return r + 12*c;
+    }
 }
 
+#define FLOAT2CHAR(A) ((unsigned char)(256 * (MIN(MAX(A, 0), 0.999))))
 
 /* RGBLed stuff */
-RGBLed * pixel_setrgb(RGBLed * led, unsigned char red, unsigned char green, unsigned char blue)
+RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue)
 {
     led->red = red;
     led->green = green;
@@ -132,7 +140,7 @@ void ledarray_destroy(LEDArray * ledarray)
 
 
 /* DMX Stuff */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, ledmap * mapfunc)
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int))
 {
     DMXPanel * panel;
     int bufsize;
@@ -152,26 +160,27 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
     panel->dmxport = (unsigned char)dmxport;
 
     bufsize = 26 + MAX(3 * width * height, 512) + 2;
-    panel->netbuffer = (char *)malloc(bufsize);
+    panel->netbuffer = (unsigned char *)malloc(bufsize);
     if (!panel->netbuffer) {
         _ERROR("Unable to allocate memory for network buffer.");
     }
     memset(panel->netbuffer, 0, bufsize);
-    strcpy(panel->netbuffer,
+    memcpy(panel->netbuffer,
            "\x04\x01\xdc\x4a"
            "\x01\x00"
            "\x08\x01"
            "\x00\x00\x00\x00\x00\x00\x00\x00"
            "\x00"
            "\xd1\x00\x00\x00\x02\x00"
-           "\x00");
-    panel->netbuffer[16] = (char)dmxport;
+           "\x00", 24);
+    
+    panel->netbuffer[16] = (unsigned char)dmxport;
 
     if (mapfunc) {
         panel->func = mapfunc;
     }
     else {
-        panel->func = (ledmap *)ledmap_default;
+        panel->func = &ledmap_default;
     }
 
     panel->leds = ledarray_create(width * height);
@@ -212,7 +221,6 @@ int _dmxpanel_createsocket(DMXPanel * panel)
         _ERROR("No such hostname");
     }
 
-
     server_addr->sin_family = AF_INET;
     server_addr->sin_port = htons(panel->port);
     server_addr->sin_addr = *((struct in_addr *)server->h_addr_list[0]);
@@ -228,14 +236,30 @@ static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len)
     return sendto(panel->sockfd, output, len, 0, panel->server_addr, sizeof(struct sockaddr));
 }
 
-void dmxpanel_sendframe(DMXPanel * panel)
+int dmxpanel_sendframe(DMXPanel * panel)
 {
-    char * ptr;
+    unsigned char * ptr;
     int color_base = 25;
+    int i;
+    ptr = panel->netbuffer + color_base;
 
-    
+    for (i = 0; i < panel->leds->size; i++) {
+        *(ptr ++) = FLOAT2CHAR(panel->leds->led[i].red);
+        *(ptr ++) = FLOAT2CHAR(panel->leds->led[i].green);
+        *(ptr ++) = FLOAT2CHAR(panel->leds->led[i].blue);
+    }
+    panel->netbuffer[25 + 512] = 255;
+    panel->netbuffer[25 + 512 + 1] = 191;
+
+    i = 25 + 512 + 2;
+
+    if (_dmxpanel_senddata(panel, (char *)panel->netbuffer, i) != i) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
-
 
 
 extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
@@ -243,20 +267,29 @@ extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
     unsigned int idx;
     idx = (dmxpanel->func)(x, y);
     if (idx < 0 || idx >= dmxpanel->leds->size) {
+        printf("%u x %u: %u\n", x, y, idx);
         _ERROR("Invalid index for leds!");
     }
     return &(dmxpanel->leds->led[idx]);
 }
 
 
-
 #ifdef DMX_TEST
 int main(int argc, char ** argv)
 {
     DMXPanel * panel = dmxpanel_create("TEPILEPSY.MIT.EDU", 6038, 0, 12, 12, NULL);
-    pixel_setrgb(dmxpanel_getpixel(panel, 0, 0), 1, 1, 1);
-    _dmxpanel_senddata(panel, "TEST", 4);
-    printf("TEST %s\n", "\x41");
+    int i, r, c;
+    for (i = 0; i < 12 * 12; i++) {
+        if (i > 0) {
+            pixel_setrgb(dmxpanel_getpixel(panel, r, c), 0, 0, 0);
+        }
+        r = i % 12;
+        c = i / 12;
+        pixel_setrgb(dmxpanel_getpixel(panel, r, c), 1, 1, 1);
+        printf("Doing (%u, %u)\n", r, c);
+        dmxpanel_sendframe(panel);
+        usleep(50000);
+    }
     return 0;
 }
 #endif
