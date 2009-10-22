@@ -158,8 +158,9 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
     panel->height = height;
     panel->port = port;
     panel->dmxport = (unsigned char)dmxport;
+    panel->direction = 0;
 
-    bufsize = 26 + MAX(3 * width * height, 512) + 2;
+    bufsize = MAX(1024, 26 + MAX(3 * width * height, 512) + 2);
     panel->netbuffer = (unsigned char *)malloc(bufsize);
     if (!panel->netbuffer) {
         _ERROR("Unable to allocate memory for network buffer.");
@@ -192,6 +193,20 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
     return panel;
 }
 
+DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction)
+{
+    DMXPanel * panel = dmxpanel_create(ip, port, dmxport, 6, 12, NULL);
+    panel->direction = direction;
+    return panel;
+}
+
+/*
+DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction)
+{
+
+}
+*/
+
 
 void dmxpanel_destroy(DMXPanel * panel)
 {
@@ -200,6 +215,12 @@ void dmxpanel_destroy(DMXPanel * panel)
     }
     if (panel->leds) {
         ledarray_destroy(panel->leds);
+    }
+    if (panel->netbuffer) {
+        free(panel->netbuffer);
+    }
+    if (panel->server_addr) {
+        free(panel->server_addr);
     }
     free(panel);
 }
@@ -239,7 +260,7 @@ static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len)
 int dmxpanel_sendframe(DMXPanel * panel)
 {
     unsigned char * ptr;
-    int color_base = 25;
+    int color_base = 24;
     int i;
     ptr = panel->netbuffer + color_base;
 
@@ -248,10 +269,10 @@ int dmxpanel_sendframe(DMXPanel * panel)
         *(ptr ++) = FLOAT2CHAR(panel->leds->led[i].green);
         *(ptr ++) = FLOAT2CHAR(panel->leds->led[i].blue);
     }
-    panel->netbuffer[25 + 512] = 255;
-    panel->netbuffer[25 + 512 + 1] = 191;
+    /*panel->netbuffer[25 + 512] = 255;*/
+    panel->netbuffer[679] = 191;
 
-    i = 25 + 512 + 2;
+    i = 680;
 
     if (_dmxpanel_senddata(panel, (char *)panel->netbuffer, i) != i) {
         return 1;
@@ -280,16 +301,19 @@ int main(int argc, char ** argv)
     DMXPanel * panel = dmxpanel_create("TEPILEPSY.MIT.EDU", 6038, 0, 12, 12, NULL);
     int i, r, c;
     for (i = 0; i < 12 * 12; i++) {
-        if (i > 0) {
+        if (0) {
             pixel_setrgb(dmxpanel_getpixel(panel, r, c), 0, 0, 0);
         }
         r = i % 12;
         c = i / 12;
         pixel_setrgb(dmxpanel_getpixel(panel, r, c), 1, 1, 1);
+        /*pixel_setrgb(dmxpanel_getpixel(panel, r, c), 1, 1, 1); */
         printf("Doing (%u, %u)\n", r, c);
-        dmxpanel_sendframe(panel);
-        usleep(50000);
     }
+    dmxpanel_sendframe(panel);
+    dmxpanel_destroy(panel);
+        /*usleep(50000);*/
+
     return 0;
 }
 #endif
