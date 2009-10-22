@@ -253,6 +253,8 @@ extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
 #ifdef DMX_TEST
 int main(int argc, char ** argv)
 {
+    DMXPanel * panel = dmxpanel_create("TEPILEPSY.MIT.EDU", 6038, 0, 12, 12, NULL);
+    _dmxpanel_senddata(panel, "TEST", 4);
     printf("TEST %s\n", "\x41");
     return 0;
 }
