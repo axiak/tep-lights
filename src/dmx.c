@@ -132,9 +132,16 @@ void ledarray_destroy(LEDArray * ledarray)
 
 
 /* DMX Stuff */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, SZ width, SZ height, ledmap * mapfunc)
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, ledmap * mapfunc)
 {
-    DMXPanel * panel = (DMXPanel *)malloc(sizeof(DMXPanel));
+    DMXPanel * panel;
+    int bufsize;
+
+    if (dmxport > 255 || dmxport < 0) {
+        _ERROR("Invalid dmxport: Has to be between 0 and 255");
+    }
+
+    panel = (DMXPanel *)malloc(sizeof(DMXPanel));
     if (!panel) {
         _ERROR("Could not allocate memory for panel");
     }
@@ -142,6 +149,24 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, SZ width, SZ height, 
     panel->width = width;
     panel->height = height;
     panel->port = port;
+    panel->dmxport = (unsigned char)dmxport;
+
+    bufsize = 26 + MAX(3 * width * height, 512) + 2;
+    panel->netbuffer = (char *)malloc(bufsize);
+    if (!panel->netbuffer) {
+        _ERROR("Unable to allocate memory for network buffer.");
+    }
+    memset(panel->netbuffer, 0, bufsize);
+    strcpy(panel->netbuffer,
+           "\x04\x01\xdc\x4a"
+           "\x01\x00"
+           "\x08\x01"
+           "\x00\x00\x00\x00\x00\x00\x00\x00"
+           "\x00"
+           "\xd1\x00\x00\x00\x02\x00"
+           "\x00");
+    panel->netbuffer[16] = (char)dmxport;
+
     if (mapfunc) {
         panel->func = mapfunc;
     }
@@ -187,6 +212,7 @@ int _dmxpanel_createsocket(DMXPanel * panel)
         _ERROR("No such hostname");
     }
 
+
     server_addr->sin_family = AF_INET;
     server_addr->sin_port = htons(panel->port);
     server_addr->sin_addr = *((struct in_addr *)server->h_addr_list[0]);
@@ -204,8 +230,9 @@ static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len)
 
 void dmxpanel_sendframe(DMXPanel * panel)
 {
-    char * buffer;
-    buffer = (char *)malloc(23 + 55);
+    char * ptr;
+    int color_base = 25;
+
     
 }
 

@@ -23,12 +23,14 @@ typedef int (*ledmap)(int, int);
 typedef struct {
     char * ip;
     unsigned short port;
+    unsigned char dmxport;
     SZ width;
     SZ height;
     ledmap * func;
     LEDArray * leds;
     int sockfd;
     struct sockaddr * server_addr;
+    char * netbuffer;
 } DMXPanel;
 
 
@@ -36,7 +38,7 @@ typedef struct {
 LEDArray * ledarray_create(SZ size);
 
 /* If mapfunc is null, then the default of (r + 12*(5 - c)) */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, SZ width, SZ height, ledmap * mapfunc);
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, ledmap * mapfunc);
 
 
 /* Destroyers */
