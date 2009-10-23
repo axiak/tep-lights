@@ -12,6 +12,7 @@
 
 #include "ipcstructs.h"
 #include "server.h"
+#include "dmx.h"
 
 
 ServerInfo * new_serverenvironment()
@@ -50,6 +51,11 @@ ServerInfo * new_serverenvironment()
     /* Create semaphores */
     key = ftok(MAINSEMFILE, 'L');
     info->semid = semget(key, MAXPLUGINS, 0666 | IPC_CREAT);
+
+
+    /* Initialize the panel */
+    info->panel = create_default_panels();
+
     return info;
 }
 

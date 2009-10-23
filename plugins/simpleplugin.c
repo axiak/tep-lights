@@ -5,11 +5,11 @@
 
 int main(int argc, char **argv)
 {
-    int i;
+    int i, r, c;
     LocalData * s = plugin_register(argv[0], PLUGINID);
     ColorLayer * layer = s->layer;
     ColorLayer * layer2;
-
+    
     while (1) {
         serverdata_update(s); /* Wait for audio info to update */
 
@@ -25,8 +25,14 @@ int main(int argc, char **argv)
         }
 
         /* Do stuff to layer... */
+        r = i / 48;
+        c = i % 48;
 
+        rgbpixel_setvalue(colorlayer_getpixel(layer,
+                                              c, r),
+                          0, 1, 0, 0);
 
+        i = (i + 1) % (48  * 24);
 
         /* Commit the layer */
         serverdata_commitlayer(s);

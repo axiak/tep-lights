@@ -13,8 +13,9 @@ int main(int argc, char ** argv)
     int numc = -1, newc;
     ColorLayer * layer;
     int i;
-    int x, y;
+    int found = 0;
     while (1) {
+        found = 0;
         newc = num_clients(info->ipcdata);
         if (newc != numc) {
             printf("Total clients: %d\n", newc);
@@ -22,13 +23,16 @@ int main(int argc, char ** argv)
         }
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
+                found = 1;
                 break;
             }
         }
 
-        layer = plugin_useotherlayer(&info->ipcdata, i);
-        colorlayer_pushtocollection(info->panel, layer);
-        plugin_disuseotherlayer(&info->ipcdata, i);
+        if (found) {
+            layer = plugin_useotherlayer(&info->ipcdata, i);
+            colorlayer_pushtocollection(info->panel, layer);
+            plugin_disuseotherlayer(&info->ipcdata, i);
+        }
 
         dmxpanelcltn_sendframe(info->panel);
     }
