@@ -9,10 +9,16 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
+#include <sys/time.h>
+#include <time.h>
+
 #include "dmx.h"
+
+#define INTERFRAME 0.03334
 
 int _dmxpanel_createsocket(DMXPanel * panel);
 static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len);
+double _currenttime();
 
 static inline void _ERROR(char * s) {
     fprintf(stderr, "%s\n", s);
@@ -110,7 +116,6 @@ RGBLed * pixel_multiply(RGBLed * dst, RGBLed * src)
 }
 
 
-
 /* LEDArray stuff */
 LEDArray * ledarray_create(SZ size)
 {
@@ -158,8 +163,9 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
     panel->height = height;
     panel->port = port;
     panel->dmxport = (unsigned char)dmxport;
-    panel->direction = 0;
-
+    panel->direction = 1 - dmxport % 2;
+    panel->stale = 1;
+    panel->lastupdate = 0;
     bufsize = MAX(1024, 26 + MAX(3 * width * height, 512) + 2);
     panel->netbuffer = (unsigned char *)malloc(bufsize);
     if (!panel->netbuffer) {
@@ -174,7 +180,7 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
            "\x00"
            "\xd1\x00\x00\x00\x02\x00"
            "\x00", 24);
-    
+
     panel->netbuffer[16] = (unsigned char)dmxport;
 
     if (mapfunc) {
@@ -192,21 +198,6 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
     }
     return panel;
 }
-
-DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction)
-{
-    DMXPanel * panel = dmxpanel_create(ip, port, dmxport, 6, 12, NULL);
-    panel->direction = direction;
-    return panel;
-}
-
-/*
-DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction)
-{
-
-}
-*/
-
 
 void dmxpanel_destroy(DMXPanel * panel)
 {
@@ -252,16 +243,33 @@ int _dmxpanel_createsocket(DMXPanel * panel)
     return 0;
 }
 
+
 static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len)
 {
     return sendto(panel->sockfd, output, len, 0, panel->server_addr, sizeof(struct sockaddr));
 }
 
-int dmxpanel_sendframe(DMXPanel * panel)
+
+void dmxpanel_wait(DMXPanel * panel)
+{
+    double future = panel->lastupdate + INTERFRAME;
+    double current_time = _currenttime();
+    while (future > current_time) {
+        usleep((int)(((future - current_time) * 1000000)) + 10);
+        current_time = _currenttime();
+    }
+}
+
+int dmxpanel_sendframe(DMXPanel * panel, int usecache)
 {
     unsigned char * ptr;
     int color_base = 24;
     int i;
+
+    if (usecache && !panel->stale) {
+        panel->lastupdate = _currenttime();
+        return 0;
+    }
     ptr = panel->netbuffer + color_base;
 
     for (i = 0; i < panel->leds->size; i++) {
@@ -278,42 +286,181 @@ int dmxpanel_sendframe(DMXPanel * panel)
         return 1;
     }
     else {
+        panel->lastupdate = _currenttime();
+        panel->stale = 0;
         return 0;
     }
 }
 
-
-extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y)
+extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
 {
     unsigned int idx;
-    idx = (dmxpanel->func)(x, y);
+    unsigned int cprime = c;
+    if (dmxpanel->direction) {
+        cprime = dmxpanel->width - c - 1;
+    }
+    idx = (dmxpanel->func)(r, cprime);
     if (idx < 0 || idx >= dmxpanel->leds->size) {
-        printf("%u x %u: %u\n", x, y, idx);
         _ERROR("Invalid index for leds!");
     }
-    return &(dmxpanel->leds->led[idx]);
+    dmxpanel->stale = 1;
+    return dmxpanel->leds->led + idx;
+}
+
+
+DMXPanelCollection * dmxpanelcltn_create(int width, int height)
+{
+    DMXPanelCollection * cltn = (DMXPanelCollection *)malloc(sizeof(DMXPanelCollection));
+    if (!cltn) {
+        _ERROR("Could not allocate memory for DMXPanelCollection");
+    }
+    cltn->panels = (DMXPanel **)calloc(width * height, sizeof(DMXPanel *));
+    if (!cltn->panels) {
+            _ERROR("Could not allocate memory for DMXPanelCollection");
+    }
+    cltn->_ledwidth = 0;
+    cltn->_ledheight = 0;
+    cltn->width = width;
+    cltn->height = height;
+    return cltn;
+}
+
+RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * cltn, int row, int column)
+/* This is the function that actually figures out which
+   panel to use.
+*/
+{
+    DMXPanel * ptr = NULL;
+    int i, j;
+    for (i = 0; i < cltn->width; i++) {
+        for (j = 0; j < cltn->height; j++) {
+            ptr = dmxpanelcltn_getpanel(cltn, j, i);
+            if (ptr) {
+                break;
+            }
+        }
+        if (ptr) {
+            break;
+        }
+    }
+
+    i = row / ptr->height;
+    j = column / ptr->width;
+
+    ptr = dmxpanelcltn_getpanel(cltn, i, j);
+    if (ptr) {
+        return dmxpanel_getpixel(ptr, row % (ptr->height), column % (ptr->width));
+    }
+    return NULL;
+}
+
+void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column)
+{
+    int x = row * panelcltn->width + column;
+
+    panelcltn->panels[x] = panel;
+    panelcltn->_ledwidth = 0;
+    panelcltn->_ledheight = 0;
+}
+
+void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn)
+{
+    int i;
+    int waited = 0;
+    int max = panelcltn->width * panelcltn->height;
+    for (i=0; i < max; i++) {
+        if (panelcltn->panels[i]) {
+            if (!waited) {
+                dmxpanel_wait(panelcltn->panels[i]);
+                waited = 1;
+            }
+            dmxpanel_sendframe(panelcltn->panels[i], 0);
+        }
+    }
+}
+
+DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column)
+{
+    int x = row * panelcltn->width + column;
+    return panelcltn->panels[x];
+}
+
+void dmxpanelcltn_destroy(DMXPanelCollection * panelcltn)
+{
+    if (!panelcltn) {
+        return;
+    }
+    if (panelcltn->panels) {
+        free(panelcltn->panels);
+    }
+    free(panelcltn);
+}
+
+
+void dmxpanelcltn_destroypanels(DMXPanelCollection * cltn)
+{
+    int i = cltn->width * cltn->height;
+    for (; i >=  0; i--) {
+        if (cltn->panels[i]) {
+            dmxpanel_destroy(cltn->panels[i]);
+            cltn->panels[i] = NULL;
+        }
+    }
+}
+
+
+DMXPanelCollection * create_default_panels()
+{
+    DMXPanelCollection * cltn;
+    DMXPanel * ptr;
+    int i;
+
+    cltn = dmxpanelcltn_create(8, 2);
+    for (i = 0; i < 16; i++) {
+        ptr = dmxpanel_create(
+                              "TEPILEPSY.MIT.EDU",
+                              6038,
+                              i + 1,
+                              6,
+                              12,
+                              NULL);
+        dmxpanelcltn_setpanel(cltn, ptr, 1 - i / 8, i % 8);
+    }
+    return cltn;
+}
+
+
+double _currenttime()
+/* Get the current time... */
+{
+    struct timeval tv[1];
+
+    gettimeofday(tv, 0);
+    double seconds = ((double)tv->tv_sec);
+    seconds += (double)(tv->tv_usec) / 1000000.0;
+    return seconds;
 }
 
 
 #ifdef DMX_TEST
 int main(int argc, char ** argv)
 {
-    DMXPanel * panel = dmxpanel_create("TEPILEPSY.MIT.EDU", 6038, 0, 12, 12, NULL);
-    int i, r, c;
-    for (i = 0; i < 12 * 12; i++) {
-        if (0) {
-            pixel_setrgb(dmxpanel_getpixel(panel, r, c), 0, 0, 0);
-        }
-        r = i % 12;
-        c = i / 12;
-        pixel_setrgb(dmxpanel_getpixel(panel, r, c), 1, 1, 1);
-        /*pixel_setrgb(dmxpanel_getpixel(panel, r, c), 1, 1, 1); */
-        printf("Doing (%u, %u)\n", r, c);
-    }
-    dmxpanel_sendframe(panel);
-    dmxpanel_destroy(panel);
-        /*usleep(50000);*/
+    DMXPanelCollection * cltn = create_default_panels();
+    int i;
+    int r, c;
 
+    dmxpanelcltn_sendframe(cltn);
+    for (i = 0; i < 24 * 48; i++) {
+        r = i / 48;
+        c = i % 48;
+        pixel_setrgb(
+                     dmxpanelcltn_getpixel(cltn, r, c),
+                     1, 0, 0);
+        dmxpanelcltn_sendframe(cltn);
+    }
+    dmxpanelcltn_destroypanels(cltn);
+    dmxpanelcltn_destroy(cltn);
     return 0;
 }
+
 #endif

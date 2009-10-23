@@ -17,9 +17,6 @@ typedef struct {
 } LEDArray;
 
 
-/* LED Mapping function */
-/* typedef int (*ledmap)(int, int);*/
-
 typedef struct {
     char * ip;
     unsigned short port;
@@ -31,9 +28,18 @@ typedef struct {
     int sockfd;
     struct sockaddr * server_addr;
     unsigned char * netbuffer;
+    double lastupdate;
     int direction;
+    int stale;
 } DMXPanel;
 
+typedef struct {
+    DMXPanel ** panels;
+    int width;
+    int height;
+    int _ledwidth;
+    int _ledheight;
+} DMXPanelCollection;
 
 /* Initializers */
 LEDArray * ledarray_create(SZ size);
@@ -43,13 +49,19 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
 DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction);
 DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction);
 
+DMXPanelCollection * dmxpanelcltn_create(int width, int height);
+RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * panelcltn, int row, int column);
+void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column);
+void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn);
+DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column);
 
 /* Destroyers */
 void ledarray_destroy(LEDArray * ledarray);
 void dmxpanel_destroy(DMXPanel * dmxpanel);
+void dmxpanelcltn_destroy(DMXPanelCollection * panelcltn);
 
 /* Other functions */
-int dmxpanel_sendframe(DMXPanel * panel);
+int dmxpanel_sendframe(DMXPanel * panel, int usecache);
 extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ x, SZ y);
 
 RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue);
