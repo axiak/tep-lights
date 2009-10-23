@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -374,7 +373,7 @@ void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn)
                 dmxpanel_wait(panelcltn->panels[i]);
                 waited = 1;
             }
-            dmxpanel_sendframe(panelcltn->panels[i], 0);
+            dmxpanel_sendframe(panelcltn->panels[i], 1);
         }
     }
 }
@@ -458,6 +457,24 @@ int main(int argc, char ** argv)
                      1, 0, 0);
         dmxpanelcltn_sendframe(cltn);
     }
+
+    for (i = 0; i < 24 * 48; i++) {
+        r = i / 48;
+        c = i % 48;
+        pixel_setrgb(
+                     dmxpanelcltn_getpixel(cltn, r, c),
+                     0, 1, 0);
+        dmxpanelcltn_sendframe(cltn);
+    }
+    for (i = 0; i < 24 * 48; i++) {
+        r = i / 48;
+        c = i % 48;
+        pixel_setrgb(
+                     dmxpanelcltn_getpixel(cltn, r, c),
+                     0, 0, 1);
+        dmxpanelcltn_sendframe(cltn);
+    }
+
     dmxpanelcltn_destroypanels(cltn);
     dmxpanelcltn_destroy(cltn);
     return 0;
