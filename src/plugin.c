@@ -10,32 +10,45 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "effect.h"
+#include "plugin.h"
 
 
-ServerData * serverdata_new(char * server_name)
+LocalData * plugin_register(char * filename, int id)
 {
     key_t key;
-    int shmid;
-    ServerData * data = (ServerData *)malloc(sizeof(ServerData));
-    if (!data)
-        return NULL;
+    int shmid = -1;
+    int numtries = 0;
+    LocalData * data = (LocalData *)malloc(sizeof(LocalData));
 
-    key = ftok(server_name, 0);
+    if (!data) {
+        return NULL;
+    }
+
+    fprintf(stderr, "Looking for %d bytes\n", sizeof(IPCData));
+    key = ftok(MAINSEMFILE, 0);
     if (key < 0) {
         fprintf(stderr, "Error getting shmkey\n");
         free(data);
         return NULL;
     }
-
-    shmid = shmget(key, sizeof(SoundInfo), 0666);
+    printf("Key: %d\n", key);
+    while (numtries < 500 && shmid < 0) {
+        shmid = shmget(key, sizeof(IPCData), 0666);
+        if (shmid < 0) {
+            fprintf(stderr, "Waiting for SHM to exist...\n");
+            usleep(10000);
+            numtries++;
+        }
+    }
     if (shmid < 0) {
         fprintf(stderr, "Could not get shm data.\n");
         free(data);
         return NULL;
     }
 
-    data->soundinfo = (SoundInfo *)shmat(shmid, NULL, 0);
+    data->ipcdata = (IPCData *)shmat(shmid, NULL, 0);
+    data->soundinfo = &data->ipcdata->soundinfo;
+
     if ((int)data->soundinfo <= 0) {
         fprintf(stderr, "Could not attach shared memory.\n");
         return NULL;
@@ -44,16 +57,16 @@ ServerData * serverdata_new(char * server_name)
 }
 
 
-int serverdata_update(ServerData * data)
+int serverdata_update(LocalData * data)
 /* Wait until we get new data from the server... */
 {
-    while (data->old_frame_counter = data->soundinfo->frame_counter) {
+    while (data->old_frame_counter <= data->soundinfo->frame_counter) {
         usleep(10000);
     }
     return 0;
 }
 
-void serverdata_destroy(ServerData * data)
+void serverdata_destroy(LocalData * data)
 {
     if (!data) {
         return;
@@ -68,7 +81,9 @@ void serverdata_destroy(ServerData * data)
 #ifdef EFFECTTEST
 int main(int argc, char **argv)
 {
-    ServerData * s = serverdata_new("/tmp/x");
+    
+    LocalData * s = plugin_register(__FILE__, 0);
+    /*LocalData * s = serverdata_new("/tmp/x");*/
     return 0;
 
 

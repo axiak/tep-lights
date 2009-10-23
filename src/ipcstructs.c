@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include <stdio.h>
 
-#include "ipstructs.h"
+#include "ipcstructs.h"
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
 {
@@ -8,20 +9,12 @@ RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
     return layer->pixels + i;
 }
 
-static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
-{
-    pixel->red = red;
-    pixel->green = green;
-    pixel->blue = blue;
-    pixel->alpha = alpha;
-}
-
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha)
 {
     int i;
 
     for (i = 0; i < layer->width * layer->height; i++) {
-        rgbpixel_setvalue(layer->pixels[i], red, green, blue, alpha);
+        rgbpixel_setvalue(&layer->pixels[i], red, green, blue, alpha);
     }
 }
 
@@ -45,4 +38,3 @@ void colorlayer_destroy(ColorLayer * layer)
     }
 }
 
-#endif

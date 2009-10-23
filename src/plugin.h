@@ -7,27 +7,18 @@
 
 #include "ipcstructs.h"
 
-
 typedef struct {
+    IPCData * ipcdata;
+    ClientInfo * info;
     SoundInfo * soundinfo;
     int shmid;
     key_t server_key;
     unsigned long old_frame_counter;
-} ServerData;
-
-ServerData * serverdata_new(char * server_name);
-int serverdata_update(ServerData * data);
-void serverdata_destroy(ServerData * data);
-
-typedef struct {
     ColorLayer * layer;
-    ColorLayer * _server_layer;
-    int semid;
-    int shmid;
-} LayerInfo;
+} LocalData;
 
-LayerInfo * layerinfo_create(char * progname, char * server_name);
-int layerinfo_commit(LayerInfo * layer);
-void layerinfo_destroy(LayerInfo * layer);
+LocalData * plugin_register(char * filename, int id);
+int serverdata_update(LocalData * data);
+void serverdata_destroy(LocalData * data);
 
 #endif

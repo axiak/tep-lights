@@ -1,12 +1,13 @@
 #ifndef __IPCSTRUCTS_H
 #define __IPCSTRUCTS_H
 
+
+#define MAINSEMFILE __FILE__
 #define PIXELWIDTH 48
 #define PIXELHEIGHT 24
 #define MAXPLUGINS 96
 /* Define things that we take for granted when passing information
    back and forth. */
-
 
 typedef struct {
     float fft[256];
@@ -16,7 +17,6 @@ typedef struct {
     float bpm_certainty;
     unsigned long frame_counter;
 } SoundInfo;
-
 
 typedef struct {
     float red;
@@ -44,9 +44,19 @@ typedef struct {
 } IPCData;
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y);
-static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha);
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha);
 ColorLayer * colorlayer_create();
 void colorlayer_destroy(ColorLayer * layer);
+
+static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
+{
+    pixel->red = red;
+    pixel->green = green;
+    pixel->blue = blue;
+    pixel->alpha = alpha;
+    return pixel;
+}
+
+
 
 #endif
