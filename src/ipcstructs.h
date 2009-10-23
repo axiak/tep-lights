@@ -7,17 +7,11 @@
 #define PIXELWIDTH 48
 #define PIXELHEIGHT 24
 #define MAXPLUGINS 96
+
+
 /* Define things that we take for granted when passing information
    back and forth. */
 
-typedef struct {
-    float fft[256];
-    float volumehistory[24];
-    float current_beat;
-    unsigned char bpm;
-    float bpm_certainty;
-    unsigned long frame_counter;
-} SoundInfo;
 
 typedef struct {
     float red;
