@@ -22,4 +22,8 @@ int serverdata_update(LocalData * data);
 void serverdata_destroy(LocalData * data);
 void serverdata_commitlayer(LocalData * data);
 
+ColorLayer * plugin_useotherlayer(LocalData * data, int id);
+void plugin_disuseotherlayer(LocalData * data, int id);
+
+
 #endif

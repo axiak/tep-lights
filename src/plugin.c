@@ -64,7 +64,7 @@ LocalData * plugin_register(char * progfilename, int id)
     while (numtries < 5000 && shmid < 0) {
         shmid = shmget(key, sizeof(IPCData), 0666);
         if (shmid < 0) {
-            fprintf(stderr, "Waiting for SHM to exist...%d\n", key);
+            fprintf(stderr, "Waiting for SHM to exist...%d (%d)\n", key, sizeof(IPCData));
             usleep(10000);
             numtries++;
         }
@@ -118,16 +118,20 @@ LocalData * plugin_register(char * progfilename, int id)
 void serverdata_commitlayer(LocalData * data)
 /* Commit the local layer to the master */
 {
-    struct sembuf buffer;
-    buffer.sem_num = 0;
-    buffer.sem_op = -1;
-
-    semop(data->info->semid, &buffer, 1);
-
+    begin_lightread(data->info);
     memcpy(data->info->layer.pixels, data->layer->pixels, sizeof(data->layer->pixels));
+    end_lightread(data->info);
+}
 
-    buffer.sem_num = 1;
-    semop(data->info->semid, &buffer, 1);
+ColorLayer * plugin_useotherlayer(LocalData * data, int id)
+{
+    begin_lightread(&data->ipcdata->plugins[id]);
+    return &data->ipcdata->plugins[id].layer;
+}
+
+void plugin_disuseotherlayer(LocalData * data, int id)
+{
+    end_lightread(&data->ipcdata->plugins[id]);
 }
 
 int serverdata_update(LocalData * data)

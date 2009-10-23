@@ -12,7 +12,7 @@
 typedef struct {
     float fft[256];
     float volumehistory[24];
-    unsigned char bpm_valid;
+    float current_beat;
     unsigned char bpm;
     float bpm_certainty;
     unsigned long frame_counter;
@@ -46,10 +46,19 @@ typedef struct {
     ClientInfo plugins[MAXPLUGINS];
 } IPCData;
 
+/* Used to signal when you are reading. */
+int begin_lightread(ClientInfo * client);
+int end_lightread(ClientInfo * client);
+
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y);
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha);
+
+ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src);
+ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
+
 ColorLayer * colorlayer_create();
 void colorlayer_destroy(ColorLayer * layer);
+
 
 static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
 {

@@ -28,6 +28,31 @@ void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, f
     }
 }
 
+ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
+{
+    int n = dst->width * dst->height;
+    int i;
+    for (i = 0; i < n; i++) {
+        dst->pixels[i].red += src->pixels[i].red;
+        dst->pixels[i].green += src->pixels[i].green;
+        dst->pixels[i].blue += src->pixels[i].blue;
+    }
+    return dst;
+}
+
+ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
+{
+    int n = dst->width * dst->height;
+    int i;
+    for (i = 0; i < n; i++) {
+        dst->pixels[i].red *= dst->pixels[i].red + src->pixels[i].red;
+        dst->pixels[i].green *= dst->pixels[i].green + src->pixels[i].green;
+        dst->pixels[i].blue *= src->pixels[i].blue;
+    }
+    return dst;
+}
+
+
 ColorLayer * colorlayer_create()
 {
     ColorLayer * layer = (ColorLayer *)malloc(sizeof(ColorLayer));
@@ -75,4 +100,22 @@ int num_clients(IPCData * data)
         }
     }
     return total;
+}
+
+
+
+int begin_lightread(ClientInfo * client)
+{
+    struct sembuf buffer;
+    buffer.sem_num = 0;
+    buffer.sem_op = 1;
+    semop(client->semid, &buffer, 1);
+}
+
+int end_lightread(ClientInfo * client)
+{
+    struct sembuf buffer;
+    buffer.sem_num = 0;
+    buffer.sem_op = 1;
+    semop(client->semid, &buffer, 1);
 }

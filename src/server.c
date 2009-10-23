@@ -50,7 +50,7 @@ ServerInfo * new_serverenvironment()
     info->soundinfo = &info->ipcdata->soundinfo;
     memset(info->ipcdata, 0, sizeof(IPCData));
 
-    printf("Created key %d\n", key);
+    printf("Created key %d (%d)\n", key, sizeof(IPCData));
     for (i = 0; i < MAXPLUGINS; i++) {
         info->ipcdata->plugins[i].layer.width = 48;
         info->ipcdata->plugins[i].layer.height = 24;
