@@ -121,14 +121,14 @@ int end_lightread(ClientInfo * client)
 }
 
 
-ColorLayer * plugin_useotherlayer(LocalData * data, int id)
+ColorLayer * plugin_useotherlayer(IPCData * data, int id)
 {
-    begin_lightread(&data->ipcdata->plugins[id]);
-    return &data->ipcdata->plugins[id].layer;
+    begin_lightread(&data->plugins[id]);
+    return &data->plugins[id].layer;
 }
 
-void plugin_disuseotherlayer(LocalData * data, int id)
+void plugin_disuseotherlayer(IPCData * data, int id)
 {
-    end_lightread(&data->ipcdata->plugins[id]);
+    end_lightread(&data->plugins[id]);
 }
 

@@ -72,8 +72,8 @@ static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float gr
 int num_clients(IPCData * data);
 int is_client_running(ClientInfo * info);
 
-ColorLayer * plugin_useotherlayer(LocalData * data, int id);
-void plugin_disuseotherlayer(LocalData * data, int id);
+ColorLayer * plugin_useotherlayer(IPCData * data, int id);
+void plugin_disuseotherlayer(IPCData * data, int id);
 
 
 

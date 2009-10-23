@@ -17,10 +17,10 @@ int main(int argc, char **argv)
         for (i = 0; i < MAXPLUGINS; i++) {
             if (s->info->input_plugins[i]) {
                 /* The plugin is one of its inputs, we should use it now. */
-                layer2 = plugin_useotherlayer(s, i);
+                layer2 = plugin_useotherlayer(s->ipcdata, i);
                 /* do stuff with layer2...*/
                 colorlayer_add(layer, layer2);                
-                plugin_disuseotherlayer(s, i);
+                plugin_disuseotherlayer(s->ipcdata, i);
             }
         }
 
