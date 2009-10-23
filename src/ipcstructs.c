@@ -16,7 +16,7 @@
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
 {
-
+    fprintf(stderr, "[%d x %d]\n", layer->width, layer->height);
     if (x >= layer->width || y >= layer->height) {
         fprintf(stderr, "Invalid pixel called [%d x %d]: (%d, %d)\n",
                 layer->width, layer->height, x, y);
@@ -161,8 +161,8 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
             pixel = colorlayer_getpixel(layer, c, r);
             pixel_setrgb(
                          dmxpanelcltn_getpixel(cltn,
-                                               r,
-                                               c),
+                                               c,
+                                               r),
                          pixel->red * (1 - pixel->alpha),
                          pixel->green * (1 - pixel->alpha),
                          pixel->blue * (1 - pixel->alpha)

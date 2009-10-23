@@ -1,11 +1,11 @@
 #include "geom.h"
 #include "ipcstructs.h"
 
-inline int abs(int x) {
+static inline int abs(int x) {
   if(x > 0)
-    x;
+      return x;
   else
-    -x;
+      return -x;
 }
 
 void draw_pixel(ColorLayer * cl, int x, int y, RGBPixel * color) {
