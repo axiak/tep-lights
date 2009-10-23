@@ -119,3 +119,16 @@ int end_lightread(ClientInfo * client)
     buffer.sem_op = 1;
     semop(client->semid, &buffer, 1);
 }
+
+
+ColorLayer * plugin_useotherlayer(LocalData * data, int id)
+{
+    begin_lightread(&data->ipcdata->plugins[id]);
+    return &data->ipcdata->plugins[id].layer;
+}
+
+void plugin_disuseotherlayer(LocalData * data, int id)
+{
+    end_lightread(&data->ipcdata->plugins[id]);
+}
+

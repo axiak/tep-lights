@@ -13,15 +13,6 @@
 #include "ipcstructs.h"
 #include "server.h"
 
-/*
-typedef struct {
-    IPCData * ipcdata;
-    SoundInfo * soundinfo;
-    DMXPanelCollection * panel;
-    int shmid;
-    int semid;
-} ServerInfo;
-*/
 
 ServerInfo * new_serverenvironment()
 {
@@ -76,21 +67,3 @@ void destroy_serverenvironment(ServerInfo * info)
     return;
 }
 
-#ifdef SERVERTEST
-int main(int argc, char ** argv) {
-    ServerInfo * info = new_serverenvironment();
-    int numc = -1, newc;
-    
-    while (1) {
-        newc = num_clients(info->ipcdata);
-        if (newc != numc) {
-            printf("Total clients: %d\n", newc);
-            numc = newc;
-        }
-        usleep(100000);
-    }
-
-    destroy_serverenvironment(info);
-    return 0;
-}
-#endif

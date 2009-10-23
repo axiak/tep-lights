@@ -123,22 +123,12 @@ void serverdata_commitlayer(LocalData * data)
     end_lightread(data->info);
 }
 
-ColorLayer * plugin_useotherlayer(LocalData * data, int id)
-{
-    begin_lightread(&data->ipcdata->plugins[id]);
-    return &data->ipcdata->plugins[id].layer;
-}
-
-void plugin_disuseotherlayer(LocalData * data, int id)
-{
-    end_lightread(&data->ipcdata->plugins[id]);
-}
 
 int serverdata_update(LocalData * data)
 /* Wait until we get new data from the server... */
 {
     while (data->old_frame_counter <= data->soundinfo->frame_counter) {
-        usleep(10000);
+        usleep(15000);
     }
     return 0;
 }

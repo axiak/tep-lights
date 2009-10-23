@@ -24,8 +24,8 @@ int main(int argc, char **argv)
             }
         }
 
-        /* Doo stuff to layer... */
-        
+        /* Do stuff to layer... */
+
 
 
         /* Commit the layer */
