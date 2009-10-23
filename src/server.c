@@ -28,30 +28,45 @@ ServerInfo * new_serverenvironment()
     key_t key;
     ServerInfo * info = (ServerInfo *)malloc(sizeof(ServerInfo));
 
-    key = ftok(MAINSEMFILE, 0);
+    /* Create shared memory stuff */
+    key = ftok(MAINSEMFILE, 'a');
     if ((info->shmid = shmget(key, sizeof(IPCData), IPC_CREAT | 0666)) < 0) {
         fprintf(stderr, "Could not create shared memory");
         free(info);
         return NULL;
     }
-    printf("Key: %d\n", key);
     info->ipcdata = (IPCData *)shmat(info->shmid, NULL, 0);
+    info->soundinfo = &info->ipcdata->soundinfo;
     memset(info->ipcdata, 0, sizeof(IPCData));
 
+    printf("Created key %d\n", key);
+
+    /* Create semaphores */
+    key = ftok(MAINSEMFILE, 'L');
+    info->semid = semget(key, MAXPLUGINS, 0666 | IPC_CREAT);
     return info;
 }
 
-void destroy_serverenvironment()
+void destroy_serverenvironment(ServerInfo * info)
 {
+    /* Remove our shared memory segment. */
+    struct shmid_ds output;
+
+    semctl(info->semid, 0, IPC_RMID, 0);
+
+    shmctl(info->shmid, IPC_RMID, &output);
+    shmdt(info->ipcdata);
+    info->ipcdata = info->soundinfo = 0;
+    free(info);
     return;
-
-
 }
 
 #ifdef SERVERTEST
 int main(int argc, char ** argv) {
     ServerInfo * info = new_serverenvironment();
+    info->soundinfo->frame_counter = 222;
     int c = getc(stdin);
+    destroy_serverenvironment(info);
     return 0;
 }
 #endif

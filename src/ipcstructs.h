@@ -2,7 +2,7 @@
 #define __IPCSTRUCTS_H
 
 
-#define MAINSEMFILE __FILE__
+#define MAINSEMFILE "/etc/resolv.conf"
 #define PIXELWIDTH 48
 #define PIXELHEIGHT 24
 #define MAXPLUGINS 96

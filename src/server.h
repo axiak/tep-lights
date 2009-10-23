@@ -12,4 +12,7 @@ typedef struct {
     int semid;
 } ServerInfo;
 
+ServerInfo * new_serverenvironment();
+
+void destroy_serverenvironment(ServerInfo * info);
 #endif
