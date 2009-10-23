@@ -22,7 +22,7 @@ RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
                 layer->width, layer->height, x, y);
         return NULL;
     }
-    int i = x * layer->width + y;
+    int i = x * layer->height + y;
     return &layer->pixels[i];
 }
 
