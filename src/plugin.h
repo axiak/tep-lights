@@ -20,5 +20,6 @@ typedef struct {
 LocalData * plugin_register(char * filename, int id);
 int serverdata_update(LocalData * data);
 void serverdata_destroy(LocalData * data);
+void serverdata_commitlayer(LocalData * data);
 
 #endif

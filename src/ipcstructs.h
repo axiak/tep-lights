@@ -35,7 +35,10 @@ typedef struct {
     ColorLayer layer;
     char name[10];
     int id;
+    int idx;
     int semid;
+    int pid;
+    unsigned char input_plugins[MAXPLUGINS];
 } ClientInfo;
 
 typedef struct {
@@ -57,6 +60,8 @@ static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float gr
     return pixel;
 }
 
+int num_clients(IPCData * data);
+int is_client_running(ClientInfo * info);
 
 
 #endif

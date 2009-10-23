@@ -1,42 +1,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <signal.h>
 
 #include <sys/time.h>
 #include <time.h>
+
+#include <libgen.h>
 
 #include <errno.h>
 
 #include "plugin.h"
 
+void clientinfo_print(ClientInfo * info)
+{
+    int i, first = 1;
+    printf("---------------\nPlugin Information\n");
+    printf("  We are client number: %d; id: %d\n", info->id, info->idx);
+    printf("  Our name is '%s'\n", info->name);
+    printf("  Our current inputs: [");
 
-LocalData * plugin_register(char * filename, int id)
+    for (i = 0; i < MAXPLUGINS; i++) {
+        if (i == info->idx) {
+            continue;
+        }
+        if (info->input_plugins[i]) {
+            if (!first) {
+                printf(", ");
+            }
+            first = 0;
+            printf("%d", i);
+        }
+    }
+    printf("]\n-------------------\n");
+}
+
+LocalData * plugin_register(char * progfilename, int id)
 {
     key_t key;
+    pid_t pid = getpid();
     int shmid = -1;
     int numtries = 0;
     LocalData * data = (LocalData *)malloc(sizeof(LocalData));
     int semid;
     int pluginid;
-    struct sembuf sembuffer;
 
     if (!data) {
         return NULL;
     }
 
-    fprintf(stderr, "Looking for %d bytes\n", sizeof(IPCData));
     key = ftok(MAINSEMFILE, 'a');
     if (key < 0) {
         fprintf(stderr, "Error getting shmkey\n");
         free(data);
         return NULL;
     }
-    printf("Key: %d\n", key);
     while (numtries < 5000 && shmid < 0) {
         shmid = shmget(key, sizeof(IPCData), 0666);
         if (shmid < 0) {
@@ -51,32 +75,60 @@ LocalData * plugin_register(char * filename, int id)
         return NULL;
     }
 
+    data->shmid = shmid;
     data->ipcdata = (IPCData *)shmat(shmid, NULL, 0);
     data->soundinfo = &data->ipcdata->soundinfo;
 
     key = ftok(MAINSEMFILE, 'L');
-    srand(strlen(filename) * filename[2]);
+    srand(strlen(progfilename) * progfilename[2]);
     while (1) {
         pluginid = ((int)(abs(rand() * 1000))) % MAXPLUGINS;
         int i = data->ipcdata->plugins[pluginid].id;
-        printf("%d\n", i);
         if (i == id) {
             fprintf(stderr, "We are already running!\n");
         }
-        if (!i) {
+        if (!i || !is_client_running(&data->ipcdata->plugins[pluginid])) {
             data->ipcdata->plugins[pluginid].id = id;
+            data->info = &data->ipcdata->plugins[pluginid];
+            data->info->pid = pid;
+            data->info->idx = pluginid;
+            memset(data->info->input_plugins, 0, sizeof(data->info->input_plugins));
             break;
         }
         usleep(100);
     }
-    fprintf(stderr, "We are plugin %d\n", pluginid);
     if (data->ipcdata == (IPCData *)-1) {
         fprintf(stderr, "Could not attach shared memory.\n");
         return NULL;
     }
+
+    key = ftok(progfilename, 'L');
+    semid = semget(key, 10, 0666 | IPC_CREAT);
+    data->info->semid = semid;
+    memcpy(data->info->name, basename(progfilename), 10);
+
+    data->layer = colorlayer_create();
+    serverdata_commitlayer(data);
+
+    clientinfo_print(data->info);
+
     return data;
 }
 
+void serverdata_commitlayer(LocalData * data)
+/* Commit the local layer to the master */
+{
+    struct sembuf buffer;
+    buffer.sem_num = 0;
+    buffer.sem_op = -1;
+
+    semop(data->info->semid, &buffer, 1);
+
+    memcpy(data->info->layer.pixels, data->layer->pixels, sizeof(data->layer->pixels));
+
+    buffer.sem_num = 1;
+    semop(data->info->semid, &buffer, 1);
+}
 
 int serverdata_update(LocalData * data)
 /* Wait until we get new data from the server... */
@@ -103,8 +155,7 @@ void serverdata_destroy(LocalData * data)
 int main(int argc, char **argv)
 {
     
-    LocalData * s = plugin_register(argv[0], 0);
-    printf("Number: %u\n", s->soundinfo->frame_counter);
+    LocalData * s = plugin_register(argv[0], 1);
     /*LocalData * s = serverdata_new("/tmp/x");*/
     gets(stdin);
     serverdata_destroy(s);

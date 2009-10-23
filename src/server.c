@@ -26,10 +26,21 @@ typedef struct {
 ServerInfo * new_serverenvironment()
 {
     key_t key;
+    int i, j;
     ServerInfo * info = (ServerInfo *)malloc(sizeof(ServerInfo));
 
     /* Create shared memory stuff */
     key = ftok(MAINSEMFILE, 'a');
+    /* Remove old shm memory segment */
+    {
+        struct shmid_ds output;
+        int shmid = shmget(key, 0, 0666);
+
+        if (shmid >= 0) {
+            shmctl(shmid, IPC_RMID, &output);
+        }
+    }
+
     if ((info->shmid = shmget(key, sizeof(IPCData), IPC_CREAT | 0666)) < 0) {
         fprintf(stderr, "Could not create shared memory");
         free(info);
@@ -40,6 +51,10 @@ ServerInfo * new_serverenvironment()
     memset(info->ipcdata, 0, sizeof(IPCData));
 
     printf("Created key %d\n", key);
+    for (i = 0; i < MAXPLUGINS; i++) {
+        info->ipcdata->plugins[i].layer.width = 48;
+        info->ipcdata->plugins[i].layer.height = 24;
+    }
 
     /* Create semaphores */
     key = ftok(MAINSEMFILE, 'L');
@@ -64,8 +79,17 @@ void destroy_serverenvironment(ServerInfo * info)
 #ifdef SERVERTEST
 int main(int argc, char ** argv) {
     ServerInfo * info = new_serverenvironment();
-    info->soundinfo->frame_counter = 222;
-    int c = getc(stdin);
+    int numc = -1, newc;
+    
+    while (1) {
+        newc = num_clients(info->ipcdata);
+        if (newc != numc) {
+            printf("Total clients: %d\n", newc);
+            numc = newc;
+        }
+        usleep(100000);
+    }
+
     destroy_serverenvironment(info);
     return 0;
 }
