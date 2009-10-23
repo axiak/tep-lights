@@ -108,6 +108,9 @@ LocalData * plugin_register(char * progfilename, int id)
     memcpy(data->info->name, basename(progfilename), 10);
 
     data->layer = colorlayer_create();
+    data->layer->height = PIXELHEIGHT;
+    data->layer->width = PIXELWIDTH;
+
     serverdata_commitlayer(data);
 
     clientinfo_print(data->info);
@@ -120,6 +123,8 @@ void serverdata_commitlayer(LocalData * data)
 {
     begin_lightread(data->info);
     memcpy(data->info->layer.pixels, data->layer->pixels, sizeof(data->layer->pixels));
+    data->info->layer.width = data->layer->width;
+    data->info->layer.height = data->layer->height;
     end_lightread(data->info);
 }
 
