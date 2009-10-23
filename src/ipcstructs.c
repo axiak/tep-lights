@@ -62,8 +62,8 @@ ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
     int n = dst->width * dst->height;
     int i;
     for (i = 0; i < n; i++) {
-        dst->pixels[i].red *= dst->pixels[i].red + src->pixels[i].red;
-        dst->pixels[i].green *= dst->pixels[i].green + src->pixels[i].green;
+        dst->pixels[i].red *= src->pixels[i].red;
+        dst->pixels[i].green *= src->pixels[i].green;
         dst->pixels[i].blue *= src->pixels[i].blue;
     }
     return dst;
