@@ -11,6 +11,7 @@
 
 #include <string.h>
 
+#include "dmx.h"
 #include "ipcstructs.h"
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
@@ -108,9 +109,11 @@ int begin_lightread(ClientInfo * client)
 {
     struct sembuf buffer;
     buffer.sem_num = 0;
-    buffer.sem_op = 1;
+    buffer.sem_op = -1;
     semop(client->semid, &buffer, 1);
+    return 0;
 }
+
 
 int end_lightread(ClientInfo * client)
 {
@@ -118,6 +121,7 @@ int end_lightread(ClientInfo * client)
     buffer.sem_num = 0;
     buffer.sem_op = 1;
     semop(client->semid, &buffer, 1);
+    return 0;
 }
 
 
@@ -130,5 +134,23 @@ ColorLayer * plugin_useotherlayer(IPCData * data, int id)
 void plugin_disuseotherlayer(IPCData * data, int id)
 {
     end_lightread(&data->plugins[id]);
+}
+
+void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
+{
+    int r, c;
+    RGBPixel * pixel;
+    for (r = 0; r < layer->height; r++) {
+        for (c = 0; c < layer->width; c++) {
+            pixel = colorlayer_getpixel(layer, c, r);
+            pixel_setrgb(
+                         dmxpanelcltn_getpixel(cltn,
+                                               r,
+                                               c),
+                         pixel->red * (1 - pixel->alpha),
+                         pixel->green * (1 - pixel->alpha),
+                         pixel->blue * (1 - pixel->alpha));
+        }
+    }
 }
 
