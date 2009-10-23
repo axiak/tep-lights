@@ -69,6 +69,7 @@ void draw_gradient(ColorLayer * cl,
 	combo.green = (1-a)*color1->green + a*color2->green;
 	combo.blue = (1-a)*color1->blue + a*color2->blue;
 	combo.alpha = (1-a)*color1->alpha + a*color2->alpha;
+	draw_pixel(cl, x, y, &combo);
       }
     }
   }
@@ -85,6 +86,34 @@ void draw_blinds(ColorLayer * cl,
 		x - dy*cl.width, y + dx*cl.width,
 		x + dy*cl.width, y - dx*cl.width,
 		color);
+    }
+  }
+}
+
+void draw_circle(ColorLayer * cl,
+		 int cx, int cy, int radius, RGBPixel * col) {
+  int error = -radius;
+  int x = radius;
+  int y = 0;
+  while(x >= y) {
+    draw_pixel(cl, cx + x, cy + y, col);
+    if(x != 0) draw_pixel(cl, cx - x, cy + y, col);
+    if(y != 0) draw_pixel(cl, cx + x, cy - y, col);
+    if(x != 0 && y != 0) draw_pixel(cl, cx - x, cy - y, col);
+    if(x != y) {
+      draw_pixel(cl, cx + y, cy + x, col);
+      if(y != 0) draw_pixel(cl, cx - y, cy + x, col);
+      if(x != 0) draw_pixel(cl, cx + y, cy - x, col);
+      if(y != 0 && x != 0) draw_pixel(cl, cx - y, cy - x, col);
+    }
+
+    error += y;
+    ++y;
+    error += y;
+    if(error >= 0) {
+      --x;
+      error -= x;
+      error -= x;
     }
   }
 }
