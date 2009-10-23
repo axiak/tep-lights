@@ -440,6 +440,17 @@ double _currenttime()
     return seconds;
 }
 
+void pixel_print(RGBLed * led)
+{
+    if (led->red > 0.001 || led->green > 0.001 || led->blue > 0.001) {
+        printf("RGBLed[%0.4f,%0.4f,%0.4f]\n",
+               led->red,
+               led->green,
+           led->blue);
+    }
+
+}
+
 
 #ifdef DMX_TEST
 int main(int argc, char ** argv)
@@ -479,5 +490,6 @@ int main(int argc, char ** argv)
     dmxpanelcltn_destroy(cltn);
     return 0;
 }
+
 
 #endif

@@ -20,6 +20,16 @@ RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
     return layer->pixels + i;
 }
 
+void rgbpixel_print(RGBPixel * pixel)
+{
+    if (pixel->red > 0.001 || pixel->green > 0.001 || pixel->blue > 0.001) {
+        printf("RGBPixel[%0.4f,%0.4f,%0.4f]\n",
+               pixel->red,
+               pixel->green,
+           pixel->blue);
+    }
+}
+
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha)
 {
     int i;

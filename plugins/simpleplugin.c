@@ -5,22 +5,22 @@
 
 int main(int argc, char **argv)
 {
-    int i, r, c;
+    int i, r, c, j;
     LocalData * s = plugin_register(argv[0], PLUGINID);
     ColorLayer * layer = s->layer;
     ColorLayer * layer2;
-    
+    i = 0;
     while (1) {
         serverdata_update(s); /* Wait for audio info to update */
 
         /* Get other plugin information */
-        for (i = 0; i < MAXPLUGINS; i++) {
-            if (s->info->input_plugins[i]) {
+        for (j = 0; j < MAXPLUGINS; j++) {
+            if (s->info->input_plugins[j]) {
                 /* The plugin is one of its inputs, we should use it now. */
-                layer2 = plugin_useotherlayer(s->ipcdata, i);
+                layer2 = plugin_useotherlayer(s->ipcdata, j);
                 /* do stuff with layer2...*/
                 colorlayer_add(layer, layer2);                
-                plugin_disuseotherlayer(s->ipcdata, i);
+                plugin_disuseotherlayer(s->ipcdata, j);
             }
         }
 
@@ -28,11 +28,15 @@ int main(int argc, char **argv)
         r = i / 48;
         c = i % 48;
 
+        printf("%d, %d\n", c, r);
+
         rgbpixel_setvalue(colorlayer_getpixel(layer,
                                               c, r),
                           0, 1, 0, 0);
 
-        i = (i + 1) % (48  * 24);
+
+        i++;
+        i %= 48 * 24;
 
         /* Commit the layer */
         serverdata_commitlayer(s);

@@ -78,7 +78,7 @@ LocalData * plugin_register(char * progfilename, int id)
     data->shmid = shmid;
     data->ipcdata = (IPCData *)shmat(shmid, NULL, 0);
     data->soundinfo = &data->ipcdata->soundinfo;
-
+    data->old_frame_counter = 0;
     key = ftok(MAINSEMFILE, 'L');
     srand(strlen(progfilename) * progfilename[2]);
     while (1) {
@@ -127,9 +127,10 @@ void serverdata_commitlayer(LocalData * data)
 int serverdata_update(LocalData * data)
 /* Wait until we get new data from the server... */
 {
-    while (data->old_frame_counter <= data->soundinfo->frame_counter) {
+    while (data->old_frame_counter == data->soundinfo->frame_counter) {
         usleep(15000);
     }
+    data->old_frame_counter = data->soundinfo->frame_counter;
     return 0;
 }
 

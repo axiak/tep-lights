@@ -48,12 +48,14 @@ LEDArray * ledarray_create(SZ size);
 DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int));
 DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction);
 DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction);
-
+DMXPanelCollection * create_default_panels();
 DMXPanelCollection * dmxpanelcltn_create(int width, int height);
 RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * panelcltn, int row, int column);
 void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column);
 void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn);
 DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column);
+
+void pixel_print(RGBLed * led);
 
 /* Destroyers */
 void ledarray_destroy(LEDArray * ledarray);

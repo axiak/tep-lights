@@ -53,7 +53,7 @@ int end_lightread(ClientInfo * client);
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y);
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha);
-
+void rgbpixel_print(RGBPixel * pixel);
 ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src);
 ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
 

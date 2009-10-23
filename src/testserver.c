@@ -15,6 +15,7 @@ int main(int argc, char ** argv)
     int i;
     int found = 0;
     while (1) {
+        info->soundinfo->frame_counter++;
         found = 0;
         newc = num_clients(info->ipcdata);
         if (newc != numc) {
@@ -29,11 +30,17 @@ int main(int argc, char ** argv)
         }
 
         if (found) {
-            layer = plugin_useotherlayer(&info->ipcdata, i);
+            layer = plugin_useotherlayer(info->ipcdata, i);
             colorlayer_pushtocollection(info->panel, layer);
-            plugin_disuseotherlayer(&info->ipcdata, i);
+            plugin_disuseotherlayer(info->ipcdata, i);
         }
 
+        /*
+        for (i = 0; i < 48 * 24; i++){
+            RGBLed * p = dmxpanelcltn_getpixel(info->panel, i / 48, i % 48);
+            pixel_print(p);
+        }
+        */
         dmxpanelcltn_sendframe(info->panel);
     }
 
