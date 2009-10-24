@@ -13,10 +13,10 @@ static inline int abs(int x) {
 
 
 void draw_pixel(ColorLayer * cl, int x, int y, RGBPixel * color) {
-  if(0 <= x && x < cl->width &&
-     0 <= y && y < cl->height) {
+    if(0 <= x && x < cl->width &&
+      0 <= y && y < cl->height) {
     memcpy(colorlayer_getpixel(cl, x, y), color, sizeof(RGBPixel));
-  }
+    }
 }
 
 void draw_line(ColorLayer * cl,

@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     layer->height = 24;
     while (1) {
         serverdata_update(s); /* Wait for audio info to update */
-
+        printf("YO\n");
         /* Get other plugin information */
 
        /*  for (j = 0; j < MAXPLUGINS; j++) { */
@@ -32,16 +32,17 @@ int main(int argc, char **argv)
 /* 	} */
 
 
+        
         /* Do stuff to layer... */
-	rgbpixel_setvalue(&color, 1.0, 0, 1.0, 1.0);
-
+        rgbpixel_setvalue(&color, 1.0, 0, 1.0, 0);
+        rgbpixel_print(&color);
 	colorlayer_setall(layer, 0, 0, 0, 0);
 	
         r = i / 48;
         c = i % 48;
 
-	draw_line(layer, r, c, 0, 0, &color);
-
+        draw_line(layer, c, r, 0, 0, &color);
+        
         i++;
         i %= 48 * 24;
 
