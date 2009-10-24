@@ -2,6 +2,9 @@ CC = gcc
 CCFLAGS = -Wall -std=c99 -pedantic -D_SVID_SOURCE=1
 INCS = -I../inc -I.
 
+audioserver: *c *h
+	$(CC) $(INCS) -lfftw3 -ljack -g $(CCFLAGS) ipcstructs.c dmx.c server.c audioserver.c -o audioserver
+
 server: *c *h
 	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
 

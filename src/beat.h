@@ -1,3 +1,5 @@
+#ifndef __BEAT_H
+#define __BEAT_H
 #define FFT_WINDOW_SIZE 1024
 #define BEAT_BANDS 4
 #define BINS_TO_USE 24
@@ -12,3 +14,5 @@ typedef struct {
   float bpm_certainty;
   unsigned long frame_counter;
 } SoundInfo;
+
+#endif

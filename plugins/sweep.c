@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <plugin.h>
+#include <geom.h>
 
 #define PLUGINID 22
 
