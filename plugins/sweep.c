@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     while (1) {
       serverdata_update(s); /* Wait for audio info to update */
       
-      current = getTime();
+      long current = getTime();
       
       char* beats = s->soundinfo->current_beats;
       
@@ -105,6 +105,8 @@ int main(int argc, char **argv)
 
       /* Commit the layer */
       serverdata_commitlayer(s);
+
+      lastUpdate = current;
     }
 
     serverdata_destroy(s);
