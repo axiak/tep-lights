@@ -1,18 +1,21 @@
-#include "geom.h"
-#include "ipcstructs.h"
 #include <stdlib.h>
-
+#include <string.h>
+/*
 static inline int abs(int x) {
-  if(x > 0)
+  if (x > 0)
       return x;
   else
       return -x;
 }
+*/
+#include "geom.h"
+#include "ipcstructs.h"
+
 
 void draw_pixel(ColorLayer * cl, int x, int y, RGBPixel * color) {
   if(0 <= x && x < cl->width &&
      0 <= y && y < cl->height) {
-    memcpy(color_layer_get_pixel(cl, x, y), color, sizeof(RGBPixel));
+    memcpy(colorlayer_getpixel(cl, x, y), color, sizeof(RGBPixel));
   }
 }
 

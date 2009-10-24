@@ -69,7 +69,6 @@ void destroy_serverenvironment(ServerInfo * info)
 
     shmctl(info->shmid, IPC_RMID, &output);
     shmdt(info->ipcdata);
-    info->ipcdata = info->soundinfo = 0;
     free(info);
     return;
 }

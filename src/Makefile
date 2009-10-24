@@ -12,8 +12,7 @@ dmxtest: dmx.c dmx.h
 	$(CC) $(INCS) -g -DDMX_TEST $(CCFLAGS) dmx.c -o dmxtest
 
 geom: geom.c
-	$(CC) $(INCS) -g $(CCFLAGS) $(CC) geom.c -c
-
+	$(CC) $(INCS) -g $(CCFLAGS) geom.c -c
 
 clean:
 	rm -f dmxtest plugintest

@@ -75,7 +75,7 @@ static inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
     }
     idx = (dmxpanel->func)(r, cprime);
     if (idx < 0 || idx >= dmxpanel->leds->size) {
-        return;
+        return (RGBLed *)0;
     }
     dmxpanel->stale = 1;
     return dmxpanel->leds->led + idx;
