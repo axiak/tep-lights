@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <plugin.h>
 #include <geom.h>
+#include <dmx.h>
 
 #define PLUGINID 22
 
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
 
     while (1) {
       serverdata_update(s); /* Wait for audio info to update */
+      printf("hello");
       
       double current = _currenttime();
       
@@ -92,7 +94,7 @@ int main(int argc, char **argv)
       }
 
       // normalize...
-      float m = 0;
+      float m = 0.0;
       for(i = 0; i < layer->height; i++) {
 	for(j = 0; j < layer->width; j++) {
 	  RGBPixel* p = colorlayer_getpixel(layer, j, i);
@@ -108,6 +110,9 @@ int main(int argc, char **argv)
 	}
       }
 
+      draw_gradient(layer, 0, 0, &RED, 47, 23, &GREEN);
+      draw_circle(layer, 10, 10, 5, &RED);
+
       /* Commit the layer */
       serverdata_commitlayer(s);
 
@@ -117,4 +122,3 @@ int main(int argc, char **argv)
     serverdata_destroy(s);
     return 0;
 }
-
