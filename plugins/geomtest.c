@@ -46,8 +46,10 @@ int main(int argc, char **argv)
         //draw_circle(layer, rand()%96, rand()%48, rand()%30, &color);
 	//draw_line(layer, rand()%96, rand()%48,
 	//rand()%96, rand()%48, &color);
-	draw_line(layer, 0, 0,
-		  rand()%96, rand()%48, &color);
+	//draw_line(layer, 0, 0,
+	//	  rand()%96, rand()%48, &color);
+	//draw_blinds(layer, 0, 0, 96, 0, 5, &color);
+	draw_gradient(layer, 0, 0, &color, 48, 0, &color2);
         
         i++;
         i %= 48 * 24;

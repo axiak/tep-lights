@@ -99,6 +99,14 @@ void draw_gradient2(ColorLayer * cl,
 void draw_blinds(ColorLayer * cl,
 		 int x0, int y0,
 		 int x1, int y1, int delta, RGBPixel * color) {
+  if(x1 < x0) {
+    int s = x0;
+    x0 = x1; x1 = s;
+  }
+  if(y1 < y0) {
+    int s = y0;
+    y0 = y1; y1 = s;
+  }
   int dx = x1 - x0;
   int dy = y1 - y0;
   for(float x = x0; x <= x1; x += (float)dx/delta) {
