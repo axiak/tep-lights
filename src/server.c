@@ -15,7 +15,7 @@
 #include "server.h"
 #include "dmx.h"
 
-#define SHMSIZE 2000000000
+#define SHMSIZE MAX(10000000, sizeof(IPCData))
 /*#define SHMSIZE sizeof(IPCData)*/
 
 ServerInfo * new_serverenvironment()
