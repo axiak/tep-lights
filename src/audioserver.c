@@ -154,11 +154,13 @@ void analyze(void) {
 
     for(i = 0; i < BINS_TO_USE; i++) {
         soundinfo->fft[i] = band_volume[i] = pow(out[i][0], 2.0)+pow(out[i][1], 2.0);
-        volume += band_volume[i];
     }
     for (; i < FFT_WINDOW_SIZE; i++) {
         soundinfo->fft[i] = pow(out[i][0], 2.0)+pow(out[i][1], 2.0);
+        volume += soundinfo->fft[i];
     }
+    volume /= FFT_WINDOW_SIZE;
+    volume = sqrt(volume);
 
     for (i = 0; i < 23; i++) {
         soundinfo->volumehistory[i + 1] = soundinfo->volumehistory[i];
