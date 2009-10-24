@@ -43,7 +43,7 @@ int main(int argc, char **argv)
         r = i / 48;
         c = i % 48;
 
-        draw_gradient(layer, 0, 0, &color, c, r, &color2);
+        draw_circle(layer, c, r, 5+r/4, &color);
         
         i++;
         i %= 48 * 24;
