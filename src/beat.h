@@ -5,10 +5,10 @@
 #define BEAT_HISTORY_LENGTH 250
 
 typedef struct {
-    float fft[FFT_WINDOW_SIZE];
-    float volumehistory[24];
-    float current_beat;
-    unsigned char bpm;
-    float bpm_certainty;
-    unsigned long frame_counter;
+  float fft[FFT_WINDOW_SIZE];
+  float volumehistory[24];
+  char current_beats[BEAT_BANDS];
+  unsigned char bpm;
+  float bpm_certainty;
+  unsigned long frame_counter;
 } SoundInfo;

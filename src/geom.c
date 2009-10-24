@@ -78,6 +78,24 @@ void draw_gradient(ColorLayer * cl,
     }
   }
 }
+void draw_gradient2(ColorLayer * cl,
+		   int x0, int y0, RGBPixel * color1,
+		   int x1, int y1, RGBPixel * color2) {
+  RGBPixel combo;
+  float bottom = (y1-y0)*(y1-y0)+(x1-x0)*(x1-x0);
+  for(int x = 0; x < cl->width; x++) {
+    for(int y = 0; y < cl->height; y++) {
+      float a = ((x1-x0)*(x-x0) + (y1-y0)*(y-y0))/bottom;
+      if( a >= 0 && a <= 1) {
+	combo.red = (1-a)*color1->red + a*color2->red;
+	combo.green = (1-a)*color1->green + a*color2->green;
+	combo.blue = (1-a)*color1->blue + a*color2->blue;
+	combo.alpha = (1-a)*color1->alpha + a*color2->alpha;
+	draw_pixel(cl, x, y, &combo);
+      }
+    }
+  }
+}
 
 void draw_blinds(ColorLayer * cl,
 		 int x0, int y0,
