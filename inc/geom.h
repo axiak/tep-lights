@@ -2,15 +2,15 @@
 #ifndef __GEOM_H
 #define __GEOM_H
 #include "ipcstructs.h"
-/*
-RGBPixel BLACK = {0,0,0,1};
-RGBPixel RED   = {1,0,0,1};
-RGBPixel GREEN = {0,1,0,1};
-RGBPixel BLUE  = {0,0,1,1};
-RGBPixel YELLOW  = {1,1,0,1};
-RGBPixel ORANGE  = {1,.5,0,1};
-RGBPixel PURPLE  = {1,0,1,1};
-*/
+
+extern RGBPixel BLACK;
+extern RGBPixel RED;
+extern RGBPixel GREEN;
+extern RGBPixel BLUE;
+extern RGBPixel YELLOW;
+extern RGBPixel ORANGE;
+extern RGBPixel PURPLE;
+
 void draw_pixel(ColorLayer *, int x, int y, RGBPixel *);
 void draw_line(ColorLayer *,
 	       int x0, int y0,

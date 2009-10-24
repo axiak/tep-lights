@@ -1,16 +1,15 @@
 #include <stdlib.h>
 #include <string.h>
-/*
-static inline int abs(int x) {
-  if (x > 0)
-      return x;
-  else
-      return -x;
-}
-*/
 #include "geom.h"
 #include "ipcstructs.h"
 
+RGBPixel BLACK = {0,0,0,1};
+RGBPixel RED   = {1,0,0,1};
+RGBPixel GREEN = {0,1,0,1};
+RGBPixel BLUE  = {0,0,1,1};
+RGBPixel YELLOW  = {1,1,0,1};
+RGBPixel ORANGE  = {1,.5,0,1};
+RGBPixel PURPLE  = {1,0,1,1};
 
 void draw_pixel(ColorLayer * cl, int x, int y, RGBPixel * color) {
     if(0 <= x && x < cl->width &&
