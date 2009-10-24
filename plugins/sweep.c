@@ -11,9 +11,6 @@ int main(int argc, char **argv)
     LocalData * s = plugin_register(argv[0], PLUGINID);
     ColorLayer * layer = s->layer;
     ColorLayer * layer2 = colorlayer_create();
-    i = 0;
-    layer->width = 48;
-    layer->height = 24;
 
     double lastUpdate = _currenttime();
     float speed = 6;
@@ -25,12 +22,12 @@ int main(int argc, char **argv)
 
     while (1) {
       serverdata_update(s); /* Wait for audio info to update */
-      printf("hello");
+      printf("hello\n");
       
       double current = _currenttime();
       
       char* beats = s->soundinfo->current_beats;
-      
+      /*
       if(beats[0]) {
 	i = 0;
 	while(y1[i] != -1 && i < 19) i++;
@@ -112,6 +109,8 @@ int main(int argc, char **argv)
 
       draw_gradient(layer, 0, 0, &RED, 47, 23, &GREEN);
       draw_circle(layer, 10, 10, 5, &RED);
+      */
+      colorlayer_setall(layer, 1, 1, 1, .5);
 
       /* Commit the layer */
       serverdata_commitlayer(s);
