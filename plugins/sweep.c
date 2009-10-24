@@ -31,22 +31,22 @@ int main(int argc, char **argv)
       
       if(beats[0]) {
 	i = 0;
-	while(y1[i] != -1) i++;
+	while(y1[i] != -1 && i < 20) i++;
 	y1[i] = 0;
       }
       if(beats[1]) {
 	i = 0;
-	while(y2[i] != -1) i++;
+	while(y2[i] != -1 && i < 20) i++;
 	y2[i] = 0;
       }
       if(beats[2]) {
 	i = 0;
-	while(x1[i] != -1) i++;
+	while(x1[i] != -1 && i < 20) i++;
 	x1[i] = 0;
       }
       if(beats[3]) {
 	i = 0;
-	while(x2[i] != -1) i++;
+	while(x2[i] != -1 && i < 20) i++;
 	x2[i] = 0;
       }
       for(i = 0; i < 20; i++) {
