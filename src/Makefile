@@ -5,7 +5,7 @@ INCS = -I../inc -I.
 server: *c *h
 	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
 
-plugin: plugin.c plugin.h ipcstructs.h ipcstructs.c
+plugin: plugin.c plugin.h ipcstructs.h ipcstructs.c geom
 	$(CC) $(INCS) -g -DEFFECTTEST $(CCFLAGS) plugin.c ipcstructs.c -o plugintest
 
 dmxtest: dmx.c dmx.h
