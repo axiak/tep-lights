@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     layer->width = 48;
     layer->height = 24;
 
-    lastUpdate = getTime();
+    long lastUpdate = getTime();
     float speed = 6;
 
     float y1[20]; float y2[20]; float x1[20]; float x2[20];
