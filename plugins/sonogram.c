@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         for (i = 0; i < 24; i++) {
             rgbpixel_setvalue(colorlayer_getpixel(layer,
                                                   47, i),
-                              1, 0, 1,
+                              .8, 0, .4,
                               1 - (s->soundinfo->fft[i] / avg * 0.7)
                               );
         }

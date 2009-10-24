@@ -109,6 +109,21 @@ ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
     return dst;
 }
 
+ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src)
+{
+    int n = dst->width * dst->height;
+    float salpha, dalpha;
+    int i;
+    for (i = 0; i < n; i++) {
+        salpha = src->pixels[i].alpha;
+        dalpha = dst->pixels[i].alpha;
+        dst->pixels[i].red = salpha * src->pixels[i].red + dalpha * dst->pixels[i].red;
+        dst->pixels[i].green += salpha * src->pixels[i].green + dst->pixels[i].green * dalpha;
+        dst->pixels[i].blue += salpha * src->pixels[i].blue + dalpha * dst->pixels[i].blue;
+    }
+    return dst;
+}
+
 ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
 {
     int n = dst->width * dst->height;

@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
     ServerInfo * info = new_serverenvironment();
     int numc = -1, newc;
     ColorLayer * layer;
-    int i;
+    int i, j;
     int found = 0;
 
     soundinfo = info->soundinfo;
@@ -69,7 +69,10 @@ int main(int argc, char ** argv)
     j_lp = jack_port_register(jclient, "in1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     j_rp = jack_port_register(jclient, "in2", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
 
+    ColorLayer * layer2 = colorlayer_create();
+
     while (1) {
+        colorlayer_setall(layer2, 0, 0, 0, 1);
         info->soundinfo->frame_counter++;
         found = 0;
         newc = num_clients(info->ipcdata);
@@ -79,16 +82,15 @@ int main(int argc, char ** argv)
         }
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
-                found = 1;
+                layer = plugin_useotherlayer(info->ipcdata, i);
+                //ColorLayer * colorlayer_addalpha(layer2, layer);
+                plugin_disuseotherlayer(info->ipcdata, i);
+                colorlayer_pushtocollection(info->panel, layer);
                 break;
             }
         }
 
-        if (found) {
-            layer = plugin_useotherlayer(info->ipcdata, i);
-            colorlayer_pushtocollection(info->panel, layer);
-            plugin_disuseotherlayer(info->ipcdata, i);
-        }
+        //colorlayer_pushtocollection(info->panel, layer2);
 
         /*
         for (i = 0; i < 48 * 24; i++){

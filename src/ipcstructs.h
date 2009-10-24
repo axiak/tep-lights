@@ -55,7 +55,7 @@ ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
 ColorLayer * colorlayer_create();
 void colorlayer_destroy(ColorLayer * layer);
 void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer);
-
+ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src);
 
 static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
 {
