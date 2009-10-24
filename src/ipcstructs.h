@@ -66,6 +66,8 @@ static inline RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float gr
     return pixel;
 }
 
+RGBPixel * rgbpixel_sethbsvalue(RGBPixel * pixel, float h, float b, float s, float alpha);
+
 int num_clients(IPCData * data);
 int is_client_running(ClientInfo * info);
 

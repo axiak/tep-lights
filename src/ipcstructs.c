@@ -35,6 +35,59 @@ void rgbpixel_print(RGBPixel * pixel)
     }
 }
 
+RGBPixel * rgbpixel_sethbsvalue(RGBPixel * led, float hue, float brightness, float saturation, float alpha)
+/* Great "hsv" algorithm from kmill... */
+{
+    hue *= 6;
+    float angle = ((int)hue % 6) + (hue - (int)hue);
+
+    brightness = MIN(MAX(brightness, 0), 1);
+    saturation = MIN(MAX(saturation, 0), 1);
+
+    if (angle < 2) {
+        led->red = 1;
+        if (angle < 1) {
+            led->green = 0;
+            led->blue = 1 - angle;
+        }
+        else {
+            led->green = angle - 1;
+            led->blue = 0;
+        }
+    }
+    if (angle >= 2 && angle < 4) {
+        led->green = 1;
+        if (angle < 3) {
+            led->red = 3 - angle;
+            led->blue = 0;
+        }
+        else {
+            led->red = 0;
+            led->blue = angle - 3;
+        }
+    }
+    if (angle >= 4) {
+        led->blue = 1;
+        if (angle < 5) {
+            led->green = 5 - angle;
+            led->red = 0;
+        }
+        else {
+            led->green = 0;
+            led->red = angle - 5;
+        }
+    }
+
+    led->red = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
+                             led->red + saturation);
+    led->green = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
+                             led->green + saturation);
+    led->blue = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
+                             led->blue + saturation);
+    led->alpha = alpha;
+    return led;
+}
+
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha)
 {
     int i;

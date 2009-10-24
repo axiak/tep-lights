@@ -35,15 +35,19 @@ int main(int argc, char **argv)
 
         
         /* Do stuff to layer... */
-        rgbpixel_setvalue(&color, 1.0, 0, 1.0, 1.0);
+        rgbpixel_sethbsvalue(&color, i/48.0, 1.0, 0.0, 1.0);
         rgbpixel_setvalue(&color2, 0, 1.0, 0, 1.0);
 
-	colorlayer_setall(layer, 0, 0, 0, 0);
+	//colorlayer_setall(layer, 0, 0, 0, 0);
 	
         r = i / 48;
         c = i % 48;
 
-        draw_circle(layer, c, r, 5+r/4, &color);
+        //draw_circle(layer, rand()%96, rand()%48, rand()%30, &color);
+	//draw_line(layer, rand()%96, rand()%48,
+	//rand()%96, rand()%48, &color);
+	draw_line(layer, 0, 0,
+		  rand()%96, rand()%48, &color);
         
         i++;
         i %= 48 * 24;
