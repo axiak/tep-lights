@@ -16,7 +16,6 @@
 
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
 {
-    fprintf(stderr, "[%d x %d]\n", layer->width, layer->height);
     if (x >= layer->width || y >= layer->height) {
         fprintf(stderr, "Invalid pixel called [%d x %d]: (%d, %d)\n",
                 layer->width, layer->height, x, y);

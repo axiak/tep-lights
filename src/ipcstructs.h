@@ -2,6 +2,7 @@
 #define __IPCSTRUCTS_H
 
 #include "dmx.h"
+#include "beat.h"
 
 #define MAINSEMFILE "/etc/resolv.conf"
 #define PIXELWIDTH 48

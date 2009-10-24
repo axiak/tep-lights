@@ -18,7 +18,7 @@
 ServerInfo * new_serverenvironment()
 {
     key_t key;
-    int i, j;
+    int i;
     ServerInfo * info = (ServerInfo *)malloc(sizeof(ServerInfo));
 
     /* Create shared memory stuff */

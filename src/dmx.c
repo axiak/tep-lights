@@ -291,21 +291,6 @@ int dmxpanel_sendframe(DMXPanel * panel, int usecache)
     }
 }
 
-extern inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
-{
-    unsigned int idx;
-    unsigned int cprime = c;
-    if (dmxpanel->direction) {
-        cprime = dmxpanel->width - c - 1;
-    }
-    idx = (dmxpanel->func)(r, cprime);
-    if (idx < 0 || idx >= dmxpanel->leds->size) {
-        _ERROR("Invalid index for leds!");
-    }
-    dmxpanel->stale = 1;
-    return dmxpanel->leds->led + idx;
-}
-
 
 DMXPanelCollection * dmxpanelcltn_create(int width, int height)
 {

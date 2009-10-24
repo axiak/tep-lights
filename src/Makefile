@@ -3,7 +3,7 @@ CCFLAGS = -Wall -std=c99 -pedantic -D_SVID_SOURCE=1
 INCS = -I../inc
 
 server: *c *h
-	$(CC) $(INCS) -g $(CCFLAGS) *.c -o testserver
+	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
 
 plugin: plugin.c plugin.h ipcstructs.h ipcstructs.c
 	$(CC) $(INCS) -g -DEFFECTTEST $(CCFLAGS) plugin.c ipcstructs.c -o plugintest
