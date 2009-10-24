@@ -9,11 +9,14 @@
 
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
 
 #include "ipcstructs.h"
 #include "server.h"
 #include "dmx.h"
 
+#define SHMSIZE 2000000000
+/*#define SHMSIZE sizeof(IPCData)*/
 
 ServerInfo * new_serverenvironment()
 {
@@ -31,10 +34,13 @@ ServerInfo * new_serverenvironment()
         if (shmid >= 0) {
             shmctl(shmid, IPC_RMID, &output);
         }
+        printf("%d\n", errno);
     }
 
-    if ((info->shmid = shmget(key, sizeof(IPCData), IPC_CREAT | 0666)) < 0) {
-        fprintf(stderr, "Could not create shared memory");
+    if ((info->shmid = shmget(key, SHMSIZE, IPC_CREAT | 0666)) < 0) {
+        
+        fprintf(stderr, "Could not create shared memory: %d [%d] %d", info->shmid,
+                sizeof(IPCData), errno);
         free(info);
         return NULL;
     }
