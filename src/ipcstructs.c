@@ -162,9 +162,9 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
                          dmxpanelcltn_getpixel(cltn,
                                                r,
                                                c),
-                         pixel->red * (1 - pixel->alpha),
-                         pixel->green * (1 - pixel->alpha),
-                         pixel->blue * (1 - pixel->alpha)
+                         pixel->red * pixel->alpha,
+                         pixel->green * pixel->alpha,
+                         pixel->blue * pixel->alpha
                          );
         }
     }

@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
         
         /* Do stuff to layer... */
-        rgbpixel_setvalue(&color, 1.0, 0, 1.0, 0);
+        rgbpixel_setvalue(&color, 1.0, 0, 1.0, 1.0);
         rgbpixel_print(&color);
 	colorlayer_setall(layer, 0, 0, 0, 0);
 	
