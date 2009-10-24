@@ -9,19 +9,23 @@ int main(int argc, char **argv)
     int i, r, c, j;
     LocalData * s = plugin_register(argv[0], PLUGINID);
     ColorLayer * layer = s->layer;
-    ColorLayer * layer2;
+    ColorLayer * layer2 = colorlayer_create();
     i = 0;
     layer->width = 48;
     layer->height = 24;
 
-    double lastUpdate = _current_time();
+    double lastUpdate = _currenttime();
     float speed = 6;
 
     float y1[20]; float y2[20]; float x1[20]; float x2[20];
+    for (i = 0; i < 20; i++) {
+        y1[i] = y2[i] = x1[i] = x2[i] = -1;
+    }
+
     while (1) {
       serverdata_update(s); /* Wait for audio info to update */
       
-      double current = getTime();
+      double current = _currenttime();
       
       char* beats = s->soundinfo->current_beats;
       
@@ -53,7 +57,7 @@ int main(int argc, char **argv)
 	  if(y1[i] > 23)
 	    y1[i] = -1;
 	  else {
-	    draw_gradient2(layer2,0,0,&BLACK,0,y1[i],&GREEN);
+	    draw_gradient2(layer2,0,0, &BLACK, 0, y1[i], &GREEN);
 	    colorlayer_add(layer,layer2);
 	  }
 	}
@@ -92,7 +96,7 @@ int main(int argc, char **argv)
       for(i = 0; i < layer->height; i++) {
 	for(j = 0; j < layer->width; j++) {
 	  RGBPixel* p = colorlayer_getpixel(layer, j, i);
-	  m = max(m,max(p->red,max(p->green,p->blue)));
+	  m = MAX(m,MAX(p->red,MAX(p->green,p->blue)));
 	}
       }
       for(i = 0; i < layer->height; i++) {
