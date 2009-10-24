@@ -13,6 +13,7 @@ int main(int argc, char **argv)
     ColorLayer * layer = s->layer;
     ColorLayer * layer2;
     RGBPixel color;
+    RGBPixel color2;
     i = 0;
     layer->width = 48;
     layer->height = 24;
@@ -35,13 +36,14 @@ int main(int argc, char **argv)
         
         /* Do stuff to layer... */
         rgbpixel_setvalue(&color, 1.0, 0, 1.0, 1.0);
-        rgbpixel_print(&color);
+        rgbpixel_setvalue(&color2, 0, 1.0, 0, 1.0);
+
 	colorlayer_setall(layer, 0, 0, 0, 0);
 	
         r = i / 48;
         c = i % 48;
 
-        draw_line(layer, c, r, 0, 0, &color);
+        draw_gradient(layer, 0, 0, &color, c, r, &color2);
         
         i++;
         i %= 48 * 24;
