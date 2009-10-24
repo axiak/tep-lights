@@ -14,14 +14,14 @@ int main(int argc, char **argv)
     layer->width = 48;
     layer->height = 24;
 
-    long lastUpdate = getTime();
+    double lastUpdate = _current_time();
     float speed = 6;
 
     float y1[20]; float y2[20]; float x1[20]; float x2[20];
     while (1) {
       serverdata_update(s); /* Wait for audio info to update */
       
-      long current = getTime();
+      double current = getTime();
       
       char* beats = s->soundinfo->current_beats;
       
