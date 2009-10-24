@@ -1,5 +1,6 @@
 #include "geom.h"
 #include "ipcstructs.h"
+#include <stdlib.h>
 
 static inline int abs(int x) {
   if(x > 0)
@@ -32,7 +33,7 @@ void draw_line(ColorLayer * cl,
   }
   int dx = x1 - x0;
   int dy = abs(y1 - y0);
-  int error = deltax / 2;
+  int error = dx / 2;
   int ystep;
   int y = y0;
   if(y0 < y1)
@@ -47,7 +48,7 @@ void draw_line(ColorLayer * cl,
     error = error - dy;
     if(error < 0) {
       y += ystep;
-      error += deltax;
+      error += dx;
     }
   }
 }
@@ -83,8 +84,8 @@ void draw_blinds(ColorLayer * cl,
   for(float x = x0; x <= x1; x += (float)dx/delta) {
     for(float y = y0; y <= y1; y += (float)dy/delta) {
       draw_line(cl,
-		x - dy*cl.width, y + dx*cl.width,
-		x + dy*cl.width, y - dx*cl.width,
+		x - dy*cl->width, y + dx*cl->width,
+		x + dy*cl->width, y - dx*cl->width,
 		color);
     }
   }
@@ -120,7 +121,7 @@ void draw_circle(ColorLayer * cl,
 
 void draw_rectangle(ColorLayer * cl,
 		    int x0, int y0,
-		    int x1, int y1, RGBPixel *, color) {
+		    int x1, int y1, RGBPixel * color) {
   if(x0 > x1) {
     int s = x0;
     x0 = x1; x1 = s;

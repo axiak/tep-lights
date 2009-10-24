@@ -1,6 +1,6 @@
 CC = gcc
 CCFLAGS = -Wall -std=c99 -pedantic -D_SVID_SOURCE=1
-INCS = -I../inc
+INCS = -I../inc -I.
 
 server: *c *h
 	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
