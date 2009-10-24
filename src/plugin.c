@@ -101,6 +101,7 @@ LocalData * plugin_register(char * progfilename, int id)
         fprintf(stderr, "Could not attach shared memory.\n");
         return NULL;
     }
+    printf("Got seat\n");
 
     key = ftok(progfilename, 'L');
     semid = semget(key, 10, 0666 | IPC_CREAT);
@@ -111,7 +112,9 @@ LocalData * plugin_register(char * progfilename, int id)
     data->layer->height = PIXELHEIGHT;
     data->layer->width = PIXELWIDTH;
 
+    printf("Committing layer..\n");
     serverdata_commitlayer(data);
+    printf("DONE\n");
 
     clientinfo_print(data->info);
 

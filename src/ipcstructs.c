@@ -124,7 +124,7 @@ int begin_lightread(ClientInfo * client)
 {
     struct sembuf buffer;
     buffer.sem_num = 0;
-    buffer.sem_op = -1;
+    buffer.sem_op = 1;
     semop(client->semid, &buffer, 1);
     return 0;
 }
@@ -134,7 +134,7 @@ int end_lightread(ClientInfo * client)
 {
     struct sembuf buffer;
     buffer.sem_num = 0;
-    buffer.sem_op = 1;
+    buffer.sem_op = -1;
     semop(client->semid, &buffer, 1);
     return 0;
 }
@@ -160,8 +160,8 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
             pixel = colorlayer_getpixel(layer, c, r);
             pixel_setrgb(
                          dmxpanelcltn_getpixel(cltn,
-                                               c,
-                                               r),
+                                               r,
+                                               c),
                          pixel->red * (1 - pixel->alpha),
                          pixel->green * (1 - pixel->alpha),
                          pixel->blue * (1 - pixel->alpha)

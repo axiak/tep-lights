@@ -330,8 +330,8 @@ RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * cltn, int row, int column)
 
     i = row / ptr->height;
     j = column / ptr->width;
-
     ptr = dmxpanelcltn_getpanel(cltn, i, j);
+
     if (ptr) {
         return dmxpanel_getpixel(ptr, row % (ptr->height), column % (ptr->width));
     }
@@ -340,7 +340,7 @@ RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * cltn, int row, int column)
 
 void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column)
 {
-    int x = row * panelcltn->width + column;
+    int x = row * panelcltn->height + column;
 
     panelcltn->panels[x] = panel;
     panelcltn->_ledwidth = 0;
@@ -365,7 +365,7 @@ void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn)
 
 DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column)
 {
-    int x = row * panelcltn->width + column;
+    int x = row * panelcltn->height + column;
     return panelcltn->panels[x];
 }
 
