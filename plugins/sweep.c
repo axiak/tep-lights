@@ -51,32 +51,58 @@ int main(int argc, char **argv)
 	  y1[i]+=d;
 	  if(y1[i] > 23)
 	    y1[i] = -1;
-	  else
-	    draw_gradient2(layer,0,0,&BLACK,0,y1[i],&GREEN);
+	  else {
+	    draw_gradient2(layer2,0,0,&BLACK,0,y1[i],&GREEN);
+	    colorlayer_add(layer,layer2);
+	  }
 	}
 	if(y2[i] != -1){
 	  y2[i]-=d; 
 	  if(y1[i] < 0)
 	    y2[i] = -1;
-	  else
-	    draw_gradient2(layer,0,0,&BLACK,0,y2[i],&BLUE);
+	  else {
+	    draw_gradient2(layer2,0,0,&BLACK,0,y2[i],&BLUE);
+	    colorlayer_add(layer,layer2);
+	  }
+	  
 	}
 	if(x1[i] != -1){
 	  x1[i]+=d;
 	  if(y1[i] > 47)
 	    x1[i] = -1;
-	  else
-	    draw_gradient2(layer,0,0,&BLACK,x1[i],0,&RED);
+	  else {
+	    draw_gradient2(layer2,0,0,&BLACK,x1[i],0,&RED);
+	    colorlayer_add(layer,layer2);
+	  }
 	}
 	if(x2[i] != -1){
 	  x2[i]-=d;
 	  if(y1[i] < 0)
 	    x2[i] = -1;
-	  else
-	    draw_gradient2(layer,0,0,&BLACK,x2[i],0,&ORANGE);
+	  else {
+	    draw_gradient2(layer2,0,0,&BLACK,x2[i],0,&ORANGE);
+	    colorlayer_add(layer,layer2);
+	  }
 	}
       }
- 
+
+      // normalize...
+      float m = 0;
+      for(i = 0; i < layer->height; i++) {
+	for(j = 0; j < layer->width; j++) {
+	  RGBPixel* p = colorlayer_getpixel(layer, j, i);
+	  m = max(m,max(p->red,max(p->green,p->blue)));
+	}
+      }
+      for(i = 0; i < layer->height; i++) {
+	for(j = 0; j < layer->width; j++) {
+	  RGBPixel* p = colorlayer_getpixel(layer, j, i);
+	  p->red /= m;
+	  p->green /= m;
+	  p->blue /= m;
+	}
+      }
+
       /* Commit the layer */
       serverdata_commitlayer(s);
     }
