@@ -5,6 +5,9 @@ INCS = -I../inc -I.
 audioserver: *c *h
 	$(CC) $(INCS) -lfftw3 -ljack -g $(CCFLAGS) ipcstructs.c dmx.c server.c audioserver.c -o audioserver
 
+audiotestserver: *c *h
+	$(CC) $(INCS) -lSDL -lfftw3 -ljack -g $(CCFLAGS) ipcstructs.c dmx.c server.c dmxdummy.c audiotestserver.c -o audiotestserver
+
 server: *c *h
 	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
 
@@ -16,6 +19,9 @@ dmxtest: dmx.c dmx.h
 
 geom: geom.c
 	$(CC) $(INCS) -g $(CCFLAGS) geom.c -c
+
+dmxdummy: dmxdummy.c
+	$(CC) $(INCS) -g -DDMXDUMMY -lSDL $(CCFLAGS) dmx.c dmxdummy.c -o dmxdummy
 
 clean:
 	rm -f dmxtest plugintest

@@ -54,7 +54,7 @@ RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * panelcltn, int row, int colu
 void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column);
 void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn);
 DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column);
-
+void dmxpanel_wait(DMXPanel * panel);
 void pixel_print(RGBLed * led);
 
 /* Destroyers */

@@ -35,7 +35,9 @@ int ledmap_default(int r, int c)
     }
 }
 
+#ifndef FLOAT2CHAR
 #define FLOAT2CHAR(A) ((unsigned char)(256 * (MIN(MAX(A, 0), 0.999))))
+#endif
 
 /* RGBLed stuff */
 RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue)
@@ -191,9 +193,11 @@ DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width
 
     panel->leds = ledarray_create(width * height);
 
-    panel->sockfd = -1;
-    if (_dmxpanel_createsocket(panel)) {
-        _ERROR("Could not create socket");
+    if (ip) {
+        panel->sockfd = -1;
+        if (_dmxpanel_createsocket(panel)) {
+            _ERROR("Could not create socket");
+        }
     }
     return panel;
 }
