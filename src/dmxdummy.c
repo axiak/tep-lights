@@ -30,7 +30,7 @@ DMXDummyPanel * dummypanel_create(int width, int height)
     panel->width = width;
     panel->height = height;
 
-    screen = SDL_SetVideoMode(width * BINSIZE, height * BINSIZE, 16, SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(width * BINSIZE, height * BINSIZE, 16, SDL_HWSURFACE );
     panel->screen = screen;
     if ( screen == NULL ) {
         fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());

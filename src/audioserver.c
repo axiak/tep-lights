@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <time.h>
+#include <sys/time.h>
+
 #include <fftw3.h>
 #include <math.h>
 #include <jack/jack.h>
@@ -30,8 +33,11 @@ int debug;
 void j_shutdown(void *arg);
 int j_receive(jack_nframes_t nframes, void * arg);
 void analyze(void);
+double _currenttime();
 
 SoundInfo * soundinfo;
+
+#define FPSDELAY 5
 
 #define IFDEBUG if (debug)  
 
@@ -42,6 +48,10 @@ int main(int argc, char ** argv)
     ColorLayer * layer;
     int i, j;
     int found = 0;
+    int frames = 0;
+    double lastfpscount = _currenttime();
+    double ctime;
+
 #ifdef TESTDUMMY
     DMXDummyPanel * panel = dummypanel_create(48, 24);
     info->panel = panel->cltn;
@@ -91,17 +101,21 @@ int main(int argc, char ** argv)
 
     ColorLayer * layer2 = colorlayer_create();
 
+    int gotplugin = 0;
+
     while (1) {
         colorlayer_setall(layer2, 0, 0, 0, 1);
         info->soundinfo->frame_counter++;
         found = 0;
-        newc = num_clients(info->ipcdata);
+        /*newc = num_clients(info->ipcdata);
         if (newc != numc) {
             printf("Total clients: %d\n", newc);
             numc = newc;
         }
+        */
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
+                gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
                 //ColorLayer * colorlayer_addalpha(layer2, layer);
                 plugin_disuseotherlayer(info->ipcdata, i);
@@ -110,8 +124,9 @@ int main(int argc, char ** argv)
             }
         }
 
-        //colorlayer_pushtocollection(info->panel, layer2);
-
+        if (!gotplugin) {
+            continue;
+        }
         /*
         for (i = 0; i < 48 * 24; i++){
             RGBLed * p = dmxpanelcltn_getpixel(info->panel, i / 48, i % 48);
@@ -123,6 +138,15 @@ int main(int argc, char ** argv)
 #else
         dmxpanelcltn_sendframe(info->panel);
 #endif
+
+        frames ++;
+        ctime = _currenttime();
+        if ((ctime - lastfpscount) > FPSDELAY) {
+            fprintf(stderr, "Frames per second: %0.3f\n",
+                    frames / (ctime - lastfpscount));
+            frames = 0;
+            lastfpscount = ctime;
+        }
     }
 
 #ifdef TESTDUMMY
@@ -243,3 +267,5 @@ void analyze(void) {
     place++;
     soundinfo->frame_counter++;
 }
+
+

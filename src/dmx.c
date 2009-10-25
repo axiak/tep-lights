@@ -13,7 +13,7 @@
 
 #include "dmx.h"
 
-#define INTERFRAME 0.03334
+#define INTERFRAME 0.0332
 
 int _dmxpanel_createsocket(DMXPanel * panel);
 static inline int _dmxpanel_senddata(DMXPanel * panel, char * output, int len);

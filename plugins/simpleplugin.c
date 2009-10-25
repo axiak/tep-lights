@@ -25,8 +25,7 @@ int main(int argc, char **argv)
                 colorlayer_add(layer, layer2);
                 plugin_disuseotherlayer(s->ipcdata, j);
             }
-            }
-
+        }
 
         /* Do stuff to layer... */
         r = i / 48;
@@ -34,8 +33,8 @@ int main(int argc, char **argv)
 
         printf("%d,%d\n", c, r);
         rgbpixel_setvalue(colorlayer_getpixel(layer,
-                                              c, r),
-                          1, 1, 1, 1);
+                                              0, i % 24),
+                                              1, 1, 1, 1);
         i++;
         i %= 48 * 24;
 
