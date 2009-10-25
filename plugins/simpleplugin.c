@@ -35,10 +35,7 @@ int main(int argc, char **argv)
         printf("%d,%d\n", c, r);
         rgbpixel_setvalue(colorlayer_getpixel(layer,
                                               c, r),
-                          1, 0, 0, 0);
-        
-
-
+                          1, 1, 1, 1);
         i++;
         i %= 48 * 24;
 

@@ -97,6 +97,15 @@ void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, f
     }
 }
 
+RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
+{
+    pixel->red = red;
+    pixel->green = green;
+    pixel->blue = blue;
+    pixel->alpha = alpha;
+    return pixel;
+}
+
 ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
 {
     int n = dst->width * dst->height;

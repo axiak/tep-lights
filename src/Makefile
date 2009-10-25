@@ -6,7 +6,7 @@ audioserver: *c *h
 	$(CC) $(INCS) -lfftw3 -ljack -g $(CCFLAGS) ipcstructs.c dmx.c server.c audioserver.c -o audioserver
 
 audiotestserver: *c *h
-	$(CC) $(INCS) -lSDL -lfftw3 -ljack -g $(CCFLAGS) ipcstructs.c dmx.c server.c dmxdummy.c audiotestserver.c -o audiotestserver
+	$(CC) $(INCS) -lSDL -lfftw3 -ljack -g $(CCFLAGS) -DTESTDUMMY ipcstructs.c dmx.c server.c dmxdummy.c audioserver.c -o audiotestserver
 
 server: *c *h
 	$(CC) $(INCS) -g $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver

@@ -11,6 +11,10 @@
 #include "dmx.h"
 #include "beat.h"
 
+#ifdef TESTDUMMY
+#include "dmxdummy.h"
+#endif
+
 double * in;
 fftw_complex * out;
 fftw_complex * in2;
@@ -21,13 +25,15 @@ fftw_plan ff_plan2;
 jack_client_t * jclient;
 jack_port_t * j_lp;
 jack_port_t * j_rp;
-
+int debug;
 
 void j_shutdown(void *arg);
 int j_receive(jack_nframes_t nframes, void * arg);
 void analyze(void);
 
 SoundInfo * soundinfo;
+
+#define IFDEBUG if (debug)  
 
 int main(int argc, char ** argv)
 {
@@ -36,8 +42,22 @@ int main(int argc, char ** argv)
     ColorLayer * layer;
     int i, j;
     int found = 0;
+#ifdef TESTDUMMY
+    DMXDummyPanel * panel = dummypanel_create(48, 24);
+    info->panel = panel->cltn;
+#endif
 
+    debug = 0;
+    if (argc > 1) {
+        for (i = 1; i < argc; i++) {
+            if (!strcmp(argv[i], "-d")) {
+                debug = 1;
+                break;
+            }
+        }
+    }
     soundinfo = info->soundinfo;
+
 
     in = (double*) fftw_malloc(sizeof(double) * FFT_WINDOW_SIZE);
     out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_WINDOW_SIZE);
@@ -98,9 +118,16 @@ int main(int argc, char ** argv)
             pixel_print(p);
         }
         */
+#ifdef TESTDUMMY
+        dummypanel_sendframe(panel);
+#else
         dmxpanelcltn_sendframe(info->panel);
+#endif
     }
 
+#ifdef TESTDUMMY
+    dummypanel_destroy(panel);
+#endif
     destroy_serverenvironment(info);
     return 0;
 }
@@ -175,8 +202,10 @@ void analyze(void) {
             beat_band[i] += band_volume[i*size+j];
         beat_band[i] /= (float)size;
         beat_band[i] = sqrt(beat_band[i]);
+        IFDEBUG
         printf("\t%f",beat_band[i]);
     }
+    IFDEBUG
     printf("\n");
 
     double avg[BEAT_BANDS];
@@ -206,8 +235,10 @@ void analyze(void) {
 
         beat_history[place%BEAT_HISTORY_LENGTH][j] = is_beat[j];
         soundinfo->current_beats[j] = is_beat[j];
+        IFDEBUG
         printf("\t%f\t%f\t%i",avg[j],var[j],is_beat[j]);
     }
+    IFDEBUG
     printf("\n\n");
     place++;
     soundinfo->frame_counter++;

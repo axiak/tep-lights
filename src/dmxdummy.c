@@ -3,18 +3,14 @@
 
 #include "dmx.h"
 #include "dmxdummy.h"
-/*
-typedef struct {
-    DMXPanel * panel;
-    DMXPanelCollection * cltn;
-    SDL_Surface *screen;
-} DMXDummyPanel;
-*/
+
 #ifndef FLOAT2CHAR
 #define FLOAT2CHAR(A) ((unsigned char)(256 * (MIN(MAX(A, 0), 0.999))))
 #endif
 
 #define BINSIZE 15
+
+float _getalpha(int i, int j, int width);
 
 DMXDummyPanel * dummypanel_create(int width, int height)
 {
@@ -62,6 +58,7 @@ void dummypanel_sendframe(DMXDummyPanel * panel)
     Uint32 color;
     Uint16 *buf;
     int i, j;
+    float alpha;
 
     if (SDL_MUSTLOCK(screen)) {
         if (SDL_LockSurface(screen) < 0) {
@@ -72,12 +69,13 @@ void dummypanel_sendframe(DMXDummyPanel * panel)
     for (r = 0; r < p->height; r++) {
         for (c = 0; c < p->width; c++) {
             pixel = dmxpanel_getpixel(p, r, c);
-            color = SDL_MapRGB(screen->format,
-                               FLOAT2CHAR(pixel->red),
-                               FLOAT2CHAR(pixel->green),
-                               FLOAT2CHAR(pixel->blue));
             for (i = 0; i < BINSIZE; i++) {
                 for (j = 0; j < BINSIZE; j++) {
+                    alpha = _getalpha(i, j, BINSIZE);
+                    color = SDL_MapRGB(screen->format,
+                                       FLOAT2CHAR(pixel->red * alpha),
+                                       FLOAT2CHAR(pixel->green * alpha),
+                                       FLOAT2CHAR(pixel->blue * alpha));
                     buf = (Uint16*)screen->pixels + (BINSIZE * r + i) * screen->pitch/2 + (BINSIZE * c + j);
                     *buf = color;
                 }
@@ -111,3 +109,24 @@ int main(int argc, char ** argv)
     return 0;
 }
 #endif
+
+
+float _getalpha(int i, int j, int width)
+{
+    double distance_squared;
+    double center = width / 2.0;
+
+    distance_squared =
+        (i - center) * (i - center) +
+        (j - center) * (j - center);
+
+    if (distance_squared < 2) {
+        return 1;
+    }
+
+    if (distance_squared > ((center) * (center))) {
+        return 0;
+    }
+
+    return 1 - distance_squared / (center * center);
+}
