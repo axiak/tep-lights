@@ -92,6 +92,11 @@ void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, f
 {
     int i;
 
+    if (!red && !green && !blue && !alpha) {
+        memset(layer->pixels, 0, sizeof(layer->pixels));
+        return;
+    }
+
     for (i = 0; i < layer->width * layer->height; i++) {
         rgbpixel_setvalue(&layer->pixels[i], red, green, blue, alpha);
     }
@@ -145,6 +150,31 @@ ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
     return dst;
 }
 
+ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src) {
+    if (dst->width != src->width || dst->height != src->height) {
+        fprintf(stderr, "Size mismatch!\n");
+        exit(2);
+        return NULL;
+    }
+    memcpy(dst->pixels, src->pixels, sizeof(src->pixels));
+    return dst;
+}
+
+ColorLayer * colorlayer_superpose(ColorLayer * top, ColorLayer * bottom)
+{
+    int n = top->width * top->height;
+    int i;
+    RGBPixel * t, * b;
+    for (i = 0; i < n; i++) {
+        t = &top->pixels[i];
+        b = &bottom->pixels[i];
+        t->red = t->red * t->alpha + b->red * (1 - t->alpha);
+        t->green = t->green * t->alpha + b->green * (1 - t->alpha);
+        t->blue = t->blue * t->alpha + b->blue * (1 - t->alpha);
+        t->alpha = MIN(1, t->alpha + b->alpha);
+    }
+    return top;
+}
 
 ColorLayer * colorlayer_create()
 {
@@ -233,30 +263,18 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
     int r, c;
     RGBPixel * pixel;
     RGBLed * p;
-    DMXPanel * panel;
-    panel = dmxpanelcltn_getpanel(cltn, 0, 0);
+
     for (r = 0; r < layer->height; r++) {
         for (c = 0; c < layer->width; c++) {
             pixel = colorlayer_getpixel(layer, c, r);
             pixel_setrgb(
-                         /*dmxpanelcltn_getpixel(cltn,
+                         dmxpanelcltn_getpixel(cltn,
                                                r,
-                                               c),*/
-                         dmxpanel_getpixel(panel,
-                                           r, c),
+                                               c),
                          pixel->red * pixel->alpha,
                          pixel->green * pixel->alpha,
                          pixel->blue * pixel->alpha
                          );
-
-            if (pixel->red || pixel->green || pixel->blue) {
-                printf("S: (%d,%d)\n", c, r);
-            }
-            p = dmxpanelcltn_getpixel(cltn, r, c);
-            if (p->red || p->green || p->blue) {
-                printf("R2: (%d,%d)\n", c, r);
-            }
-            
         }
     }
 }

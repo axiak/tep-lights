@@ -14,36 +14,28 @@ int main(int argc, char **argv)
     ColorLayer * layer2;
     RGBPixel color;
     RGBPixel color2;
+    double hue;
     i = 0;
+    srand(22);
     layer->width = 48;
     layer->height = 24;
+
     while (1) {
+        usleep(100000);
         serverdata_update(s); /* Wait for audio info to update */
+        /*colorlayer_setall(layer, 0, 0, 0, 0);*/
         printf("YO\n");
-        /* Get other plugin information */
-
-       /*  for (j = 0; j < MAXPLUGINS; j++) { */
-/*             if (s->info->input_plugins[j]) { */
-/*                 /\* The plugin is one of its inputs, we should use it now. *\/ */
-/*                 layer2 = plugin_useotherlayer(s->ipcdata, j); */
-/*                 /\* do stuff with layer2...*\/ */
-/*                 colorlayer_add(layer, layer2); */
-/*                 plugin_disuseotherlayer(s->ipcdata, j); */
-/*             } */
-/* 	} */
-
-
-        
         /* Do stuff to layer... */
-        rgbpixel_sethbsvalue(&color, i/48.0, 1.0, 0.0, 1.0);
+        //rgbpixel_sethbsvalue(&color, i/48.0, 1.0, 0.0, 1.0);
+        hue = (rand() % 10000) / 10000.0;
+        rgbpixel_sethbsvalue(&color, hue, 1.0, 0, 1.0);
         rgbpixel_setvalue(&color2, 0, 1.0, 0, 1.0);
-
-	//colorlayer_setall(layer, 0, 0, 0, 0);
-	
         r = i / 48;
         c = i % 48;
 
         draw_circle(layer, rand()%48, rand()%24, rand()%30, &color);
+        /*draw_circle(layer, rand()%48, rand()%24, rand()%30, &color);
+          draw_circle(layer, rand()%48, rand()%24, rand()%30, &color);*/
 	//draw_line(layer, rand()%96, rand()%48,
 	//rand()%96, rand()%48, &color);
 	//draw_line(layer, 0, 0,

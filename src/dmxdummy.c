@@ -13,6 +13,8 @@
 
 float _getalpha(int i, int j, int width);
 
+/* TODO: FIX THIS! */
+
 DMXDummyPanel * dummypanel_create(int width, int height)
 {
     DMXDummyPanel * panel = (DMXDummyPanel *)malloc(sizeof(DMXDummyPanel));

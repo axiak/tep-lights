@@ -51,6 +51,8 @@ void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, f
 void rgbpixel_print(RGBPixel * pixel);
 ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src);
 ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
+ColorLayer * colorlayer_superpose(ColorLayer * top, ColorLayer * bottom);
+ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src);
 
 ColorLayer * colorlayer_create();
 void colorlayer_destroy(ColorLayer * layer);

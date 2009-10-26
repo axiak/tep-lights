@@ -99,40 +99,53 @@ int main(int argc, char ** argv)
         fprintf(stderr, "Could not connect to Jack client... Audio disabled!\n");
     }
 
-    ColorLayer * layer2 = colorlayer_create();
+    ColorLayer * shimmering = colorlayer_create();
+    ColorLayer * circles = colorlayer_create();
 
     int gotplugin = 0;
+    int background = 0;
 
     while (1) {
-        colorlayer_setall(layer2, 0, 0, 0, 1);
+        colorlayer_setall(shimmering, 0, 0, 0, 0);
+        colorlayer_setall(circles, 0, 0, 0, 0);
+        background = 0;
+
         info->soundinfo->frame_counter++;
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
-                colorlayer_pushtocollection(info->panel, layer);
-                int r, c;
-                printf("0x%X\n", info->panel);
-                for (r = 0; r < layer->height; r++) {
-                    for (c = 0; c < layer->width; c++) {
-                        /*
-                        RGBPixel * pixel = colorlayer_getpixel(layer,
-                                                               c, r);
-                        if (pixel->red || pixel->blue || pixel->green) {
-                            printf("(%d,%d)\n",  c, r);
-                            }
-                        */
-                        RGBLed * pixel = dmxpanelcltn_getpixel(info->panel,
-                                                           r, c);
-                        if (pixel->red || pixel->blue || pixel->green) {
-                            printf("R: (%d,%d)\n",  c, r);
-                        }
-                    }
+                if (info->ipcdata->plugins[i].id == 301) {
+                    /* Circles.. foreground */
+                    colorlayer_copy(circles, layer);
+                }
+                else {
+                    /* Shimmering ..  background */
+                    colorlayer_copy(shimmering, layer);
+                    background = 1;
                 }
                 plugin_disuseotherlayer(info->ipcdata, i);
-                break;
             }
         }
+
+        /*colorlayer_superpose(circles, shimmering);*/
+        if (background) {
+            colorlayer_mult(circles, shimmering);
+        }
+            
+        colorlayer_pushtocollection(info->panel, circles);
+
+
+        /*
+          int r, c;
+        for (r = 0; r < layer->height; r++) {
+            for (c = 0; c < layer->width; c++) {
+                RGBLed * pixel = dmxpanelcltn_getpixel(info->panel,
+                                                       r, c);
+            }
+        }
+        */
+
 
         if (!gotplugin) {
             continue;
