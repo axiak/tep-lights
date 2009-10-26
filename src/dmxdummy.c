@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
+#include <sys/signal.h>
 
 #include "dmx.h"
 #include "dmxdummy.h"
@@ -23,10 +24,12 @@ DMXDummyPanel * dummypanel_create(int width, int height)
     panel->panel = dpanel;
     panel->cltn = cltn;
 
-    if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0 ) {
+    if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0 ) {
         fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
         exit(1);
     }
+    signal(SIGINT, SIG_DFL);
+
     panel->width = width;
     panel->height = height;
 

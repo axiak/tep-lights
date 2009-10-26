@@ -232,17 +232,31 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
 {
     int r, c;
     RGBPixel * pixel;
+    RGBLed * p;
+    DMXPanel * panel;
+    panel = dmxpanelcltn_getpanel(cltn, 0, 0);
     for (r = 0; r < layer->height; r++) {
         for (c = 0; c < layer->width; c++) {
             pixel = colorlayer_getpixel(layer, c, r);
             pixel_setrgb(
-                         dmxpanelcltn_getpixel(cltn,
+                         /*dmxpanelcltn_getpixel(cltn,
                                                r,
-                                               c),
+                                               c),*/
+                         dmxpanel_getpixel(panel,
+                                           r, c),
                          pixel->red * pixel->alpha,
                          pixel->green * pixel->alpha,
                          pixel->blue * pixel->alpha
                          );
+
+            if (pixel->red || pixel->green || pixel->blue) {
+                printf("S: (%d,%d)\n", c, r);
+            }
+            p = dmxpanelcltn_getpixel(cltn, r, c);
+            if (p->red || p->green || p->blue) {
+                printf("R2: (%d,%d)\n", c, r);
+            }
+            
         }
     }
 }

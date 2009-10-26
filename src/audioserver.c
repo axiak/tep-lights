@@ -44,10 +44,8 @@ SoundInfo * soundinfo;
 int main(int argc, char ** argv)
 {
     ServerInfo * info = new_serverenvironment();
-    int numc = -1, newc;
     ColorLayer * layer;
-    int i, j;
-    int found = 0;
+    int i;
     int frames = 0;
     double lastfpscount = _currenttime();
     double ctime;
@@ -78,26 +76,28 @@ int main(int argc, char ** argv)
 
     // set up jack
     printf("Connecting to jack...\n");
-    if(!(jclient = jack_client_open("timbre", JackNoStartServer, NULL))) {
-        fprintf(stderr, "Cannot connect to jack.\n");
-        return 1;
-    }
-    printf("Connected.\n");
+    if ((jclient = jack_client_open("timbre", JackNoStartServer, NULL))) {
+        printf("Connected.\n");
 
-    jack_set_process_callback(jclient, j_receive, 0);
-    jack_on_shutdown(jclient, j_shutdown, 0);
+        jack_set_process_callback(jclient, j_receive, 0);
+        jack_on_shutdown(jclient, j_shutdown, 0);
     
-    printf("set jack callbacks\n");
+        printf("set jack callbacks\n");
+        
+        if(jack_activate(jclient)) {
+            fprintf(stderr, "Cannot activate jack client.\n");
+            return 1;
+        }
     
-    if(jack_activate(jclient)) {
-        fprintf(stderr, "Cannot activate jack client.\n");
-        return 1;
+        printf("activated jack client\n");
+        
+        j_lp = jack_port_register(jclient, "in1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+        j_rp = jack_port_register(jclient, "in2", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+        
     }
-    
-    printf("activated jack client\n");
-    
-    j_lp = jack_port_register(jclient, "in1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
-    j_rp = jack_port_register(jclient, "in2", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+    else {
+        fprintf(stderr, "Could not connect to Jack client... Audio disabled!\n");
+    }
 
     ColorLayer * layer2 = colorlayer_create();
 
@@ -106,20 +106,30 @@ int main(int argc, char ** argv)
     while (1) {
         colorlayer_setall(layer2, 0, 0, 0, 1);
         info->soundinfo->frame_counter++;
-        found = 0;
-        /*newc = num_clients(info->ipcdata);
-        if (newc != numc) {
-            printf("Total clients: %d\n", newc);
-            numc = newc;
-        }
-        */
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
-                //ColorLayer * colorlayer_addalpha(layer2, layer);
-                plugin_disuseotherlayer(info->ipcdata, i);
                 colorlayer_pushtocollection(info->panel, layer);
+                int r, c;
+                printf("0x%X\n", info->panel);
+                for (r = 0; r < layer->height; r++) {
+                    for (c = 0; c < layer->width; c++) {
+                        /*
+                        RGBPixel * pixel = colorlayer_getpixel(layer,
+                                                               c, r);
+                        if (pixel->red || pixel->blue || pixel->green) {
+                            printf("(%d,%d)\n",  c, r);
+                            }
+                        */
+                        RGBLed * pixel = dmxpanelcltn_getpixel(info->panel,
+                                                           r, c);
+                        if (pixel->red || pixel->blue || pixel->green) {
+                            printf("R: (%d,%d)\n",  c, r);
+                        }
+                    }
+                }
+                plugin_disuseotherlayer(info->ipcdata, i);
                 break;
             }
         }
@@ -246,13 +256,10 @@ void analyze(void) {
             var[j] += pow(deriv_history[i][j]-avg[j],2);
         var[j] /= (float)AVG_HISTORY_LENGTH;
         
-        double cutoff = 1.5-.00002*var[j];
-        //    printf("\tc:%f",cutoff);
-        
         deriv_history[place%AVG_HISTORY_LENGTH][j] = MAX(beat_band[j]-band_history[(place-1)%AVG_HISTORY_LENGTH][j],0)*44100/FFT_WINDOW_SIZE;
         //    printf("\td:%f", deriv_history[place%AVG_HISTORY_LENGTH][j]);
         band_history[place%AVG_HISTORY_LENGTH][j] = beat_band[j];
-        if(deriv_history[place%AVG_HISTORY_LENGTH][j] > 1.4/*cutoff*/*avg[j])
+        if(deriv_history[place%AVG_HISTORY_LENGTH][j] > 1.4*avg[j])
             is_beat[j] = 1;
         else
             is_beat[j] = 0;

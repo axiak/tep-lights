@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -I../src -O2 -lm
+CFLAGS = -I../src -O2 -lm -D_POSIX_SOURCE
 CCFLAGS = -Wall -std=c99 -pedantic -D_SVID_SOURCE=1 -I../inc
 
 % : %.c

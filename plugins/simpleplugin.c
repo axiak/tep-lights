@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
         printf("%d,%d\n", c, r);
         rgbpixel_setvalue(colorlayer_getpixel(layer,
-                                              0, i % 24),
+                                              c, r),
                                               1, 1, 1, 1);
         i++;
         i %= 48 * 24;
