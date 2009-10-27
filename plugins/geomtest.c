@@ -24,8 +24,6 @@ int main(int argc, char **argv)
         usleep(100000);
         serverdata_update(s); /* Wait for audio info to update */
         /*colorlayer_setall(layer, 0, 0, 0, 0);*/
-        printf("YO\n");
-        /* Do stuff to layer... */
         //rgbpixel_sethbsvalue(&color, i/48.0, 1.0, 0.0, 1.0);
         hue = (rand() % 10000) / 10000.0;
         /*rgbpixel_sethbsvalue(&color, hue, 1.0, 1, 1.0);*/

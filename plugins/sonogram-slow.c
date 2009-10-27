@@ -4,6 +4,8 @@
 
 #define PLUGINID 103
 
+#define BIN 12
+
 int main(int argc, char **argv)
 {
     int i, r, c, j;
@@ -17,11 +19,11 @@ int main(int argc, char **argv)
     layer->width = 48;
     layer->height = 24;
     double avg = 0;
-    float values[24 * 48 * 12];
+    float values[24 * 48 * BIN];
 
     while (1) {
         serverdata_update(s); /* Wait for audio info to update */
-        for (i = 48 * 12 - 1; i >= 0; i--) {
+        for (i = 48 * BIN - 1; i >= 0; i--) {
             for (j = 0; j < 24; j++) {
                 values[24 * i + j] = values[24 * (i + 1) + j];
             }
