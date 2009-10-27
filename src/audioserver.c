@@ -49,6 +49,7 @@ int main(int argc, char ** argv)
     int frames = 0;
     double lastfpscount = _currenttime();
     double ctime;
+    int foreground_plugin = 301;
 
 #ifdef TESTDUMMY
     DMXDummyPanel * panel = dummypanel_create(48, 24);
@@ -60,12 +61,13 @@ int main(int argc, char ** argv)
         for (i = 1; i < argc; i++) {
             if (!strcmp(argv[i], "-d")) {
                 debug = 1;
-                break;
+            }
+            if (atoi(argv[i])) {
+                foreground_plugin = atoi(argv[i]);
             }
         }
     }
     soundinfo = info->soundinfo;
-
 
     in = (double*) fftw_malloc(sizeof(double) * FFT_WINDOW_SIZE);
     out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_WINDOW_SIZE);
@@ -115,7 +117,7 @@ int main(int argc, char ** argv)
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
-                if (info->ipcdata->plugins[i].id == 301) {
+                if (info->ipcdata->plugins[i].id == foreground_plugin) {
                     /* Circles.. foreground */
                     colorlayer_copy(circles, layer);
                 }

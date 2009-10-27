@@ -23,7 +23,7 @@ typedef struct {
     unsigned char dmxport;
     SZ width;
     SZ height;
-    int (*func)(int, int);
+    int (*func)(int, int, int, int);
     LEDArray * leds;
     int sockfd;
     struct sockaddr * server_addr;
@@ -73,7 +73,7 @@ static inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
     if (dmxpanel->direction) {
         cprime = dmxpanel->width - c - 1;
     }
-    idx = (dmxpanel->func)(r, cprime);
+    idx = (dmxpanel->func)(dmxpanel->height, dmxpanel->width, r, cprime);
     if (idx < 0 || idx >= dmxpanel->leds->size) {
         return (RGBLed *)0;
     }

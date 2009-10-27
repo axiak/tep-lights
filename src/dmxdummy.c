@@ -13,12 +13,15 @@
 
 float _getalpha(int i, int j, int width);
 
-/* TODO: FIX THIS! */
+int dummypanel_ledmap(int height, int width, int r, int c)
+{
+    return r * width + c;
+}
 
 DMXDummyPanel * dummypanel_create(int width, int height)
 {
     DMXDummyPanel * panel = (DMXDummyPanel *)malloc(sizeof(DMXDummyPanel));
-    DMXPanel * dpanel = dmxpanel_create(0, 0, 0, width, height, 0);
+    DMXPanel * dpanel = dmxpanel_create(0, 0, 0, width, height, &dummypanel_ledmap);
     DMXPanelCollection * cltn = dmxpanelcltn_create(1, 1);
     SDL_Surface *screen;
     dmxpanelcltn_setpanel(cltn, dpanel, 0, 0);
@@ -73,7 +76,7 @@ void dummypanel_sendframe(DMXDummyPanel * panel)
 
     for (r = 0; r < p->height; r++) {
         for (c = 0; c < p->width; c++) {
-            pixel = dmxpanel_getpixel(p, r, c);
+            pixel = dmxpanel_getpixel(p, p->height - r - 1, c);
             for (i = 0; i < BINSIZE; i++) {
                 for (j = 0; j < BINSIZE; j++) {
                     alpha = _getalpha(i, j, BINSIZE);

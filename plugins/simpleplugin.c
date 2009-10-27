@@ -30,11 +30,9 @@ int main(int argc, char **argv)
         /* Do stuff to layer... */
         r = i / 48;
         c = i % 48;
-
-        printf("%d,%d\n", c, r);
-        rgbpixel_setvalue(colorlayer_getpixel(layer,
+        rgbpixel_sethbsvalue(colorlayer_getpixel(layer,
                                               c, r),
-                                              1, 1, 1, 1);
+                                              i / 13.0, 1, 0, 1);
         i++;
         i %= 48 * 24;
 

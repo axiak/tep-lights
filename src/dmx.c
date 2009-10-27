@@ -25,7 +25,7 @@ static inline void _ERROR(char * s) {
 }
 
 /* Default map function */
-int ledmap_default(int r, int c)
+int ledmap_default(int height, int width, int r, int c)
 {
     if (c < 6) {
         return r + 12 * (5 - c);

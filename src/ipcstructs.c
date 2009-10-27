@@ -225,8 +225,6 @@ int num_clients(IPCData * data)
     return total;
 }
 
-
-
 int begin_lightread(ClientInfo * client)
 {
     struct sembuf buffer;
@@ -236,7 +234,6 @@ int begin_lightread(ClientInfo * client)
     return 0;
 }
 
-
 int end_lightread(ClientInfo * client)
 {
     struct sembuf buffer;
@@ -245,7 +242,6 @@ int end_lightread(ClientInfo * client)
     semop(client->semid, &buffer, 1);
     return 0;
 }
-
 
 ColorLayer * plugin_useotherlayer(IPCData * data, int id)
 {
@@ -262,8 +258,6 @@ void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer)
 {
     int r, c;
     RGBPixel * pixel;
-    RGBLed * p;
-
     for (r = 0; r < layer->height; r++) {
         for (c = 0; c < layer->width; c++) {
             pixel = colorlayer_getpixel(layer, c, r);
