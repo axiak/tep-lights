@@ -28,7 +28,13 @@ int main(int argc, char **argv)
         /* Do stuff to layer... */
         //rgbpixel_sethbsvalue(&color, i/48.0, 1.0, 0.0, 1.0);
         hue = (rand() % 10000) / 10000.0;
-        rgbpixel_sethbsvalue(&color, hue, 1.0, 0, 1.0);
+        /*rgbpixel_sethbsvalue(&color, hue, 1.0, 1, 1.0);*/
+        rgbpixel_setvalue(&color,
+                          (rand() % 10000) / 10000.0,
+                          (rand() % 10000) / 10000.0,
+                          (rand() % 10000) / 10000.0,
+                          1);
+                          
         rgbpixel_setvalue(&color2, 0, 1.0, 0, 1.0);
         r = i / 48;
         c = i % 48;

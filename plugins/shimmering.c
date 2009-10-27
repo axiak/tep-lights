@@ -14,6 +14,8 @@ int main(int argc, char **argv)
     double width = 1.0, hue = 0, shimmer_angle = 0,
         center_x = 0, center_y = 0, dx = 0.001, dy = 0.001, dist;
 
+    double hmax = 0, hmin = 0;
+
     for (;;) {
         serverdata_update(s);
         hue += 2 / 255.0;
@@ -21,7 +23,7 @@ int main(int argc, char **argv)
         center_x += dx * cos(shimmer_angle / 100);
         center_y += dy * sin(shimmer_angle / 100);
 
-        if (center_x > width) {
+        if (center_x > 1) {
             dx = -dx;
             center_x = 1;
         }
@@ -46,7 +48,7 @@ int main(int argc, char **argv)
                 dist = cos(shimmer_angle / 10.0) * x * y + cos(shimmer_angle) * x * x + sin(shimmer_angle) * y * y;
                 rgbpixel_sethbsvalue(
                                      colorlayer_getpixel(layer, c, r),
-                                     hue + dist / 2.5, 1, 0, 1);
+                                     hue + dist / 2.0, 1, 0, 1);
             }
         }
         
