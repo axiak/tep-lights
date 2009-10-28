@@ -18,6 +18,13 @@ int dummypanel_ledmap(int height, int width, int r, int c)
     return r * width + c;
 }
 
+void sighandler(int signal)
+{
+    destroy_shmdata();
+    atexit(SDL_Quit);
+    exit(signal);
+}
+
 DMXDummyPanel * dummypanel_create(int width, int height)
 {
     DMXDummyPanel * panel = (DMXDummyPanel *)malloc(sizeof(DMXDummyPanel));
@@ -33,7 +40,7 @@ DMXDummyPanel * dummypanel_create(int width, int height)
         fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
         exit(1);
     }
-    signal(SIGINT, SIG_DFL);
+    signal(SIGINT, sighandler);
 
     panel->width = width;
     panel->height = height;

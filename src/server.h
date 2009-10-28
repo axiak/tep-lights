@@ -15,4 +15,6 @@ typedef struct {
 ServerInfo * new_serverenvironment();
 
 void destroy_serverenvironment(ServerInfo * info);
+
+void destroy_shmdata(void);
 #endif

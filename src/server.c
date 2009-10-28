@@ -18,6 +18,22 @@
 #define SHMSIZE MAX(10000000, sizeof(IPCData))
 /*#define SHMSIZE sizeof(IPCData)*/
 
+void destroy_shmdata(void)
+{
+    /* Create shared memory stuff */
+    key_t key = ftok(MAINSEMFILE, 'a');
+    /* Remove old shm memory segment */
+    {
+        struct shmid_ds output;
+        int shmid = shmget(key, 0, 0666);
+
+        if (shmid >= 0) {
+            shmctl(shmid, IPC_RMID, &output);
+        }
+    }
+}
+
+
 ServerInfo * new_serverenvironment()
 {
     key_t key;
