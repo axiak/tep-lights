@@ -6,6 +6,8 @@
 
 #define PLUGINID 301
 
+static const int ever = 1;
+
 int main(int argc, char **argv)
 {
     int i, r, c, j;
@@ -20,7 +22,7 @@ int main(int argc, char **argv)
     layer->width = 48;
     layer->height = 24;
 
-    while (1) {
+    for (;ever;) {
         usleep(100000);
         serverdata_update(s); /* Wait for audio info to update */
         /*colorlayer_setall(layer, 0, 0, 0, 0);*/

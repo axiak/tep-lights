@@ -4,6 +4,8 @@
 
 #define PLUGINID 105
 
+static const int ever = 1;
+
 int main(int argc, char **argv)
 {
     int i, r, c, j;
@@ -16,7 +18,7 @@ int main(int argc, char **argv)
 
     double hmax = 0, hmin = 0;
 
-    for (;;) {
+    for (;ever;) {
         serverdata_update(s);
         hue += 2 / 255.0;
         shimmer_angle += 0.05;
