@@ -12,8 +12,11 @@ setup_environ(settings)
 from squidnet import squidclient as sc
 from squidweb.squid.models import ServerInfo
 
+import pydaemon
+
 def main():
     # our main event loop is inside SquidInfo
+    pydaemon.createDaemon()
     info = sc.SquidInfo(callback=handle_info)
     info.start()
     while True:
