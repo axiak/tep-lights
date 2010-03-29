@@ -30,3 +30,11 @@ a:hover {
     font-size: 8pt;
 }
 
+.errorlist {
+    color: red;
+    font-weight: bold;
+    font-size: .8em;
+    list-style-type: none;
+    padding: none;
+    margin: 0 0 0 -40px;
+}
