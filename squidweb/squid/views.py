@@ -11,10 +11,6 @@ from squidweb.squid.models import *
 
 from squidnet import sexp
 
-sockdata = threading.local()
-sockdata.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sockdata.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-sockdata.sock.settimeout(10)
 
 ajax_success = HttpResponse('{"Result":"Success"}', mimetype='application/json')
 ajax_fail = HttpResponse('{"Result":"Fail"}', mimetype='application/json')
@@ -70,6 +66,13 @@ def messageform(request, server, device, message):
                                       'server': serverinfo})
 
 
+class SockData(threading.local):
+    def __init__(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.sock.settimeout(10)
+
+sockdata = SockData()
 
 def send_request(serverinfo, device, message, args):
     r = serverinfo.info.request(device, message, args)
