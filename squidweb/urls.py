@@ -6,9 +6,10 @@ from django.conf import settings
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-     url(r'^/?$', 'squidweb.squid.views.servers', name='servers'),
+     url(r'^/servers/?$', 'squidweb.squid.views.servers', name='servers'),
      (r'^media/(?P<path>.*)$', 'django.views.static.serve',
       {'document_root': settings.MEDIA_ROOT}),
+     url(r'^/?$', 'squidweb.squid.views.devices', name='all-devices'),
      url(r'^(?P<server>\w+)/?$', 'squidweb.squid.views.devices', name='devices'),
      url(r'^(?P<server>\w+)/(?P<device>[^/]+)/(?P<message>[^/]+)/?$', 'squidweb.squid.views.messageform', name='messageform'),
 

@@ -1,6 +1,7 @@
 import datetime
 import socket
 import threading
+import itertools
 
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
@@ -21,13 +22,26 @@ def servers(request):
                                      {'servers': servers})
 
 
-def devices(request, server, success=False):
-    serverinfo = get_object_or_404(ServerInfo,
-                                   pk = server,
-                                   expires__gte = datetime.datetime.now())
+def devices(request, server=None, success=False):
+    if server:
+        serverinfo = get_object_or_404(ServerInfo,
+                                       pk = server,
+                                       expires__gte = datetime.datetime.now())
+        devices = serverinfo.devices
+        for device in devices:
+            device.server = serverinfo
+    else:
+        serverinfo = None
+        devices = []
+        for server in ServerInfo.objects.filter(expires__gte = datetime.datetime.now()):
+            for device in server.devices:
+                devices.append(device)
+                device.server = server
+
     return simple.direct_to_template(request, 'squid/serverdetail.html',
                                      {'server': serverinfo,
-                                      'success': success})
+                                      'success': success,
+                                      'devices': devices})
 
 
 

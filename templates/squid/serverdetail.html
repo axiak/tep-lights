@@ -1,17 +1,23 @@
 {% extends "base.html" %}
 
 {% block breadcrumbs %}
+{% if server %}
 {{ block.super }} &raquo; <a href="{{ server.get_absolute_url }}" title="{{ server.server_name }} options">{{ server.server_name }}</a>
+{% else %}
+{{ block.super }}
+{% endif %}
 {% endblock %}
 
 {% block content %}
+{% if server %}
 <h3>Options for {{ server.server_name }}</h3>
-{% for device in server.devices %}
-<strong>{{ device.name }} &ndash; <em>{{ device.desc }}</em>:</strong>
+{% endif %}
+{% for device in devices %}
+<strong>{{ device.name }} <small>(on {{ device.server.server_name }})</small> &ndash; <em>{{ device.desc }}</em>:</strong>
 <ul>
 {% for message in device.messages %}
-  <li><a href="{{ server.get_absolute_url }}/{{ device.name }}/{{ message.name }}" title="{{ message.name }} {{ device.name }}">
-      {{ message.name }} {{ device.name }} &ndash; {{ message.desc }}
+  <li><a href="{{ device.server.get_absolute_url }}/{{ device.name }}/{{ message.name }}" title="{{ message.name }} {{ device.name }}">
+      {{ message.name }} &ndash; {{ message.desc }}
     </a></li>
 {% endfor %}
 </ul>
