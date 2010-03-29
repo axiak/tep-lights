@@ -1,0 +1,1 @@
+../squidnet/squidclient.py
