@@ -72,11 +72,13 @@ class SquidServer(object) :
         else :
             raise Exception("server: loading from incorrect s-expression")
 
-class SquidDevice :
+class SquidDevice(object) :
     def __init__(self, name, desc) :
         self.name = name if name is not None else ""
         self.desc = desc if desc is not None else ""
         self.messages = []
+    def __repr__(self):
+        return '<SquidDevice %s>' % self.name
     def add_message(self, message) :
         self.messages.append(message)
         message.set_device(self)
@@ -134,6 +136,10 @@ class SquidMessage :
         self.desc = desc if desc is not None else ""
         self.arguments = arguments or []
         self.handler = handler
+
+    def __repr__(self):
+        return '<SquidMessage: %s>' % (self.name)
+
     def set_device(self, device) :
         self.device = device
     def set_handler(self, function) :

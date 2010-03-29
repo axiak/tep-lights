@@ -8,7 +8,7 @@ def message_form_factory(message):
     attrs = {}
     for argument in message.arguments:
         attrs[argument.name] = field_factory[argument.argtype.argtype](
-            argument.name, '')
+            argument.name, '', argument.default or '')
     attrs['description'] = message.desc
     attrs['name'] = message.name
     attrs['messageobj'] = message
@@ -27,9 +27,9 @@ def message_form_factory(message):
 
 # A mapping between the argument types and their respective field output
 field_factory = {
-    'boolean': lambda name, desc: forms.BooleanField(help_text=desc),
-    'color':   lambda name, desc: ColorField(help_text=desc),
-    'integer': lambda name, desc: forms.IntegerField(help_text=desc),
-    'range':   lambda name, desc: forms.FloatField(help_text=desc, min_value=0, max_value=1),
-    'string':  lambda name, desc: forms.CharField(help_text=desc),
+    'boolean': lambda name, desc, default: forms.BooleanField(help_text=desc, initial=default),
+    'color':   lambda name, desc, default: ColorField(help_text=desc, initial=default),
+    'integer': lambda name, desc, default: forms.IntegerField(help_text=desc, initial=default),
+    'range':   lambda name, desc, default: forms.FloatField(help_text=desc, min_value=0, max_value=1, initial=default),
+    'string':  lambda name, desc, default: forms.CharField(help_text=desc, initial=default),
     }
