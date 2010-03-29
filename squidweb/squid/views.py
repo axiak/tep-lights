@@ -68,7 +68,7 @@ def messageform(request, server, device, message):
             send_request(serverinfo, device, message, form.create_squid_args())
             if request.is_ajax():
                 return ajax_success
-            return redirect('devices')
+            return redirect('devices', None)
     else:
         form = FormClass()
 
