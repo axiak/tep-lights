@@ -60,3 +60,8 @@ INSTALLED_APPS = (
 TEMPLATE_CONTEXT_PROCESSORS = ('squidweb.context_processors.media_url',)
 
 URL_ROOT = '/'
+
+try:
+    from site_settings import *
+except ImportError:
+    pass
