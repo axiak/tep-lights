@@ -99,7 +99,10 @@ class ShellRunner(object):
            except OSError:
                pass
            finally:
-               os.waitpid(self.pid, 0)
+               try :
+                   os.waitpid(self.pid, 0)
+               except :
+                   print "Mike doesn't know finally."
        self.lock.release()
    def spawn(self, path, args=None) :
        if args is None :
@@ -111,7 +114,10 @@ class ShellRunner(object):
            except OSError:
                pass
            finally:
-               os.waitpid(self.pid, 0)
+               try :
+                   os.waitpid(self.pid, 0)
+               except :
+                   print "Mike doesn't know finally."
        self.pid = os.spawnv(os.P_NOWAIT, path, args)
        self.lock.release()
 

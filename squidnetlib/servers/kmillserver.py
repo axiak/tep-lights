@@ -55,6 +55,12 @@ def handle_st_set(args) :
 def handle_st_stop(args) :
     st_sr.kill()
 
+speak_sr = ss.ShellRunner()
+def handle_say(args) :
+    words = args["text"].value
+    print "Saying",words
+    speak_sr.spawn("/usr/bin/say", ["say", words])
+
 serv = sp.SquidServer("kmill", "kmill.mit.edu", 2222, "Kyle's computer")
 d1 = sp.SquidDevice("22-lights", "The lights in 22")
 serv.add_device(d1)
@@ -93,5 +99,12 @@ d2.add_message(sp.SquidMessage("set",
 d2.add_message(sp.SquidMessage("stop",
                                "Stop the lights", [],
                                handle_st_stop))
+
+d3 = sp.SquidDevice("computer", "Kyle's computer")
+serv.add_device(d3)
+d3.add_message(sp.SquidMessage("say",
+                               "Says a phrase",
+                               [sp.SquidArgument("text", sp.SquidStringType())],
+                               handle_say))
 
 ss.run_server(serv)
