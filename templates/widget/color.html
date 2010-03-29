@@ -1,0 +1,14 @@
+<script type="text/javascript" charset="utf-8">
+<!--
+   $(document).ready(function() {
+     $('#{{ id }}-picker').farbtastic(cbgen('#{{ id }}'));
+     $('#{{ id }}-picker').get(0).fb.setColor($('#{{ id }}').get(0).value);
+   });
+//-->
+</script>
+<div class="form-item">
+  <label for="{{ id }}-updateval">Update color quickly:</label>
+    <input type="checkbox" id="{{ id }}-updateval" name="{{ id }}-updateval" checked/><br />
+  <input type="text" id="{{ id }}" name="{{ id }}" value="{{ value }}" />
+</div>
+<div id="{{ id }}-picker"></div>

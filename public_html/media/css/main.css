@@ -1,0 +1,31 @@
+body {
+    margin-left: 15px;
+    font-family:"Trebuchet MS",sans-serif;
+    background-image: url('../img/squid.gif');
+    background-repeat: no-repeat;
+}
+
+h1 {
+    font-size: 22pt;
+    color: #606;
+}
+
+#breadcrumbs {
+    font-family: "arial";
+    font-size: 10pt;
+}
+
+a {
+    text-decoration: none;
+    color: #00c;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+#footer {
+    font-size: 8pt;
+}
+

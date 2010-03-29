@@ -12,6 +12,7 @@ class BroadcastServer(Thread) :
     def __init__(self, server_info) :
         Thread.__init__(self)
         self.server_info = server_info
+        self.setDaemon(True)
         self.go = True
     def run(self) :
         print "Starting broadcast server."
@@ -44,12 +45,13 @@ class HandlerServer(Thread) :
     def __init__(self, server_info) :
         Thread.__init__(self)
         self.server_info = server_info
+        self.setDaemon(True)
         self.go = True
     def run(self) :
         print "Starting handler server."
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.s.bind((self.server_info.name, self.server_info.port))
+        self.s.bind(("", self.server_info.port))
         self.s.settimeout(5)
         while self.go:
             try :
@@ -59,7 +61,7 @@ class HandlerServer(Thread) :
                 xs = sexp.read_all(message)
                 for x in xs :
                     # try to interpret it as a message!
-                    print "Message:",x[0]
+                    print "Message:", x
                     print self.server_info.handle(x)
                     # we don't try to talk to the client.  Like a remote controller
             except socket.error :
@@ -92,18 +94,24 @@ class ShellRunner(object):
    def kill(self) :
        self.lock.acquire()
        if self.pid is not None :
-           print "killing",self.pid
-           os.kill(self.pid, signal.SIGKILL)
-           os.waitpid(self.pid, 0)
+           try:
+               os.kill(self.pid, signal.SIGKILL)
+           except OSError:
+               pass
+           finally:
+               os.waitpid(self.pid, 0)
        self.lock.release()
    def spawn(self, path, args=None) :
        if args is None :
            args = [path]
        self.lock.acquire()
        if self.pid is not None :
-           print "killing",self.pid
-           os.kill(self.pid, signal.SIGKILL)
-           os.waitpid(self.pid, 0)
+           try:
+               os.kill(self.pid, signal.SIGKILL)
+           except OSError:
+               pass
+           finally:
+               os.waitpid(self.pid, 0)
        self.pid = os.spawnv(os.P_NOWAIT, path, args)
        self.lock.release()
 

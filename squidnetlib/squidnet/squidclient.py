@@ -8,10 +8,12 @@ from threading import Thread
 from squidnet import sexp, squidprotocol as s
 
 class SquidInfo(Thread) :
-    def __init__(self) :
+    def __init__(self, callback=None) :
         Thread.__init__(self)
         self.servers = {}
         self.setDaemon(True)
+        self.callback = callback
+
     def run(self) :
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -20,6 +22,8 @@ class SquidInfo(Thread) :
             try :
                 self.sock.sendto("info", ('<broadcast>', s.SQUIDNET_BROADCAST_PORT))
                 while True :
+                    if self.callback:
+                        self.callback(self, self.servers)
                     (message, address) = self.sock.recvfrom(4096)
                     if len(message) :
                         try :

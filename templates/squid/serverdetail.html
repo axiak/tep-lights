@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{{ block.super }} &raquo; <a href="{{ server.get_absolute_url }}" title="{{ server.server_name }} options">{{ server.server_name }}</a>
+{% endblock %}
+
+{% block content %}
+<h3>Options for {{ server.server_name }}</h3>
+{% for device in server.devices %}
+<strong>{{ device.name }} &ndash; <em>{{ device.desc }}</em>:</strong>
+<ul>
+{% for message in device.messages %}
+  <li><a href="{{ server.get_absolute_url }}/{{ device.name }}/{{ message.name }}" title="{{ message.name }} {{ device.name }}">
+      {{ message.name }} {{ device.name }} &ndash; {{ message.desc }}
+    </a></li>
+{% endfor %}
+</ul>
+{% endfor %}
+{% endblock %}
+
