@@ -1,6 +1,6 @@
 from django import forms
 
-from squidweb.squid.fields import ColorField, RangeField
+from squidweb.squid.fields import ColorField, RangeField, Base64FileField
 from squidnet import squidprotocol as sp
 
 def message_form_factory(message):
@@ -32,4 +32,5 @@ field_factory = {
     'integer': lambda name, desc, default: forms.IntegerField(help_text=desc, initial=default),
     'range':   lambda name, desc, default: RangeField(help_text=desc, initial=default),
     'string':  lambda name, desc, default: forms.CharField(help_text=desc, initial=default),
+    'base64file': lambda name, desc, default: Base64FileField(help_text=desc),
     }

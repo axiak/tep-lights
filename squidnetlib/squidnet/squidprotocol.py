@@ -261,18 +261,10 @@ class SquidType(object):
         if isinstance(s,list) :
             return SquidEnumType.load_sexp(s)
         t = str(s)
-        if t == "integer" :
-            return SquidIntegerType()
-        elif t == "range" :
-            return SquidRangeType()
-        elif t == "color" :
-            return SquidColorType()
-        elif t == "string" :
-            return SquidStringType()
-        elif t == "boolean" :
-            return SquidBooleanType()
-        else :
-            raise Exception("SquidType: unknown type "+t)
+        try:
+            return squidtypes.mapping[t]()
+        except KeyError:
+            raise KeyError("SquidType: Unknown type %s" % t)
     def value_to_sexp(self, val) :
         """Takes a value and tries to serialize it as a value of this type."""
         raise Exception("SquidType: abstract class, can't serialize value")
@@ -327,6 +319,15 @@ class SquidStringType(SquidType) :
         return SquidValue(self, str(s))
 
 squidtypes.register(SquidStringType)
+
+class SquidBase64FileType(SquidType):
+    argtype = 'base64file'
+    def value_to_sexp(self, val):
+        return val
+    def read_sexp_value(self, s):
+        return SquidValue(self, s)
+
+squidtypes.register(SquidBase64FileType)
 
 class SquidBooleanType(SquidType) :
     argtype = "boolean"

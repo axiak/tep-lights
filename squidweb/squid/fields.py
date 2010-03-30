@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.forms.util import ValidationError
 import re
 
-__all__ = ('ColorField', 'RangeField',)
+__all__ = ('ColorField', 'RangeField','Base64FileField')
 
 color_re = re.compile('^[0-9A-F]{6}$', re.I)
 
@@ -76,3 +76,8 @@ class RangeField(forms.FloatField):
         attrs['min_value'] = self.min_value
         attrs['max_value'] = self.max_value
         return attrs
+
+class Base64FileField(forms.FileField):
+    def clean(self, value, initial):
+        return value.read().encode('base64')
+

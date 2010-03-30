@@ -70,7 +70,7 @@ def messageform(request, server, device, message):
     FormClass = squidforms.message_form_factory(messageobj)
 
     if request.method == "POST":
-        form = FormClass(request.POST)
+        form = FormClass(request.POST, request.FILES)
         if form.is_valid():
             send_request(serverinfo, device, message, form.create_squid_args())
             if request.is_ajax():
