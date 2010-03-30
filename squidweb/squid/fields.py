@@ -2,6 +2,10 @@ from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.forms.util import ValidationError
+
+import Image
+import cStringIO as StringIO
+
 import re
 
 __all__ = ('ColorField', 'RangeField','Base64FileField')
@@ -79,5 +83,13 @@ class RangeField(forms.FloatField):
 
 class Base64FileField(forms.FileField):
     def clean(self, value, initial):
-        return value.read().encode('base64')
-
+        
+        if value.size < (16 << 10):
+            return value.read().encode('base64')
+        else:
+            im = Image.open(value)
+            im.thumbnail((320, 240))
+            c = StringIO.StringIO()
+            im.save(c, "JPEG")
+            c.seek(0)
+            return c.read().encode('base64')

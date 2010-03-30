@@ -23,7 +23,7 @@ class BroadcastServer(Thread) :
         self.s.settimeout(5)
         while self.go :
             try :
-                message, address = self.s.recvfrom(4096)
+                message, address = self.s.recvfrom(4096 << 10)
                 print "Got data from", address
                 # Acknowledge it.
                 xs = sexp.read_all(message)
@@ -55,7 +55,7 @@ class HandlerServer(Thread) :
         self.s.settimeout(5)
         while self.go:
             try :
-                message, address = self.s.recvfrom(8192)
+                message, address = self.s.recvfrom(8192 << 8)
                 print "Got data from", address
                 # Acknowledge it.
                 xs = sexp.read_all(message)
