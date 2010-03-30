@@ -6,9 +6,7 @@ from squidnet import squidprotocol as sp
 def message_form_factory(message):
     form_name = ('%s_%s' % (message.device.name, message.name)).title()
     attrs = {}
-    defaults = []
     for argument in message.arguments:
-        defaults.append(argument.default.value)
         attrs[argument.name] = field_factory[argument.argtype.argtype](
             argument.name, '', argument.default and argument.default.value or '')
     attrs['description'] = message.desc
