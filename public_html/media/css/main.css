@@ -38,3 +38,28 @@ a:hover {
     padding: none;
     margin: 0 0 0 -40px;
 }
+
+table, tr, th, td {
+    border-collapse: collapse;
+}
+
+
+td, th {
+    padding: 15px 0 15px 0;
+    border: 2px solid black;
+    border-left: 0;
+    border-right: 0;
+}
+
+input.submit {
+    width: 75%;
+    height: 150%;
+}
+
+.notice {
+    color: #edcf0c;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 1.3em;
+    padding: 20px;
+}

@@ -12,6 +12,11 @@
 {% if server %}
 <h3>Options for {{ server.server_name }}</h3>
 {% endif %}
+
+{% if success %}
+<div class="notice">Successfully submitted!</div>
+{% endif %}
+
 {% for device in devices %}
 <strong>{{ device.name }} <small>(on {{ device.server.server_name }})</small> &ndash; <em>{{ device.desc }}</em>:</strong>
 <ul>

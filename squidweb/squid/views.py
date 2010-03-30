@@ -6,6 +6,7 @@ import itertools
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
 from django.views.generic import simple
+from django.core.urlresolvers import reverse
 
 from squidweb.squid import forms as squidforms
 from squidweb.squid.models import *
@@ -22,7 +23,8 @@ def servers(request):
                                      {'servers': servers})
 
 
-def devices(request, server=None, success=False):
+def devices(request, server=None):
+    success = request.GET.get('success', False)
     if server:
         serverinfo = get_object_or_404(ServerInfo,
                                        pk = server,
@@ -60,6 +62,11 @@ def messageform(request, server, device, message):
             break
     else:
         raise Http404
+
+    if not messageobj.arguments:
+        send_request(serverinfo, device, message, {})
+        return redirect('%s?success=1' % reverse('all-devices'))
+
     FormClass = squidforms.message_form_factory(messageobj)
 
     if request.method == "POST":
@@ -68,7 +75,7 @@ def messageform(request, server, device, message):
             send_request(serverinfo, device, message, form.create_squid_args())
             if request.is_ajax():
                 return ajax_success
-            return redirect('all-devices')
+            return redirect('%s?success=1' % reverse('all-devices'))
     else:
         form = FormClass()
 
