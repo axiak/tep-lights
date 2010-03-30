@@ -18,8 +18,13 @@ def main():
     # our main event loop is inside SquidInfo
     if '-nodaemon' not in sys.argv:
         pydaemon.createDaemon()
+    else:
+        sys.argv.remove('-nodaemon')
     info = sc.SquidInfo(callback=handle_info)
     info.start()
+    if len(sys.argv) > 1:
+        time.sleep(float(sys.argv[1]))
+        return
     while True:
         time.sleep(60)
 
