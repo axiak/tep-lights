@@ -1,0 +1,14 @@
+<script type="text/javascript" charset="utf-8">
+<!--
+   $(document).ready(function() {
+     $("#{{ id }}-slider").slider({max: 1, step: 0.001, change:
+       function (event, ui) {
+          $("#{{ id }}").get(0).value = ui.value;
+       }});
+   });
+//-->
+</script>
+<div class="{{ id }}-slider-container" style="width: {{ width }}">
+<div id="{{ id }}-slider" style="padding: 1px; width: 100%;"></div>
+<input type="hidden" name="{{ id }}" id="{{ id }}" value="{{ value }}"/>
+</div>

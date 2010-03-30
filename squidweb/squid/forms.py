@@ -1,6 +1,6 @@
 from django import forms
 
-from squidweb.squid.fields import ColorField
+from squidweb.squid.fields import ColorField, RangeField
 from squidnet import squidprotocol as sp
 
 def message_form_factory(message):
@@ -30,6 +30,6 @@ field_factory = {
     'boolean': lambda name, desc, default: forms.BooleanField(help_text=desc, initial=default),
     'color':   lambda name, desc, default: ColorField(help_text=desc, initial=default),
     'integer': lambda name, desc, default: forms.IntegerField(help_text=desc, initial=default),
-    'range':   lambda name, desc, default: forms.FloatField(help_text=desc, min_value=0, max_value=1, initial=default),
+    'range':   lambda name, desc, default: RangeField(help_text=desc, initial=default),
     'string':  lambda name, desc, default: forms.CharField(help_text=desc, initial=default),
     }

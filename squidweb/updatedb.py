@@ -16,7 +16,8 @@ import pydaemon
 
 def main():
     # our main event loop is inside SquidInfo
-    pydaemon.createDaemon()
+    if '-nodaemon' not in sys.argv:
+        pydaemon.createDaemon()
     info = sc.SquidInfo(callback=handle_info)
     info.start()
     while True:
@@ -33,7 +34,10 @@ def handle_info(info, servers):
     in_danger = ServerInfo.objects.filter(expires__lte = datetime.datetime.now() +
                                           datetime.timedelta(seconds = 20))
     for server in in_danger:
-        info.ping(server.info.host)
+        try:
+            info.ping(server.info.host)
+        except ValueError:
+            pass
         
     # Now delete all of the old ones
     ServerInfo.objects.filter(expires__lte = datetime.datetime.now() -
