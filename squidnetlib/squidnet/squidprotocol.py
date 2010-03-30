@@ -130,7 +130,7 @@ class SquidDevice(object) :
         else :
             raise Exception("device: loading from incorrect s-expression")
 
-class SquidMessage :
+class SquidMessage(object):
     def __init__(self, name, desc, arguments, handler=None) :
         self.name = name if name is not None else ""
         self.desc = desc if desc is not None else ""
@@ -245,7 +245,7 @@ class SquidTypeRegister(object):
             self.mapping[squidtype.argtype] = squidtype
 squidtypes = SquidTypeRegister()
 
-class SquidType :
+class SquidType(object):
     argtype = ""
     def __init__(self, argtype = None) :
         if argtype:
@@ -281,7 +281,7 @@ class SquidType :
         type."""
         raise Exception("SquidType: abstract class, can't unserialize value")
 
-class SquidValue :
+class SquidValue(object):
     argtype = ""
     def __init__(self, argtype, value) :
         self.argtype = argtype

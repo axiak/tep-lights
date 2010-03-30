@@ -17,6 +17,6 @@ d1.add_message(sp.SquidMessage("type",
                                handle_say))
 
 d1.add_message(sp.SquidMessage("awesome",
-                               "Rate awesomeness", [sp.SquidArgument("awesomeness", sp.SquidRangeType())],
+                               "Rate awesomeness", [sp.SquidArgument("awesomeness", sp.SquidRangeType(), sp.SquidValue(sp.SquidRangeType(), 0.5))],
                                handle_awesome))
 ss.run_server(serv)

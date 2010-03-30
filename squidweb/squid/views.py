@@ -92,9 +92,3 @@ def send_request(serverinfo, device, message, args):
     r = serverinfo.info.request(device, message, args)
     dest = serverinfo.info.host, serverinfo.info.port
     sockdata.sock.sendto(sexp.write(r), dest)
-
-
-
-def testform(request):
-    return simple.direct_to_template(request, 'testform.html', {'form': squidforms.TestForm()})
-

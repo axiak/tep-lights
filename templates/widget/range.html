@@ -5,6 +5,9 @@
        function (event, ui) {
           $("#{{ id }}").get(0).value = ui.value;
        }});
+     if ($("#{{ id }}").get(0).value) {
+       $("#{{ id }}-slider").slider("value", $("#{{ id }}").get(0).value);
+     }
    });
 //-->
 </script>
