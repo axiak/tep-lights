@@ -1,7 +1,7 @@
 <script type="text/javascript" charset="utf-8">
 <!--
    $(document).ready(function() {
-     $("#{{ id }}-slider").slider({max: 1, step: 0.001, change:
+     $("#{{ id }}-slider").slider({max: 1, step: 0.001, range: "min", change:
        function (event, ui) {
           $("#{{ id }}").get(0).value = ui.value;
        }});

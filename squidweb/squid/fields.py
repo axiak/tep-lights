@@ -65,12 +65,14 @@ class RangeField(forms.FloatField):
     widget = RangeWidget
 
     def __init__(self, *args, **kwargs):
-        kwargs['min_value'] = 0
-        kwargs['max_value'] = 1
+        self.min_value = kwargs.setdefault('min_value', 0)
+        self.max_value = kwargs.setdefault('max_value', 1)
         self.width = kwargs.pop('width', '300px')
         return super(RangeField, self).__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
         attrs = super(RangeField, self).widget_attrs(widget)
         attrs['width'] = self.width
+        attrs['min_value'] = self.min_value
+        attrs['max_value'] = self.max_value
         return attrs
