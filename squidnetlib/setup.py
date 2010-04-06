@@ -9,10 +9,15 @@ import sys
 TRY_CYTHON = True
 cmdclass = {}
 ext_modules = []
+TRY_BUILD = True
 
 if '--no-cython' in sys.argv:
     TRY_CYTHON = False
     sys.argv.remove('--no-cython')
+
+if '--no-build' in sys.argv:
+    TRY_BUILD = False
+    sys.argv.remove('--no-build')
 
 
 if TRY_CYTHON:
@@ -26,15 +31,35 @@ if TRY_CYTHON:
 
 if not ext_modules:
     print "Not using Cython for fast sexp module.".upper()
-
+    if TRY_BUILD:
+        ext_modules = [Extension("squidnet.csexp", ["squidnet/csexp.c"])]
+else:
+    print "USING CYTHON"
 
 py_modules = [x.split('.')[0] for x in 
               glob.glob(os.path.join(os.path.dirname(__file__), 'squidnet', '*.py'))]
 
+version = __import__('squidnet').VERSION
+versionstring = '.'.join(map(str, version))
+authors = version = __import__('squidnet').AUTHORS
+authorstring = ', '.join(authors)
 
 setup(
-  name = 'SquidNet protocol implementations',
+  name = 'squidnet',
   cmdclass = cmdclass,
+  version = versionstring,
+  author = authorstring,
+  license = "GPL Version 3",
+  description = "SquidNet interface",
   ext_modules = ext_modules,
   py_modules = py_modules,
+  classifiers = [
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: Cython',
+        'Programming Language :: Python',
+        'Topic :: Communications',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Networking',
+        ],
 )
