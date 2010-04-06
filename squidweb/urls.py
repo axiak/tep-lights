@@ -10,8 +10,8 @@ urlpatterns = patterns('',
      (r'^media/(?P<path>.*)$', 'django.views.static.serve',
       {'document_root': settings.MEDIA_ROOT}),
      url(r'^/?$', 'squidweb.squid.views.devices', name='all-devices'),
-     url(r'^(?P<server>\w+)/?$', 'squidweb.squid.views.devices', name='devices'),
-     url(r'^(?P<server>\w+)/(?P<device>[^/]+)/(?P<message>[^/]+)/?$', 'squidweb.squid.views.messageform', name='messageform'),
+     url(r'^(?P<server>[^/]+)/?$', 'squidweb.squid.views.devices', name='devices'),
+     url(r'^(?P<server>[^/]+)/(?P<device>[^/]+)/(?P<message>[^/]+)/?$', 'squidweb.squid.views.messageform', name='messageform'),
 
     # Example:
     # (r'^squidweb/', include('squidweb.foo.urls')),
