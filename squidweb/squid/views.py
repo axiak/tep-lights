@@ -18,7 +18,7 @@ ajax_success = HttpResponse('{"Result":"Success"}', mimetype='application/json')
 ajax_fail = HttpResponse('{"Result":"Fail"}', mimetype='application/json')
 
 def servers(request):
-    servers = ServerInfo.objects.filter(expires__gte = datetime.datetime.now())
+    servers = ServerInfo.objects.filter(expires__gte = datetime.datetime.now()).order_by('host')
     return simple.direct_to_template(request, 'squid/servers.html',
                                      {'servers': servers})
 
@@ -35,7 +35,7 @@ def devices(request, server=None):
     else:
         serverinfo = None
         devices = []
-        for server in ServerInfo.objects.filter(expires__gte = datetime.datetime.now()):
+        for server in ServerInfo.objects.filter(expires__gte = datetime.datetime.now()).order_by('host'):
             for device in server.devices:
                 devices.append(device)
                 device.server = server
