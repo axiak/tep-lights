@@ -10,6 +10,8 @@
 
 __all__ = ('read_all', 'write', 'Symbol', 'plist_find',)
 
+_Raise = object()
+
 cdef class StringStream :
     cdef bytes str
     cdef int i
@@ -44,12 +46,15 @@ cdef class Symbol :
     def __repr__(self) :
         return "<Symbol: %s>" % self.s
 
-def plist_find(plist, key) :
+def plist_find(plist, key, default=_Raise) :
     cdef int i
-    for i in range(1, len(plist), 2) :
+    for i in range(0, len(plist), 2) :
         if str(plist[i]) == str(key) :
             return plist[i+1]
-    return None
+    if default is _Raise:
+        return KeyError("Could not find %r" % key)
+    else:
+        return default
 
 def read_all(bytes str) :
     cdef StringStream stream

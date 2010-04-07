@@ -10,6 +10,8 @@
 
 __all__ = ('read_all', 'write', 'Symbol', 'plist_find',)
 
+_Raise = object()
+
 class StringStream :
     def __init__(self, str) :
         self.str = str
@@ -36,11 +38,14 @@ class Symbol :
     def __repr__(self) :
         return "<Symbol: %s>" % self.s
 
-def plist_find(plist, key) :
-    for i in range(1, len(plist), 2) :
+def plist_find(plist, key, default=_Raise) :
+    for i in range(0, len(plist), 2) :
         if str(plist[i]) == str(key) :
             return plist[i+1]
-    return None
+    if default is _Raise:
+        raise KeyError("Could not find %r" % key)
+    else:
+        return default
 
 def read_all(str) :
     stream = StringStream(str)

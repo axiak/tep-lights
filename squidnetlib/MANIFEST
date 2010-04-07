@@ -18,7 +18,10 @@
 ./squidnet/csexp.so
 ./squidnet/squidserver.py
 ./squidnet/csexp.pyx
+./squidnet/scexp.pyx
+./squidnet/scexp.c
 ./squidnet/csexp.c
+./squidnet/scsexp.pxd
 ./squidnet/squidclient.py
 ./squidnet/squidprotocol.py
 ./setup.py

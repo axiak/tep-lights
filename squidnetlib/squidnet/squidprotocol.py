@@ -35,12 +35,12 @@ class SquidServer(object) :
     def handle(self, s) :
         """Takes an s-expression request and handles it, if the server can."""
         if s[0] == sexp.Symbol("server-request") :
-            if (sexp.plist_find(s, sexp.Symbol("name:")) == self.name
-                and sexp.plist_find(s, sexp.Symbol("host:")) == self.host
-                and sexp.plist_find(s, sexp.Symbol("port:")) == self.port) :
+            if (sexp.plist_find(s[1:], sexp.Symbol("name:"), None) == self.name
+                and sexp.plist_find(s[1:], sexp.Symbol("host:"), None) == self.host
+                and sexp.plist_find(s[1:], sexp.Symbol("port:"), None) == self.port) :
                 
-                dr = sexp.plist_find(s, sexp.Symbol("request:"))
-                drname = sexp.plist_find(dr, sexp.Symbol("name:"))
+                dr = sexp.plist_find(s[1:], sexp.Symbol("request:"), None)
+                drname = sexp.plist_find(dr[1:], sexp.Symbol("name:"), None)
                 d = self.get_device(drname)
                 if d is not None :
                     return d.handle(dr)
@@ -61,12 +61,12 @@ class SquidServer(object) :
     @staticmethod
     def load_sexp(s) :
         if s[0] == sexp.Symbol("server") :
-            sv = SquidServer(sexp.plist_find(s, sexp.Symbol("name:")),
-                             sexp.plist_find(s, sexp.Symbol("host:")),
-                             sexp.plist_find(s, sexp.Symbol("port:")),
-                             sexp.plist_find(s, sexp.Symbol("desc:")))
+            sv = SquidServer(sexp.plist_find(s[1:], sexp.Symbol("name:"), None),
+                             sexp.plist_find(s[1:], sexp.Symbol("host:"), None),
+                             sexp.plist_find(s[1:], sexp.Symbol("port:"), None),
+                             sexp.plist_find(s[1:], sexp.Symbol("desc:"), None))
             ds = [SquidDevice.load_sexp(d)
-                  for d in sexp.plist_find(s, sexp.Symbol("devices:")) or []]
+                  for d in sexp.plist_find(s[1:], sexp.Symbol("devices:"), ())]
             for d in ds :
                 sv.add_device(d)
             return sv
@@ -100,9 +100,9 @@ class SquidDevice(object) :
             raise Exception("No such message "+message)
     def handle(self, s) :
         if s[0] == sexp.Symbol("device-request") :
-            if self.name == sexp.plist_find(s, sexp.Symbol("name:")) :
-                r = sexp.plist_find(s, sexp.Symbol("request:"))
-                rname = sexp.plist_find(r, sexp.Symbol("name:"))
+            if self.name == sexp.plist_find(s[1:], sexp.Symbol("name:"), None):
+                r = sexp.plist_find(s[1:], sexp.Symbol("request:"), None)
+                rname = sexp.plist_find(r[1:], sexp.Symbol("name:"), None)
                 m = self.get_message(rname)
                 if m is not None :
                     return m.handle(r)
@@ -121,10 +121,10 @@ class SquidDevice(object) :
     @staticmethod
     def load_sexp(s) :
         if s[0] == sexp.Symbol("device") :
-            d = SquidDevice(sexp.plist_find(s, sexp.Symbol("name:")),
-                            sexp.plist_find(s, sexp.Symbol("desc:")))
+            d = SquidDevice(sexp.plist_find(s[1:], sexp.Symbol("name:"), None),
+                            sexp.plist_find(s[1:], sexp.Symbol("desc:"), None))
             ms = [SquidMessage.load_sexp(m)
-                  for m in sexp.plist_find(s, sexp.Symbol("messages:")) or []]
+                  for m in sexp.plist_find(s[1:], sexp.Symbol("messages:"), None) or []]
             for m in ms :
                 d.add_message(m)
             return d
@@ -162,8 +162,8 @@ class SquidMessage(object):
     def handle(self, s) :
         if self.handler is not None :
             if s[0] == sexp.Symbol("message-request") :
-                if sexp.plist_find(s, sexp.Symbol("name:")) == self.name :
-                    args = self.decode_sexp_args(sexp.plist_find(s, sexp.Symbol("arguments:")))
+                if sexp.plist_find(s[1:], sexp.Symbol("name:"), None) == self.name :
+                    args = self.decode_sexp_args(sexp.plist_find(s[1:], sexp.Symbol("arguments:"), None))
                     self.handler(args)
                 else :
                     raise Exception("Message request not this message type")
@@ -186,9 +186,9 @@ class SquidMessage(object):
     def load_sexp(s) :
         if s[0] == sexp.Symbol("message") :
             ars = [SquidArgument.load_sexp(a)
-                  for a in sexp.plist_find(s, sexp.Symbol("arguments:")) or []]
-            m = SquidMessage(sexp.plist_find(s, sexp.Symbol("name:")),
-                             sexp.plist_find(s, sexp.Symbol("desc:")),
+                  for a in sexp.plist_find(s[1:], sexp.Symbol("arguments:"), None) or []]
+            m = SquidMessage(sexp.plist_find(s[1:], sexp.Symbol("name:"), None),
+                             sexp.plist_find(s[1:], sexp.Symbol("desc:"), None),
                              ars)
             return m
         else :
@@ -241,11 +241,11 @@ class SquidArgument(object):
     @staticmethod
     def load_sexp(s) :
         if s[0] == sexp.Symbol("argument") :
-            argtype = SquidValue.type_from_sexp(sexp.plist_find(s, sexp.Symbol("type:")))
-            default = sexp.plist_find(s, sexp.Symbol("default:"))
+            argtype = SquidValue.type_from_sexp(sexp.plist_find(s[1:], sexp.Symbol("type:"), None))
+            default = sexp.plist_find(s[1:], sexp.Symbol("default:"), None)
             if default is not None :
                 default = argtype.from_sexp(default)
-            m = SquidArgument(sexp.plist_find(s, sexp.Symbol("name:")),
+            m = SquidArgument(sexp.plist_find(s[1:], sexp.Symbol("name:"), None),
                               argtype,
                               default)
             return m

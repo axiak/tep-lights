@@ -1,2 +1,5 @@
+0.1.4) 2010-4-7
+    - Created scexp module which interfaces with the sexp C module.
+    - Upgraded plist_find to not call cdr automatically, take a default argument.
 0.1.1)
     - Made Enum types work correctly

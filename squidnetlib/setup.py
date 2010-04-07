@@ -52,6 +52,12 @@ authors = __import__('squidnet').AUTHORS
 emails = __import__('squidnet').EMAILS
 authorstring = ', '.join(authors)
 emailstring = ', '.join(emails)
+
+ext_modules.append(Extension("squidnet.scexp", ["squidnet/scexp.pyx"],
+                             library_dirs = ['sexpr_1.2/src'],
+                             include_dirs = ['sexpr_1.2/src'],
+                             libraries = ['sexp']))
+
 setup(
   name = 'squidnet',
   cmdclass = cmdclass,

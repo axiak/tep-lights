@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 from squidnet import sexp, squidprotocol as sp, squidserver as ss, dmx
 
