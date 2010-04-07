@@ -7,8 +7,9 @@ def message_form_factory(message):
     form_name = ('%s_%s' % (message.device.name, message.name)).title()
     attrs = {}
     for argument in message.arguments:
-        attrs[argument.name] = field_factory[argument.argtype.argtype](
-            argument.name, '', argument.default and argument.default.value or '')
+        attrs[argument.name] = field_factory[argument.argtype.clssquidtype()](
+            argument.name, '', argument.default and argument.default.value or '',
+            argument.argtype)
     attrs['description'] = message.desc
     attrs['name'] = message.name
     attrs['messageobj'] = message
@@ -17,7 +18,7 @@ def message_form_factory(message):
         arg_types = dict((a.name, a.argtype) for a in self.messageobj.arguments)
         arguments = {}
         for key, value in self.cleaned_data.items():
-            arguments[key] = sp.SquidValue(arg_types[key], value)
+            arguments[key] = arg_types[key](value)
         return arguments
 
     attrs['create_squid_args'] = create_squid_args
@@ -27,10 +28,11 @@ def message_form_factory(message):
 
 # A mapping between the argument types and their respective field output
 field_factory = {
-    'boolean': lambda name, desc, default: forms.BooleanField(help_text=desc, initial=default),
-    'color':   lambda name, desc, default: ColorField(help_text=desc, initial=default),
-    'integer': lambda name, desc, default: forms.IntegerField(help_text=desc, initial=default),
-    'range':   lambda name, desc, default: RangeField(help_text=desc, initial=default),
-    'string':  lambda name, desc, default: forms.CharField(help_text=desc, initial=default),
-    'base64file': lambda name, desc, default: Base64FileField(help_text=desc),
+    'boolean': lambda name, desc, default, _: forms.BooleanField(help_text=desc, initial=default),
+    'color':   lambda name, desc, default, _: ColorField(help_text=desc, initial=default),
+    'integer': lambda name, desc, default, _: forms.IntegerField(help_text=desc, initial=default),
+    'range':   lambda name, desc, default, _: RangeField(help_text=desc, initial=default),
+    'string':  lambda name, desc, default, _: forms.CharField(help_text=desc, initial=default),
+    'base64file': lambda name, desc, default, _: Base64FileField(help_text=desc),
+    'enum': lambda name, desc, default, argtype: forms.ChoiceField(help_text=desc, initial=default, choices=[(x, x) for x in argtype.choices]),
     }

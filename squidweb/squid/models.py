@@ -1,11 +1,11 @@
 import datetime
 import binascii
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 from django.db import models
+
+from squidnet import squidprotocol
+from squidnet import sexp
+
 
 __all__ = ('ServerInfo',)
 
@@ -24,13 +24,13 @@ class ServerInfo(models.Model):
     def _get_info(self):
         if not hasattr(self, '_info'):
             try:
-                self._info = pickle.loads(self.pickled_data.decode('base64'))
-            except:
+                self._info = squidprotocol.SquidServer.load_sexp(sexp.read_all(str(self.pickled_data))[0])
+            except int:
                 raise ValueError("No data set yet")
         return self._info
 
     def _set_info(self, info):
-        self.pickled_data = pickle.dumps(info).encode('base64')
+        self.pickled_data = sexp.write(info.get_sexp())
         self._info = info
 
     info = property(_get_info, _set_info)
