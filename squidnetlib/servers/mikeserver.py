@@ -22,8 +22,7 @@ def handle_say(args) :
     words = args["text"].value
     speak_sr.spawn("/usr/bin/espeak", ["espeak", words])
 
-
-serv = sp.SquidServer("zetazero", "18.111.72.200", 2222, "Mike's computer")
+serv = sp.SquidServer("zetazero", "zetazero.mit.edu", 2222, "Mike's computer")
 d1 = sp.SquidDevice("computer", "Zetazero computer")
 serv.add_device(d1)
 
