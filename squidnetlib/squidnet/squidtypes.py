@@ -10,7 +10,8 @@ __aall__ = ('SquidBase64FileType',
            'SquidRangeType',
            'SquidStringType',
            'SquidValue',
-           'squidtypes',)
+           'squidtypes',
+            'SquidEnumFactory')
 
 
 class SquidValue(object):
@@ -59,7 +60,10 @@ class SquidValue(object):
 
     @classmethod
     def type_from_sexp(cls, sexpr):
-        squidtype = squidtypes.mapping[str(sexpr)]
+        try:
+            squidtype = squidtypes.mapping[str(sexpr)]
+        except KeyError:
+            squidtype = squidtypes.mapping[str(sexpr[0])].typefactory(sexpr[1:])
         return squidtype
 
     @classmethod
@@ -141,13 +145,21 @@ class SquidEnumValueBase(SquidValue):
     choices = []
 
     def __init__(self, value=None):
-        value = str(value)
+        if value is not None:
+            value = str(value)
         self._validate(value)
         self.value = value
 
     @classmethod
     def clssquidtype(cls):
         return 'enum'
+
+    @classmethod
+    def typefactory(cls, sexpr):
+        choices = []
+        sexpr = [''] + sexpr
+        choices = sexp.plist_find(sexpr, sexp.Symbol("choices:"))
+        return SquidEnumFactory(choices)
 
     @classmethod
     def type_to_sexp(cls, default=None):

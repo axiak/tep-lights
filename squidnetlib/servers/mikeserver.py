@@ -26,12 +26,18 @@ def handle_say(args) :
 serv = sp.SquidServer("zetazero", "zetazero.mit.edu", 2222, "Mike's computer")
 d1 = sp.SquidDevice("computer", "Zetazero computer")
 serv.add_device(d1)
+Types = sp.SquidEnumFactory([
+        'one',
+        'two',
+        'three',
+        'four'])
+
 d1.add_message(sp.SquidMessage("type",
                                "Type information to the screen",
                                [sp.SquidArgument("text", sp.SquidStringValue),
                                 sp.SquidArgument("awesomeness",
-                                                 sp.SquidRangeValue,
-                                                 sp.SquidRangeValue(0.5))],
+                                                 Types,
+                                                 Types('two'))],
                                handle_type))
 
 d1.add_message(sp.SquidMessage("show",

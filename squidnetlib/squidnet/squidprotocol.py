@@ -198,6 +198,16 @@ class SquidArgument(object):
         self.name = name if name is not None else ""
         self.argtype = argtype if argtype is not None else ""
         self.default = default
+
+    def __repr__(self):
+        if self.default:
+            return '<SquidArgument %s: %s(%r)>' % (
+                self.name, self.argtype.__name__, self.default.value)
+        else:
+            return '<SquidArgument %s: %s()>' % (
+                self.name, self.argtype.__name__)
+    __str__ = __unicode__ = __repr__
+
     def request(self, args) :
         """args is a list of name/SquidValue pairs, and the SquidArgument
         tries to find its argument."""
