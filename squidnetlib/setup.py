@@ -27,6 +27,13 @@ if TRY_CYTHON:
         ext_modules = [Extension("squidnet.csexp", ["squidnet/csexp.pyx"])]
     except ImportError:
         pass
+    else:
+        try:
+            os.unlink(os.path.join(os.path.dirname(__file__),
+                                   'squidnet',
+                                   'csexp.c'))
+        except OSError:
+            pass
 
 
 if not ext_modules:
@@ -41,9 +48,10 @@ py_modules = [x.split('.')[0] for x in
 
 version = __import__('squidnet').VERSION
 versionstring = '.'.join(map(str, version))
-authors = version = __import__('squidnet').AUTHORS
+authors = __import__('squidnet').AUTHORS
+emails = __import__('squidnet').EMAILS
 authorstring = ', '.join(authors)
-
+emailstring = ', '.join(emails)
 setup(
   name = 'squidnet',
   cmdclass = cmdclass,

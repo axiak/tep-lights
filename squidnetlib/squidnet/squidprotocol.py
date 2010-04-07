@@ -1,7 +1,7 @@
 # squidprotocol.py
 # an RPC system for SquidNet, a light, et cetera, controlling system.
 
-import sexp
+from squidnet import sexp
 
 SQUIDNET_BROADCAST_PORT = 22222
 
@@ -193,7 +193,7 @@ class SquidMessage(object):
         else :
             raise Exception("message: loading from incorrect s-expression")
 
-class SquidArgument :
+class SquidArgument(object):
     def __init__(self, name, argtype, default=None) :
         self.name = name if name is not None else ""
         self.argtype = argtype if argtype is not None else ""
@@ -211,7 +211,7 @@ class SquidArgument :
     def handle(self, argslist) :
         for arg in argslist :
             if str(arg[0]) == self.name :
-                return self.argtype.read_sexp_value(arg[1])
+                return self.argtype.from_sexp(arg[1])
         if self.default is not None :
             return self.default
         else :
@@ -219,18 +219,17 @@ class SquidArgument :
     def get_sexp(self) :
         r = [sexp.Symbol("argument"),
              sexp.Symbol("name:"), self.name,
-             sexp.Symbol("type:"), self.argtype.get_sexp()]
-        if self.default is not None :
-            r.append(sexp.Symbol("default:"))
-            r.append(self.default.get_sexp())
+             sexp.Symbol("type:")]
+        r.extend(self.argtype.get_sexp(default=self.default))
         return r
     @staticmethod
     def load_sexp(s) :
+        from squidtypes import SquidValue
         if s[0] == sexp.Symbol("argument") :
-            argtype = SquidType.load_sexp(sexp.plist_find(s, sexp.Symbol("type:")))
+            argtype = SquidValue.type_from_sexp(sexp.plist_find(s, sexp.Symbol("type:")))
             default = sexp.plist_find(s, sexp.Symbol("default:"))
             if default is not None :
-                default = argtype.read_sexp_value(default)
+                default = argtype.from_sexp(default)
             m = SquidArgument(sexp.plist_find(s, sexp.Symbol("name:")),
                               argtype,
                               default)
@@ -238,126 +237,8 @@ class SquidArgument :
         else :
             raise Exception("argument: loading from incorrect s-expression")
 
-class SquidTypeRegister(object):
-    mapping = {}
-    def register(self, *squidtypes):
-        for squidtype in squidtypes:
-            self.mapping[squidtype.argtype] = squidtype
-squidtypes = SquidTypeRegister()
+from squidnet.squidtypes import *
 
-class SquidType(object):
-    argtype = ""
-    def __init__(self, argtype = None) :
-        if argtype:
-            self.argtype = argtype
-    def __eq__(self, a) :
-        return self.argtype == a.argtype
-    def __str__(self) :
-        return self.argtype
-    def get_sexp(self) :
-        return sexp.Symbol(self.argtype)
-    @staticmethod
-    def load_sexp(s) :
-        if isinstance(s,list) :
-            return SquidEnumType.load_sexp(s)
-        t = str(s)
-        try:
-            return squidtypes.mapping[t]()
-        except KeyError:
-            raise KeyError("SquidType: Unknown type %s" % t)
-    def value_to_sexp(self, val) :
-        """Takes a value and tries to serialize it as a value of this type."""
-        raise Exception("SquidType: abstract class, can't serialize value")
-    def read_sexp_value(self, s) :
-        """Takes an s-expression and tries to interpret it as a value of this
-        type."""
-        raise Exception("SquidType: abstract class, can't unserialize value")
-
-class SquidValue(object):
-    argtype = ""
-    def __init__(self, argtype, value) :
-        self.argtype = argtype
-        self.value = value
-    def get_sexp(self) :
-        return self.argtype.value_to_sexp(self.value)
-
-class SquidIntegerType(SquidType) :
-    argtype = "integer"
-    def value_to_sexp(self, val) :
-        return int(val)
-    def read_sexp_value(self, s) :
-        return SquidValue(self, int(s))
-
-squidtypes.register(SquidIntegerType)
-
-class SquidRangeType(SquidType) :
-    argtype = "range"
-    def value_to_sexp(self, val) :
-        return float(val)
-    def read_sexp_value(self, s) :
-        return SquidValue(self, float(s))
-
-squidtypes.register(SquidRangeType)
-
-class SquidColorType(SquidType) :
-    argtype = "color"
-    def value_to_sexp(self, val) :
-        return [int(val[0]), int(val[1]), int(val[2])]
-    def read_sexp_value(self, s) :
-        r = int(s[0])
-        g = int(s[1])
-        b = int(s[2])
-        return SquidValue(self, [r,g,b])
-
-squidtypes.register(SquidColorType)
-
-class SquidStringType(SquidType) :
-    argtype = "string"
-    def value_to_sexp(self, val) :
-        return str(val)
-    def read_sexp_value(self, s) :
-        return SquidValue(self, str(s))
-
-squidtypes.register(SquidStringType)
-
-class SquidBase64FileType(SquidType):
-    argtype = 'base64file'
-    def value_to_sexp(self, val):
-        return val
-    def read_sexp_value(self, s):
-        return SquidValue(self, s)
-
-squidtypes.register(SquidBase64FileType)
-
-class SquidBooleanType(SquidType) :
-    argtype = "boolean"
-    def value_to_sexp(self, val) :
-        return sexp.Symbol("t" if val else "f")
-    def read_sexp_value(self, s) :
-        return SquidValue(self, False if s==sexp.Symbol("f") else True)
-
-squidtypes.register(SquidBooleanType)
-
-class SquidEnumType(SquidType) :
-    def __init__(self, argtype, options) :
-        self.argtype = argtype
-        self.options = options
-    @staticmethod
-    def get_sexp(self) :
-        s = [sexp.Symbol(self.argtype)]
-        s.extend(self.options)
-        return s
-    def load_sexp(s) :
-        return SquidEnumType(s[0], s[1:])
-    def value_to_sexp(self, val) :
-        return val
-    def read_sexp_value(self, s) :
-        if s in self.options :
-            return SquidValue(self, s)
-        else :
-            return "Enum error: can't have \"%s\"" % s
-
-squidtypes.register(SquidEnumType)
 
 if __name__=="__main__" :
     def test_handler(args) :

@@ -8,13 +8,14 @@ from threading import Thread
 from squidnet import sexp, squidprotocol as s
 
 class SquidInfo(Thread) :
-    def __init__(self, callback=None) :
+    def __init__(self, callback=None, deleteold=True) :
         Thread.__init__(self)
         self.servers = {}
+        self.deleteold = deleteold
         self.setDaemon(True)
         self.callback = callback
 
-    def run(self) :
+    def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.sock.settimeout(10)
@@ -26,7 +27,8 @@ class SquidInfo(Thread) :
                     if self.callback:
                         self.callback(self, self.servers)
                     self.servers = self.new_servers
-                    self.new_servers = {}
+                    if self.deleteold:
+                        self.new_servers = {}
                     (message, address) = self.sock.recvfrom(4096)
                     if len(message) :
                         try :
@@ -59,7 +61,7 @@ class SquidInfo(Thread) :
 
 if __name__=="__main__" :
     print "SquidNet client shell"
-    info = SquidInfo()
+    info = SquidInfo(deleteold=False)
     info.start()
     while True :
         try:
@@ -77,11 +79,9 @@ if __name__=="__main__" :
                     print "%s\t%s" % (d.name, d.desc)
             elif l[0] == "messages" :
                 for m in info.servers[l[1]].get_device(l[2]).messages :
-                    #print sexp.write(m.get_sexp())
-                    print m.name,
-                    for a in m.arguments :
-                        print "("+a.name,str(a.argtype)+")",
-                    print "- %s" % (m.desc)
+                    print "%s %s - %s" % (m.name,
+                                         ''.join("(%s, %s)" % (a.name, a.argtype.clssquidtype()) for a in m.arguments),
+                                        m.desc)
             elif l[0] == "request" :
                 c = i.split(" ", 4)
                 if len(c) < 5 :

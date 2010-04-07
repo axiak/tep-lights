@@ -20,7 +20,7 @@ d3 = sp.SquidDevice("computer", "The study room computer")
 serv.add_device(d3)
 d3.add_message(sp.SquidMessage("say",
                                "Says a phrase",
-                               [sp.SquidArgument("text", sp.SquidStringType())],
+                               [sp.SquidArgument("text", sp.SquidStringValue)],
                                handle_say))
 
 ss.run_server(serv, daemon=DAEMON)

@@ -69,7 +69,7 @@ d1.add_message(sp.SquidMessage("cycle",
                                handle_cycle))
 d1.add_message(sp.SquidMessage("set",
                                "Set the color of the lights",
-                               [sp.SquidArgument("color", sp.SquidColorType())],
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
                                handle_set))
 d1.add_message(sp.SquidMessage("stop",
                                "Stops the lights", [],
@@ -82,19 +82,19 @@ d2.add_message(sp.SquidMessage("cycle",
                                handle_st_cycle))
 d2.add_message(sp.SquidMessage("set-floor2",
                                "Set the color of the second landing",
-                               [sp.SquidArgument("color", sp.SquidColorType())],
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
                                handle_st_floor2))
 d2.add_message(sp.SquidMessage("set-floor3",
                                "Set the color of the third landing",
-                               [sp.SquidArgument("color", sp.SquidColorType())],
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
                                handle_st_floor3))
 d2.add_message(sp.SquidMessage("set-floor4",
                                "Set the color of the fourth landing",
-                               [sp.SquidArgument("color", sp.SquidColorType())],
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
                                handle_st_floor4))
 d2.add_message(sp.SquidMessage("set",
                                "Set the color of the stairwell",
-                               [sp.SquidArgument("color", sp.SquidColorType())],
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
                                handle_st_set))
 d2.add_message(sp.SquidMessage("stop",
                                "Stop the lights", [],
@@ -104,7 +104,7 @@ d3 = sp.SquidDevice("computer", "Kyle's computer")
 serv.add_device(d3)
 d3.add_message(sp.SquidMessage("say",
                                "Says a phrase",
-                               [sp.SquidArgument("text", sp.SquidStringType())],
+                               [sp.SquidArgument("text", sp.SquidStringValue)],
                                handle_say))
 
 ss.run_server(serv)

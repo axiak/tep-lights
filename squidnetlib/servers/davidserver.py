@@ -13,8 +13,8 @@ serv.add_device(d1)
 d1.add_message(sp.SquidMessage("quadsurf2",
                                "Run quadsurf-new2",
                                [sp.SquidArgument("brightness",
-                                                 sp.SquidRangeType(),
-                                                 sp.SquidValue(sp.SquidRangeType(), 0.8))],
+                                                 sp.SquidRangeValue,
+                                                 sp.SquidRangeValue(0.8))],
                                quadsurf2))
 
 ss.run_server(serv)
