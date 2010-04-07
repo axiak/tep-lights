@@ -57,6 +57,7 @@ setup(
   cmdclass = cmdclass,
   version = versionstring,
   author = authorstring,
+  author_email = emailstring,
   license = "GPL Version 3",
   description = "SquidNet interface",
   ext_modules = ext_modules,
