@@ -4,6 +4,7 @@ from threading import Thread
 import signal
 import thread
 import os
+import time
 
 from squidnet import squidprotocol as s, sexp
 
@@ -72,20 +73,24 @@ class HandlerServer(Thread) :
     def stop(self) :
         self.go = False
 
-def run_server(server_info) :
+def run_server(server_info, daemon=False) :
     """Runs a server given a SquidServer object.  Make sure the host name
     and port are correct."""
     bs = BroadcastServer(server_info)
     hs = HandlerServer(server_info)
     bs.start()
     hs.start()
-    try :
-        while True :
-            raw_input("Press Ctrl-C to quit.\n")
-    except :
-        print "Quitting within five seconds..."
-        bs.stop()
-        hs.stop()
+    if daemon:
+        while True:
+            time.sleep(60)
+    else:
+        try :
+            while True:
+                raw_input("Press Ctrl-C to quit.\n")
+        except:
+            print "Quitting within five seconds..."
+            bs.stop()
+            hs.stop()
 
 class ShellRunner(object):
    def __init__(self) :

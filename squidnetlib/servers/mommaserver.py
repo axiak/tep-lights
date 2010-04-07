@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import os
+import pydaemon
 from squidnet import sexp, squidprotocol as sp, squidserver as ss, dmx
+
+DAEMON = True
+
+if DAEMON:
+    pydaemon.createDaemon()
 
 speak_sr = ss.ShellRunner()
 def handle_say(args) :
@@ -17,4 +23,4 @@ d3.add_message(sp.SquidMessage("say",
                                [sp.SquidArgument("text", sp.SquidStringType())],
                                handle_say))
 
-ss.run_server(serv)
+ss.run_server(serv, daemon=DAEMON)
