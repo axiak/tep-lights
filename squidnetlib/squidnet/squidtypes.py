@@ -44,12 +44,9 @@ class SquidValue(object):
             return cls.type_to_sexp(*args, **kwargs)
 
     @classmethod
-    def type_to_sexp(cls, default=None):
+    def type_to_sexp(cls):
         "Takes the given type and returns a "
         result = [sexp.Symbol(cls.clssquidtype())]
-        if default is not None:
-            result.extend([sexp.Symbol("default:"),
-                           default.get_sexp()])
         return result
 
     def value_to_sexp(self):
@@ -63,7 +60,7 @@ class SquidValue(object):
         try:
             squidtype = squidtypes.mapping[str(sexpr)]
         except KeyError:
-            squidtype = squidtypes.mapping[str(sexpr[0])].typefactory(sexpr[1:])
+            squidtype = squidtypes.mapping['enum'].typefactory(sexpr)
         return squidtype
 
     @classmethod
@@ -157,20 +154,12 @@ class SquidEnumValueBase(SquidValue):
     @classmethod
     def typefactory(cls, sexpr):
         choices = []
-        sexpr = [''] + sexpr
-        choices = sexp.plist_find(sexpr, sexp.Symbol("choices:"))
-        return SquidEnumFactory(choices)
+        return SquidEnumFactory(*sexpr)
 
     @classmethod
-    def type_to_sexp(cls, default=None):
+    def type_to_sexp(cls):
         "Takes the given type and returns a "
-        result = [[sexp.Symbol(cls.clssquidtype()),
-                  sexp.Symbol('choices:'),
-                  cls.choices]]
-        
-        if default is not None:
-            result.extend([sexp.Symbol("default:"),
-                           default.get_sexp()])
+        result = [cls.choices]
         return result
 
     def read_sexp_value(self, sexpr):
@@ -183,7 +172,7 @@ class SquidEnumValueBase(SquidValue):
             return
         raise ValueError("%s is not one of the valid choices: %r" % (value, self.choices))
 
-def SquidEnumFactory(choices):
+def SquidEnumFactory(*choices):
     return type('SquidEnumValue', (SquidEnumValueBase,),
                 {'choices': list(map(str, choices))})
 squidtypes.register(SquidEnumValueBase)

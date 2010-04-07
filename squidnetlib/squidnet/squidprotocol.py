@@ -2,6 +2,7 @@
 # an RPC system for SquidNet, a light, et cetera, controlling system.
 
 from squidnet import sexp
+from squidnet.squidtypes import *
 
 SQUIDNET_BROADCAST_PORT = 22222
 
@@ -197,6 +198,8 @@ class SquidArgument(object):
     def __init__(self, name, argtype, default=None) :
         self.name = name if name is not None else ""
         self.argtype = argtype if argtype is not None else ""
+        if default is not None and not isinstance(default, SquidValue):
+            default = argtype(default)
         self.default = default
 
     def __repr__(self):
@@ -230,11 +233,13 @@ class SquidArgument(object):
         r = [sexp.Symbol("argument"),
              sexp.Symbol("name:"), self.name,
              sexp.Symbol("type:")]
-        r.extend(self.argtype.get_sexp(default=self.default))
+        r.extend(self.argtype.get_sexp())
+        if self.default is not None:
+            r.extend([sexp.Symbol('default:'),
+                      self.default.get_sexp()])
         return r
     @staticmethod
     def load_sexp(s) :
-        from squidtypes import SquidValue
         if s[0] == sexp.Symbol("argument") :
             argtype = SquidValue.type_from_sexp(sexp.plist_find(s, sexp.Symbol("type:")))
             default = sexp.plist_find(s, sexp.Symbol("default:"))
@@ -247,7 +252,6 @@ class SquidArgument(object):
         else :
             raise Exception("argument: loading from incorrect s-expression")
 
-from squidnet.squidtypes import *
 
 
 if __name__=="__main__" :
