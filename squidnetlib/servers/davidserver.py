@@ -54,4 +54,4 @@ d1.add_message(sp.SquidMessage("set",
                                                  sp.SquidColorValue, [230, 255, 179])],
                                setcolor))
 
-ss.run_server(serv)
+ss.run_server(serv, daemon=True)
