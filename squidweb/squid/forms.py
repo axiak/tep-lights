@@ -23,7 +23,7 @@ def message_form_factory(message):
 
     attrs['create_squid_args'] = create_squid_args
 
-    return type(form_name, (forms.Form,), attrs)
+    return type(str(form_name), (forms.Form,), attrs)
 
 
 # A mapping between the argument types and their respective field output
