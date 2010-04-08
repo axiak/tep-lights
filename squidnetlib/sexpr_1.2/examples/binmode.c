@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
   b = sx_out->list->bindata;
   l = sx_out->list->binlength;
 
-  fd = open("testdata_out",O_RDWR|O_CREAT);
+  fd = open("testdata_out",O_RDWR|O_CREAT, 0755);
   if (fd <= 0) {
     printf("Error opening ``testdata_out'': Create empty file to write to.\n");
     exit(1);
