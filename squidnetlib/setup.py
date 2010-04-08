@@ -19,6 +19,12 @@ if '--no-build' in sys.argv:
     TRY_BUILD = False
     sys.argv.remove('--no-build')
 
+def build_scexp():
+    cwd = os.getcwd()
+    os.chdir(os.path.join(os.path.dirname(__file__), 'sexpr_1.2'))
+    os.system("./configure")
+    os.system("make")
+    os.chdir(cwd)
 
 if TRY_CYTHON:
     try:
@@ -61,6 +67,8 @@ emails = __import__('squidnet').EMAILS
 authorstring = ', '.join(authors)
 emailstring = ', '.join(emails)
 
+if ext_modules:
+    build_scexp()
 
 
 setup(
