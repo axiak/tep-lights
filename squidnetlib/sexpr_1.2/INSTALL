@@ -1,0 +1,21 @@
+To try things out, just type:
+
+% ./configure
+% make
+
+Try out the example in the examples directory, or torture test things with the
+testers in the tests directory.
+
+To build the doxygen latex/html/manpages, type this:
+
+% make doc
+
+Look in doxygen/ for the files.
+
+If you are working off a version of the code directly from CVS, you will
+likely need to run autoconf before the ./configure line above:
+
+% autoconf
+% ./configure
+% make
+

@@ -1,0 +1,11 @@
+#
+# default makefile settings to be included from other makefiles in
+# the build process.
+#
+# users who USE the library are NOT required to include this file.
+# in fact, you are discouraged from doing so.
+#
+OPTFLAGS   = -O3 
+PROFFLAGS  = -g
+DEBUGFLAGS = -g -D_DEBUG_ -O0
+CFLAGS     = -Wall -fPIC

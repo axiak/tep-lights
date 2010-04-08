@@ -28,6 +28,10 @@ if TRY_CYTHON:
     except ImportError:
         pass
     else:
+        ext_modules.append(Extension("squidnet.scexp", ["squidnet/scexp.pyx"],
+                                     library_dirs = ['sexpr_1.2/src'],
+                                     include_dirs = ['sexpr_1.2/src'],
+                                     libraries = ['sexp']))
         try:
             os.unlink(os.path.join(os.path.dirname(__file__),
                                    'squidnet',
@@ -39,7 +43,11 @@ if TRY_CYTHON:
 if not ext_modules:
     print "Not using Cython for fast sexp module.".upper()
     if TRY_BUILD:
-        ext_modules = [Extension("squidnet.csexp", ["squidnet/csexp.c"])]
+        ext_modules = [Extension("squidnet.csexp", ["squidnet/csexp.c"]),
+                       Extension("squidnet.scexp", ["squidnet/scexp.c"],
+                                 library_dirs = ['sexpr_1.2/src'],
+                                 include_dirs = ['sexpr_1.2/src'],
+                                 libraries = ['sexp'])]
 else:
     print "USING CYTHON"
 
@@ -53,10 +61,7 @@ emails = __import__('squidnet').EMAILS
 authorstring = ', '.join(authors)
 emailstring = ', '.join(emails)
 
-ext_modules.append(Extension("squidnet.scexp", ["squidnet/scexp.pyx"],
-                             library_dirs = ['sexpr_1.2/src'],
-                             include_dirs = ['sexpr_1.2/src'],
-                             libraries = ['sexp']))
+
 
 setup(
   name = 'squidnet',
