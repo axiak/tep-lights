@@ -35,8 +35,8 @@ cdef class Symbol:
 
 string_mapping = {
     "\\": "\\\\",
-    #"\n": "\\n",
-    #"\r": "\\r",
+    "\n": "\\n",
+    "\r": "\\r",
     "\"": "\\\"",
 }
 
@@ -52,6 +52,7 @@ cdef _sexpr_repr(string):
         return '"' + ''.join(map(_full_mapping.__getitem__, string)) + '"'
     else:
         return str(string)
+
 
 def plist_find(plist, key, default=_Raise):
     key = str(key)
@@ -178,7 +179,7 @@ def read_all(strdata):
                         except ValueError:
                             elem = Symbol(curdata)
                 elif tdata.aty == scsexp.SEXP_DQUOTE:
-                    elem = curdata
+                    elem = curdata.replace('\\n', '\n').replace('\\r', '\r')
                 lineage[-1].append(elem)
             top.data = <void *>((<scsexp.sexp_t*>top.data).next)
         elif tdata.ty == scsexp.SEXP_LIST:
