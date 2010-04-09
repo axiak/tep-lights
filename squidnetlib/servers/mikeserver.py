@@ -3,8 +3,30 @@ import os
 from squidnet import sexp, squidprotocol as sp, squidserver as ss, dmx
 import pygame
 import random
+import threading
+import time
 from pygame.locals import *
 import cStringIO as StringIO
+
+wall_visualizations = {
+    'Shimmering': '/home/axiak/pydmx3/shimmering.py',
+    'Surf Ball': '/home/axiak/pydmx3/surfball.py',
+    'Flames': '/home/axiak/pydmx3/flames2.py',
+    'Conway\'s Game of Life': '/home/axiak/pydmx3/gol.py',
+}
+
+wall_sr = ss.ShellRunner()
+
+def handle_wall_color(args):
+    prog = '/home/axiak/pydmx3/setcolor.py'
+    arg = [str(c / 255.0) for c in args['color'].value]
+    arg.insert(0, prog)
+    wall_sr.spawn(prog, arg)
+    print prog, arg
+
+def handle_wall_viz(args):
+    prog = wall_visualizations[args['visualization'].value]
+    wall_sr.spawn(prog)
 
 say_sr = ss.ShellRunner()
 def handle_type(args) :
@@ -48,9 +70,29 @@ d1.add_message(sp.SquidMessage("say",
                                [sp.SquidArgument("text", sp.SquidStringValue)],
                                handle_say))
 
+d2 = sp.SquidDevice("dining-room-wall", "Dining room wall!")
+serv.add_device(d2)
+
+d2.add_message(sp.SquidMessage("set",
+                               "Set solid color",
+                               [sp.SquidArgument("color", sp.SquidColorValue)],
+                               handle_wall_color))
+
+d2.add_message(sp.SquidMessage("visualization",
+                               "Start a visualization",
+                               [sp.SquidArgument("visualization", sp.SquidEnumFactory(*wall_visualizations))],
+                               handle_wall_viz))
+
 pygame.init()
 screen = pygame.display.set_mode((1024, 768), HWSURFACE|DOUBLEBUF)
-#pygame.display.toggle_fullscreen()
+
+def threader():
+    while True:
+        pygame.display.flip()
+        time.sleep(15)
+t = threading.Thread(target=threader)
+t.setDaemon(True)
+t.start()
 
 
 ss.run_server(serv)
