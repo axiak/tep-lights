@@ -45,12 +45,12 @@ int main(int argc, char **argv)
 
         for (r = 0; r < layer->height; r++) {
             for (c = 0; c < layer->width; c++) {
-                x = c / (double)layer->width - 0.5;
-                y = r / (double)layer->height - 0.5;
+                x = c / (double)layer->width - 0.5 - center_x;
+                y = r / (double)layer->height - 0.5 - center_y;
                 dist = cos(shimmer_angle / 10.0) * x * y + cos(shimmer_angle) * x * x + sin(shimmer_angle) * y * y;
                 rgbpixel_sethbsvalue(
                                      colorlayer_getpixel(layer, c, r),
-                                     hue + dist / 2.0, 1, 0, 1);
+                                     hue + dist * 2.5, 1, 0, 1);
             }
         }
         

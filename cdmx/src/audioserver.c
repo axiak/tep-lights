@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
     int foreground_plugin = 301;
 
 #ifdef TESTDUMMY
-    DMXDummyPanel * panel = dummypanel_create(48, 24);
+    DMXDummyPanel * panel = dummypanel_create(60, 36);
     info->panel = panel->cltn;
 #endif
 
@@ -106,58 +106,36 @@ int main(int argc, char ** argv)
 
     int gotplugin = 0;
     int background = 0;
-
+    int pluginfound = 0;
+    int num_layers = 0;
     while (1) {
         colorlayer_setall(shimmering, 0, 0, 0, 0);
         colorlayer_setall(circles, 0, 0, 0, 0);
         background = 0;
-
+        pluginfound = 0;
+        num_layers = 0;
         info->soundinfo->frame_counter++;
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
-                if (info->ipcdata->plugins[i].id == foreground_plugin) {
-                    /* Circles.. foreground */
-                    colorlayer_copy(circles, layer);
+                if (pluginfound) {
+                    colorlayer_mult(circles, layer);
                 }
                 else {
-                    /* Shimmering ..  background */
-                    colorlayer_copy(shimmering, layer);
-                    background = 1;
+                    colorlayer_copy(circles, layer);
                 }
+                num_layers ++;
+                pluginfound = 1;
                 plugin_disuseotherlayer(info->ipcdata, i);
             }
         }
 
-        /*colorlayer_superpose(circles, shimmering);*/
-        if (background) {
-            colorlayer_mult(circles, shimmering);
-        }
-            
         colorlayer_pushtocollection(info->panel, circles);
-
-
-        /*
-          int r, c;
-        for (r = 0; r < layer->height; r++) {
-            for (c = 0; c < layer->width; c++) {
-                RGBLed * pixel = dmxpanelcltn_getpixel(info->panel,
-                                                       r, c);
-            }
-        }
-        */
-
 
         if (!gotplugin) {
             continue;
         }
-        /*
-        for (i = 0; i < 48 * 24; i++){
-            RGBLed * p = dmxpanelcltn_getpixel(info->panel, i / 48, i % 48);
-            pixel_print(p);
-        }
-        */
 #ifdef TESTDUMMY
         dummypanel_sendframe(panel);
 #else
@@ -167,6 +145,7 @@ int main(int argc, char ** argv)
         frames ++;
         ctime = _currenttime();
         if ((ctime - lastfpscount) > FPSDELAY) {
+            fprintf(stderr, "Num plugins: %d\n", num_layers);
             fprintf(stderr, "Frames per second: %0.3f\n",
                     frames / (ctime - lastfpscount));
             frames = 0;

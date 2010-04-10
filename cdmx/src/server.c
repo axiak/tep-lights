@@ -67,8 +67,8 @@ ServerInfo * new_serverenvironment()
     printf("Created key %d (%d)\n", key, sizeof(IPCData));
 
     for (i = 0; i < MAXPLUGINS; i++) {
-        info->ipcdata->plugins[i].layer.width = 48;
-        info->ipcdata->plugins[i].layer.height = 24;
+        info->ipcdata->plugins[i].layer.width = PIXELWIDTH;
+        info->ipcdata->plugins[i].layer.height = PIXELHEIGHT;
     }
 
     /* Create semaphores */

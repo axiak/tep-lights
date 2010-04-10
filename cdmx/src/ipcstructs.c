@@ -202,6 +202,7 @@ int is_client_running(ClientInfo * info)
     if (!info || !info->pid) {
         return 0;
     }
+
     if (kill(info->pid, 0) < 0) {
         return 0;
     }

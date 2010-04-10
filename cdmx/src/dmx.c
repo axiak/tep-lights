@@ -402,17 +402,21 @@ DMXPanelCollection * create_default_panels()
     DMXPanelCollection * cltn;
     DMXPanel * ptr;
     int i;
+    char * IPS[3] = {"TEPILEPSY.MIT.EDU",
+                     "TEPILEPSY2.MIT.EDU",
+                     0};
 
-    cltn = dmxpanelcltn_create(8, 2);
-    for (i = 0; i < 16; i++) {
+    cltn = dmxpanelcltn_create(15, 3);
+    for (i = 0; i < 30; i++) {
         ptr = dmxpanel_create(
-                              "TEPILEPSY.MIT.EDU",
+                              IPS[i / 16],
                               6038,
-                              i + 1,
+                              (i & 15) + 1,
                               6,
                               12,
                               NULL);
-        dmxpanelcltn_setpanel(cltn, ptr, 1 - i / 8, i % 8);
+        printf("%d -> (%d, %d)\n", i, (29 - i) / 10, i % 10);
+        dmxpanelcltn_setpanel(cltn, ptr, (29 - i) / 10, i % 10);
     }
     return cltn;
 }

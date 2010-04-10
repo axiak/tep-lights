@@ -5,8 +5,8 @@
 #include "beat.h"
 
 #define MAINSEMFILE "/etc/resolv.conf"
-#define PIXELWIDTH 48
-#define PIXELHEIGHT 24
+#define PIXELWIDTH 60
+#define PIXELHEIGHT 36
 #define MAXPLUGINS 96
 
 
