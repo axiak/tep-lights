@@ -1,0 +1,24 @@
+This directory contains the code to run squidnet. Squidnet requires
+both clients and servers to function optimally.
+
+The web client (that runs on tep.mit.edu) is spread across templates,
+squidweb, public_html and sqldb.db. That leaves the squidnetlib directory.
+
+The squidnetlib directory contains the module and other information order
+to run squidnet servers. To install, read the README in there.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Michael Axiak
+2010-4-10

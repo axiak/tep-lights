@@ -1,0 +1,11 @@
+
+To install, you must first at least install the Python development
+headers if you do not already have them. Then you can install
+by doing:
+
+ $ python setup.py install
+
+Once it installs, you can run programs inside of server/ to create
+a server. The best thing to do is to copy one of the server files
+to your own.
+
