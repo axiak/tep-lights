@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Conway's Game of life
 
 import dmxwidget

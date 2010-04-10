@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import dmxwidget
 import math
 import random

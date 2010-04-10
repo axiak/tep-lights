@@ -1,3 +1,6 @@
+#!/usr/bin/python
+import psyco
+psyco.full()
 import dmxwidget
 import math
 import random
@@ -14,16 +17,16 @@ class SurfBall (dmxwidget.Widget) :
         self.center_x+=self.dx
         self.center_y+=self.dy
         if self.center_x>(panel.width-1):
-            self.dx = -self.dx + (0.5 - random.random())/10.
+            self.dx = -self.dx #+ (0.5 - random.random())/10.
             self.center_x = panel.width - 1
         elif self.center_x<0:
-            self.dx = -self.dx + (0.5 - random.random())/10
+            self.dx = -self.dx #+ (0.5 - random.random())/10
             self.center_x = 0
         if self.center_y>(panel.height-1):
-            self.dy = -self.dy + (0.5 - random.random())/10
+            self.dy = -self.dy #+ (0.5 - random.random())/10
             self.center_y = panel.height - 1
         elif self.center_y<0:
-            self.dy=-self.dy + (0.5 - random.random())/10
+            self.dy=-self.dy #+ (0.5 - random.random())/10
             self.center_y = 0
         for row in xrange(panel.height):
             for column in xrange(panel.width):

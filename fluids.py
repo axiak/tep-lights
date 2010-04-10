@@ -52,10 +52,10 @@ class Fluids (dmxwidget.Widget) :
         width = len(self.veloc[0])
         if random.random() < 0.008 :
             amount = 2.0*random.random()
-            #locrow = random.randrange(0, height)
-            #loccol = random.randrange(0, width)
-            locrow = height/2
-            loccol = width/2
+            locrow = random.randrange(0, height)
+            loccol = random.randrange(0, width)
+            #locrow = height/2
+            #loccol = width/2
             for row in xrange(-10, 11) :
                 for col in xrange(-10, 11) :
                     arow = (row+locrow)%height
