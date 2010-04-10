@@ -1,0 +1,3 @@
+This contains the programs to run interesting things on the DMX boards
+in the dining room. There are two sections of codes: the server and the post processing,
+and the plugins. 
