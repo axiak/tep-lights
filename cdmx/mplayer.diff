@@ -268,7 +268,7 @@ Index: configure
    --enable-directx)     _directx=yes    ;;
    --disable-directx)    _directx=no     ;;
    --enable-win32waveout)  _win32waveout=yes ;;
-@@ -4314,6 +4318,32 @@
+@@ -4314,6 +4318,31 @@
  echores "$_bl"
  
  
@@ -286,14 +286,13 @@ Index: configure
 +int main(void) { return 0; }
 +EOF
 +
-+  cc_check -ldmxplugin && _dmx=yes && \
-+      def_dmx="#define CONFIG_DMX 1" && \
-+      libs_mplayer="$libs_mplayer -ldmxplugin" && \ 
-+  _vomodules="dmx $_vomodules"
-+  
-+  cc_check $_ld_tmp && libs_mplayer="$libs_mplayer $_ld_tmp" \
-+      && _x11=yes && break
-+
++  if cc_check -ldmxplugin; then
++      _dmx=yes
++      def_dmx="#define CONFIG_DMX 1"
++      libs_mplayer="$libs_mplayer -ldmxplugin"
++      _vomodules="dmx $_vomodules"
++      libs_mplayer="$libs_mplayer $_ld_tmp"
++  fi
 +fi
 +echores "$_dmx"
 +
@@ -301,7 +300,7 @@ Index: configure
  echocheck "DirectFB"
  if test "$_directfb" = auto ; then
    _directfb=no
-@@ -8520,6 +8550,7 @@
+@@ -8520,6 +8549,7 @@
  DIRECT3D = $_direct3d
  DIRECTFB = $_directfb
  DIRECTX = $_directx
@@ -309,7 +308,7 @@ Index: configure
  DVBIN = $_dvbin
  DVDNAV = $_dvdnav
  DVDNAV_INTERNAL = $dvdnav_internal
-@@ -9090,6 +9121,7 @@
+@@ -9090,6 +9120,7 @@
  $def_jpeg
  $def_kva
  $def_md5sum
