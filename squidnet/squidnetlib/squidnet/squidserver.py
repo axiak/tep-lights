@@ -100,7 +100,7 @@ class ShellRunner(object):
        self.lock.acquire()
        if self.pid is not None :
            try:
-               os.kill(self.pid, signal.SIGKILL)
+               os.kill(self.pid, signal.SIGINT)
            except OSError:
                pass
            finally:
@@ -115,7 +115,7 @@ class ShellRunner(object):
        self.lock.acquire()
        if self.pid is not None :
            try:
-               os.kill(self.pid, signal.SIGKILL)
+               os.kill(self.pid, signal.SIGINT)
            except OSError:
                pass
            finally:

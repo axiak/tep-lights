@@ -19,7 +19,6 @@ cdef extern from "cdmx/dmx.h":
         int _ledwidth
         int _ledheight
 
-
 cdef extern from "cdmx/ipcstructs.h":
     ctypedef struct RGBPixel:
         float red

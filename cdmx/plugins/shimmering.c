@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <plugin.h>
+#include <cdmx/plugin.h>
 #include <math.h>
 
 #define PLUGINID 105

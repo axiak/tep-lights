@@ -117,25 +117,33 @@ int main(int argc, char ** argv)
         info->soundinfo->frame_counter++;
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
-                gotplugin = 1;
                 layer = plugin_useotherlayer(info->ipcdata, i);
                 if (pluginfound) {
-                    colorlayer_mult(circles, layer);
+                    if (!colorlayer_mult(circles, layer)) {
+                        printf("Bad plugin! '%s'\n", info->ipcdata->plugins[i].name);
+                        continue;
+                    }                        
                 }
                 else {
-                    colorlayer_copy(circles, layer);
+                    if (!colorlayer_copy(circles, layer)) {
+                        printf("Bad plugin! '%s'\n", info->ipcdata->plugins[i].name);
+                        continue;
+                    }
                 }
                 num_layers ++;
                 pluginfound = 1;
+                gotplugin = 1;
                 plugin_disuseotherlayer(info->ipcdata, i);
             }
         }
 
-        colorlayer_pushtocollection(info->panel, circles);
-
         if (!gotplugin) {
             continue;
         }
+
+        colorlayer_pushtocollection(info->panel, circles);
+
+
 #ifdef TESTDUMMY
         dummypanel_sendframe(panel);
 #else

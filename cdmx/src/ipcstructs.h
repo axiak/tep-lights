@@ -59,9 +59,16 @@ void colorlayer_destroy(ColorLayer * layer);
 void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer);
 ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src);
 
+RGBPixel * rgbpixel_create(double red, double green, double blue, double alpha);
+void rgbpixel_destroy(RGBPixel * pixel);
+
 RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha);
 
+RGBPixel * rgbpixel_setintvalue(RGBPixel * pixel, int red, int green, int blue, int alpha);
+
 RGBPixel * rgbpixel_sethbsvalue(RGBPixel * pixel, float h, float b, float s, float alpha);
+
+RGBPixel * rgbpixel_copy(RGBPixel * dst, RGBPixel * src);
 
 int num_clients(IPCData * data);
 int is_client_running(ClientInfo * info);

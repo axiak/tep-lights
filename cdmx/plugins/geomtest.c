@@ -22,13 +22,14 @@ int main(int argc, char **argv)
     for (;ever;) {
         usleep(100000);
         serverdata_update(s); /* Wait for audio info to update */
-        hue = (rand() % 10000) / 10000.0;
-        rgbpixel_setvalue(&color,
+        /*rgbpixel_setvalue(&color,
                           (rand() % 10000) / 10000.0,
                           (rand() % 10000) / 10000.0,
                           (rand() % 10000) / 10000.0,
                           1);
-                          
+        */
+        hue = rand() % 2;
+        rgbpixel_setvalue(&color, hue, hue, hue, 1);
         rgbpixel_setvalue(&color2, 0, 1.0, 0, 1.0);
         r = i / layer->width;
         c = i % layer->width;

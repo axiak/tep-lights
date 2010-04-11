@@ -415,7 +415,6 @@ DMXPanelCollection * create_default_panels()
                               6,
                               12,
                               NULL);
-        printf("%d -> (%d, %d)\n", i, (29 - i) / 10, i % 10);
         dmxpanelcltn_setpanel(cltn, ptr, (29 - i) / 10, i % 10);
     }
     return cltn;

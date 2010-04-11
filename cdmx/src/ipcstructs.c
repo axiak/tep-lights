@@ -14,6 +14,12 @@
 #include "dmx.h"
 #include "ipcstructs.h"
 
+#define ASSERT_SIZES(A,B) \
+    if ((A)->width != (B)->width || (A)->height != (B)->height) {   \
+        fprintf(stderr, "Size mismatch!\n"); \
+        return NULL; \
+    }
+
 RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
 {
     if (x >= layer->width || y >= layer->height) {
@@ -33,6 +39,28 @@ void rgbpixel_print(RGBPixel * pixel)
                pixel->green,
            pixel->blue);
     }
+}
+
+RGBPixel * rgbpixel_create(double red, double green, double blue, double alpha)
+{
+    RGBPixel * pixel = (RGBPixel *)malloc(sizeof(RGBPixel));
+    if (!pixel) return NULL;
+    pixel->red = red;
+    pixel->green = green;
+    pixel->blue = blue;
+    pixel->alpha = alpha;
+    return pixel;
+}
+
+void rgbpixel_destroy(RGBPixel * pixel)
+{
+    if (pixel) free(pixel);
+}
+
+RGBPixel * rgbpixel_copy(RGBPixel * dst, RGBPixel * src)
+{
+    memcpy(dst, src, sizeof(RGBPixel));
+    return dst;
 }
 
 RGBPixel * rgbpixel_sethbsvalue(RGBPixel * led, float hue, float brightness, float saturation, float alpha)
@@ -111,8 +139,18 @@ RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blu
     return pixel;
 }
 
+RGBPixel * rgbpixel_setintvalue(RGBPixel * pixel, int red, int green, int blue, int alpha)
+{
+    pixel->red = red / 255.0;
+    pixel->green = green / 255.0;
+    pixel->blue = blue / 255.0;
+    pixel->alpha = alpha / 255.0;
+    return pixel;
+}
+
 ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
 {
+    ASSERT_SIZES(dst, src)
     int n = dst->width * dst->height;
     int i;
     for (i = 0; i < n; i++) {
@@ -125,6 +163,7 @@ ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
 
 ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src)
 {
+    ASSERT_SIZES(dst, src)
     int n = dst->width * dst->height;
     float salpha, dalpha;
     int i;
@@ -140,6 +179,7 @@ ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src)
 
 ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
 {
+    ASSERT_SIZES(dst, src)
     int n = dst->width * dst->height;
     int i;
     for (i = 0; i < n; i++) {
@@ -151,17 +191,14 @@ ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
 }
 
 ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src) {
-    if (dst->width != src->width || dst->height != src->height) {
-        fprintf(stderr, "Size mismatch!\n");
-        exit(2);
-        return NULL;
-    }
+    ASSERT_SIZES(dst, src)
     memcpy(dst->pixels, src->pixels, sizeof(src->pixels));
     return dst;
 }
 
 ColorLayer * colorlayer_superpose(ColorLayer * top, ColorLayer * bottom)
 {
+    ASSERT_SIZES(top, bottom)
     int n = top->width * top->height;
     int i;
     RGBPixel * t, * b;

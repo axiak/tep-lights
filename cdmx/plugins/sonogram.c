@@ -12,8 +12,6 @@ int main(int argc, char **argv)
     ColorLayer * layer2;
 
     i = 0;
-    layer->width = 48;
-    layer->height = 24;
     double avg = 0;
     while (1) {
         serverdata_update(s); /* Wait for audio info to update */
