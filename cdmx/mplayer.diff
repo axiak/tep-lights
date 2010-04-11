@@ -14,8 +14,10 @@ Index: libvo/vo_dmx.c
 ===================================================================
 --- libvo/vo_dmx.c	(revision 0)
 +++ libvo/vo_dmx.c	(revision 0)
-@@ -0,0 +1,184 @@
+@@ -0,0 +1,202 @@
 +/*
++ * DMX Plugin that interacts with cDMX.
++ *
 + * This file is part of MPlayer.
 + *
 + * MPlayer is free software; you can redistribute it and/or modify
@@ -57,10 +59,8 @@ Index: libvo/vo_dmx.c
 +	""
 +};
 +
-+
 +const LIBVO_EXTERN (dmx)
 +
-+static uint8_t *slice_data;
 +static int img_height;
 +static int img_width;
 +
@@ -70,48 +70,9 @@ Index: libvo/vo_dmx.c
 +/* used for the sws */
 +static struct SwsContext *sws=NULL;
 +static uint8_t * image[MP_MAX_PLANES];
-+static int image_stride[MP_MAX_PLANES];
++static int *image_stride = NULL;
 +static uint32_t imgformat;
 +
-+static uint32_t draw_image(mp_image_t* mpi)
-+{
-+    uint8_t * rgbdata;
-+    register int baseidx, width;
-+
-+    if(mpi->flags&(MP_IMGFLAG_DIRECT|MP_IMGFLAG_DRAW_CALLBACK)) return VO_TRUE;
-+
-+    if (!sws) {
-+        sws = sws_getContextFromCmdLine(mpi->w, mpi->h, imgformat,
-+                                        s->layer->width, s->layer->height,
-+                                        IMGFMT_RGB24);
-+        memset(image_stride, 0, sizeof(image_stride));
-+        for (int i=0; i < MP_MAX_PLANES; i++) {
-+            image[i] = (uint8_t *)malloc(3 * s->layer->width * s->layer->height);
-+        }
-+        image_stride[0] = 3 * s->layer->width;
-+    }
-+
-+    sws_scale(sws, mpi->planes, mpi->stride, 0, mpi->h, image, image_stride);
-+
-+    width = s->layer->width;
-+    rgbdata = image[0];
-+    for (int r = 0; r < s->layer->height; r++) {
-+        for (int c = 0; c < s->layer->width; c++) {
-+            baseidx = 3*(c + width * r);
-+            rgbpixel_setintvalue(
-+                                 colorlayer_getpixel(s->layer, c,
-+                                                     s->layer->height - r - 1),
-+                                 rgbdata[baseidx],
-+                                 rgbdata[baseidx + 1],
-+                                 rgbdata[baseidx + 2],
-+                                 255);
-+        }
-+    }
-+
-+    serverdata_commitlayer(s);
-+
-+    return VO_TRUE;
-+}
 +
 +static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t flags, char *title, uint32_t format)
 +{
@@ -123,9 +84,20 @@ Index: libvo/vo_dmx.c
 +    imgformat = format;
 +
 +    if(sws) sws_freeContext(sws);
-+    for (int i=0; i < MP_MAX_PLANES; i++) {
-+        if (image[i]) free(image[i]);
++    sws = sws_getContextFromCmdLine(width, height, imgformat,
++                                    s->layer->width, s->layer->height,
++                                    IMGFMT_RGB24);
++
++
++    if (!image_stride) {
++        image_stride = av_mallocz(sizeof(int) * MP_MAX_PLANES);
 +    }
++    image_stride[0] = 3 * s->layer->width;
++    image_stride[0] += (8 - (image_stride[0] % 8));
++
++    if (image[0]) av_free(image[0]);
++    image[0] = (uint8_t *)av_malloc(image_stride[0] * s->layer->height);
++
 +    return 0;
 +}
 +
@@ -135,18 +107,63 @@ Index: libvo/vo_dmx.c
 +
 +static void flip_page (void)
 +{
++    serverdata_commitlayer(s);
 +    return;
 +}
 +
-+static int draw_slice(uint8_t *srcimg[], int stride[], int w,int h,int x,int y)
++
++static int
++draw_slice(uint8_t *src[], int stride[],
++	    int w, int h, int x, int y)
 +{
-+    return -1;
++    uint8_t * rgbdata;
++    int baseidx;
++
++    int dx1 = (x * s->layer->width / img_width);
++    int dy1 = (y * s->layer->height / img_height);
++    int dx2 = ((x+w) * s->layer->width / img_width);
++    int dy2 = ((y+h) * s->layer->height / img_height);
++
++    sws_scale(sws, (const uint8_t * const *)src, stride, y, h, image, image_stride);
++    rgbdata = image[0];
++
++    for (int c = dx1; c < dx2; c++) {
++        for (int r = dy1; r < dy2; r++) {
++            baseidx = 3* c + image_stride[0] * r;
++            rgbpixel_setintvalue(
++                                 colorlayer_getpixel(s->layer, c,
++                                                     s->layer->height - r - 1),
++                                 rgbdata[baseidx],
++                                 rgbdata[baseidx + 1],
++                                 rgbdata[baseidx + 2],
++                                 255);
++        }
++    }
++    return 0;
 +}
++
 +
 +static int draw_frame(uint8_t * src[])
 +{
-+    return -1;
++    int stride[MP_MAX_PLANES] = {0};
++
++    switch(imgformat) {
++    case IMGFMT_BGR15:
++    case IMGFMT_BGR16:
++        stride[0] = img_width*2;
++        break;
++    case IMGFMT_IYU2:
++    case IMGFMT_BGR24:
++        stride[0] = img_width*3;
++        break;
++    case IMGFMT_BGR32:
++        stride[0] = img_width*4;
++        break;
++    }
++
++    return draw_slice(src, stride, img_width, img_height, 0, 0);
 +}
++
 +
 +static int query_format(uint32_t format)
 +{
@@ -163,20 +180,23 @@ Index: libvo/vo_dmx.c
 +	case IMGFMT_RGB24:
 +	case IMGFMT_Y8:
 +	case IMGFMT_Y800:
-+	    return VFCAP_CSP_SUPPORTED | VFCAP_SWSCALE | VOCAP_NOSLICES;
++	    return VFCAP_CSP_SUPPORTED | VFCAP_SWSCALE;
 +    }
 +    return 0;
 +}
 +
 +static void uninit(void)
 +{
-+    if (slice_data != NULL) free(slice_data);
 +    if(sws) sws_freeContext(sws);
++    if (image[0]) av_free(image[0]);
++    if (image_stride) av_free(image_stride);
 +}
++
 +
 +static void check_events(void)
 +{
 +}
++
 +
 +static int preinit(const char *arg)
 +{
@@ -188,12 +208,10 @@ Index: libvo/vo_dmx.c
 +    return 0;
 +}
 +
++
 +static int control(uint32_t request, void *data, ...)
 +{
 +  switch (request) {
-+      case VOCTRL_DRAW_IMAGE:
-+          return draw_image(data);
-+
 +      case VOCTRL_QUERY_FORMAT:
 +          return query_format(*((uint32_t*)data));
 +  }
