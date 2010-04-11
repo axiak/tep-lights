@@ -12,6 +12,9 @@
 
 enum {ever = 1};
 
+void set_color_temperature(RGBPixel * target, float tempurature);
+
+
 int main(int argc, char **argv)
 {
     int r;
@@ -70,33 +73,31 @@ int main(int argc, char **argv)
 
         for (i = 0; last->prev != vals; i++, last = last->prev) {
             for (r = 0; r < layer->height; r++) {
-                rgbpixel_sethbsvalue(&from_fft,
-                                     .5 - (r / (float)(layer->height * 2.0)),
-                                     last->data[r] / (float)slowness / 2,
-                                     COLOR, 1);
+                set_color_temperature(&from_fft, last->data[r] / (float)slowness);
                 cur = colorlayer_getpixel(layer, layer->width - i / slowness - 1, r);
                 rgbpixel_setvalue(cur,
                                   cur->red + from_fft.red,
                                   cur->green + from_fft.green,
                                   cur->blue + from_fft.blue,
                                   1);
-
+                /*
                 if (i > slowness) {
                     cur = colorlayer_getpixel(layer, layer->width - i / slowness, r);
                     rgbpixel_setvalue(cur,
-                                      cur->red + 0.5 * from_fft.red,
-                                      cur->green + 0.5 * from_fft.green,
-                                      cur->blue + 0.5 * from_fft.blue,
+                                      cur->red + 0.25 * from_fft.red,
+                                      cur->green + 0.25 * from_fft.green,
+                                      cur->blue + 0.25 * from_fft.blue,
                                       1);
                 }
                 if (i < (layer->height - slowness)) {
                     cur = colorlayer_getpixel(layer, layer->width - i / slowness - 2, r);
                     rgbpixel_setvalue(cur,
-                                      cur->red + 0.5 * from_fft.red,
-                                      cur->green + 0.5 * from_fft.green,
-                                      cur->blue + 0.5 * from_fft.blue,
+                                      cur->red + 0.25 * from_fft.red,
+                                      cur->green + 0.25 * from_fft.green,
+                                      cur->blue + 0.25 * from_fft.blue,
                                       1);
-                                      }
+                                      }*/
+           
             }
         }
 
@@ -148,4 +149,14 @@ void circlebuf_destroy(CircleBuf * c)
         free(ptr);
     }
     free(c);
+}
+
+
+void set_color_temperature(RGBPixel * target, float tempurature)
+{
+    float r, g, b;
+    r = MIN(MAX( tempurature, 0), 1);
+    g = MIN(MAX( tempurature - .5, 0), 1);
+    b = MIN(MAX(2 * tempurature, 0), 1);
+    rgbpixel_setvalue(target, r, g, b, 1);
 }
