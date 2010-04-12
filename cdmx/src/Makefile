@@ -5,6 +5,13 @@ INCS = -I../inc -I.
 audioserver: *c *h
 	$(CC) $(INCS) -lfftw3 -ljack $(CCFLAGS) ipcstructs.c dmx.c server.c audioserver.c -o audioserver
 
+paserver: *c *h
+	$(CC) $(INCS) -lfftw3 -lpulse-simple $(CCFLAGS) ipcstructs.c dmx.c server.c paserver.c -o paserver
+
+patestserver: *c *h
+	$(CC) $(INCS) -lSDL -lfftw3 -lpulse-simple $(CCFLAGS) -DTESTDUMMY dmxdummy.c ipcstructs.c dmx.c server.c paserver.c beat.c -o patestserver
+
+
 pluginlib: *c *h
 	$(CC) $(INCS) -shared -fPIC plugin.c ipcstructs.c dmx.c geom.c -o libdmxplugin.so
 
