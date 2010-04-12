@@ -25,9 +25,7 @@ int main(int argc, char **argv)
     int i;
     int slowness = SLOWNESS;
     int COLOR = 0;
-    double *denoms = (double *)calloc(sizeof(double), s->layer->height);
-    double *smoothers = (double *)calloc(sizeof(double), s->layer->height);
-    double cur_max, denom=0;
+    double max_avg, sum_avg;
 
     CircleBuf * vals, *last;
 
@@ -48,31 +46,24 @@ int main(int argc, char **argv)
     for (;ever;) {
         serverdata_update(s); /* Wait for audio info to update */
 
-        /* Overall loudness factors */
+        max_avg = sum_avg = 0;
         for (r = 0; r < layer->height; r++) {
-            denoms[r] = 1;
-            smoothers[r] = 0;
-            if (s->soundinfo->fft[r] > cur_max) {
-                cur_max = s->soundinfo->fft[r];
-            }
+            if (s->soundinfo->short_avg[r] > max_avg)
+                max_avg = s->soundinfo->long_avg[r];
+            sum_avg += s->soundinfo->long_avg[r];
         }
-        denom = 0.8 * denom + 0.2 * cur_max;
-
 
         for (r = 0; r < layer->height; r++) {
-            double val = pow(s->soundinfo->fft[r] / denoms[r] / pow(denom, 0.4), 0.7);
-            denoms[r] = denoms[r] * 0.9 + val * 0.1;
-
-            smoothers[r] = val * 0.5 + 0.5 * smoothers[r];
-            last->data[r] = smoothers[r];
-            /*printf("   %0.2f %0.2f %0.2f\n ", val, smoothers[r], denoms[r]);*/
+            last->data[r] = pow(s->soundinfo->fft[r] / sum_avg * layer->height / 4, 0.7);
         }
+        printf("%0.2f, %0.2f\n", last->data[0], last->data[14]);
         last->prev = vals;
         vals = last;
         colorlayer_setall(layer, 0, 0, 0, 1);
 
         for (i = 0; last->prev != vals; i++, last = last->prev) {
             for (r = 0; r < layer->height; r++) {
+
                 set_color_temperature(&from_fft, last->data[r] / (float)slowness);
                 cur = colorlayer_getpixel(layer, layer->width - i / slowness - 1, r);
                 rgbpixel_setvalue(cur,
