@@ -18,13 +18,6 @@
 #include "dmxdummy.h"
 #endif
 
-double * in;
-fftw_complex * out;
-fftw_complex * in2;
-double * out2;
-fftw_plan ff_plan;
-fftw_plan ff_plan2;
-
 jack_client_t * jclient;
 jack_port_t * j_lp;
 jack_port_t * j_rp;
@@ -69,12 +62,6 @@ int main(int argc, char ** argv)
     }
     soundinfo = info->soundinfo;
 
-    in = (double*) fftw_malloc(sizeof(double) * FFT_WINDOW_SIZE);
-    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_WINDOW_SIZE);
-    out2 = (double*) fftw_malloc(sizeof(double) * FFT_WINDOW_SIZE);
-    in2 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_WINDOW_SIZE);
-    ff_plan = fftw_plan_dft_r2c_1d(FFT_WINDOW_SIZE, in, out, 0);
-    ff_plan2 = fftw_plan_dft_c2r_1d(FFT_WINDOW_SIZE, in2, out2, 0);
 
     // set up jack
     printf("Connecting to jack...\n");
@@ -182,99 +169,11 @@ int j_receive(jack_nframes_t nframes, void * arg) {
     jack_default_audio_sample_t *rin = (jack_default_audio_sample_t*)jack_port_get_buffer(j_rp, nframes);
     
     for(b = 0; i < FFT_WINDOW_SIZE && b < nframes; b++, i++) {
-        in[i] = lin[b] + rin[b];
+        soundinfo->_fft_in[i] = lin[b] + rin[b];
     }
     if(i >= FFT_WINDOW_SIZE) {
         i = 0;
-        analyze();
+        soundinfo_analyze(soundinfo);
     }
     return 0;
 }
-
-
-void analyze(void) {
-    int i, j;
-
-    static double band_volume[BINS_TO_USE];
-    static double beat_band[BEAT_BANDS];
-    static double band_history[AVG_HISTORY_LENGTH][BEAT_BANDS];
-    static double deriv_history[AVG_HISTORY_LENGTH][BEAT_BANDS];
-    static char beat_history[BEAT_HISTORY_LENGTH][BEAT_BANDS];
-    static int place = 0;
-
-    static char init = 0;
-
-    if( init == 0 ) {
-        for(j = 0; j < BEAT_BANDS; j++) {
-            for(i = 0; i < AVG_HISTORY_LENGTH; i++)
-                band_history[i][j] = deriv_history[i][j] = 0;
-            for(i = 0; i < BEAT_HISTORY_LENGTH; i++)
-                beat_history[i][j] = 0;
-        }
-        init = 1;
-    }
-    fftw_execute(ff_plan);
-
-    double volume = 0;
-
-    for(i = 0; i < BINS_TO_USE; i++) {
-        soundinfo->fft[i] = band_volume[i] = pow(out[i][0], 2.0)+pow(out[i][1], 2.0);
-    }
-    for (; i < FFT_WINDOW_SIZE; i++) {
-        soundinfo->fft[i] = pow(out[i][0], 2.0)+pow(out[i][1], 2.0);
-        volume += soundinfo->fft[i];
-    }
-    volume /= FFT_WINDOW_SIZE;
-    volume = sqrt(volume);
-
-    for (i = 0; i < 23; i++) {
-        soundinfo->volumehistory[i + 1] = soundinfo->volumehistory[i];
-    }
-    soundinfo->volumehistory[0] = volume;
-
-    for(i = 0; i < BEAT_BANDS; i++) {
-        int size = BINS_TO_USE/BEAT_BANDS;;
-        for(j = 0; j < size; j++)
-            beat_band[i] += band_volume[i*size+j];
-        beat_band[i] /= (float)size;
-        beat_band[i] = sqrt(beat_band[i]);
-        IFDEBUG
-        printf("\t%f",beat_band[i]);
-    }
-    IFDEBUG
-    printf("\n");
-
-    double avg[BEAT_BANDS];
-    double var[BEAT_BANDS];
-
-    char is_beat[BEAT_BANDS];
-    for(j = 0; j < BEAT_BANDS; j++) {
-        avg[j] = 0;
-        for(i = 0; i < AVG_HISTORY_LENGTH; i++)
-            avg[j] += deriv_history[i][j];
-        avg[j] /= (float)AVG_HISTORY_LENGTH;
-        var[j] = 0;
-        for(i = 0; i < AVG_HISTORY_LENGTH; i++)
-            var[j] += pow(deriv_history[i][j]-avg[j],2);
-        var[j] /= (float)AVG_HISTORY_LENGTH;
-        
-        deriv_history[place%AVG_HISTORY_LENGTH][j] = MAX(beat_band[j]-band_history[(place-1)%AVG_HISTORY_LENGTH][j],0)*44100/FFT_WINDOW_SIZE;
-        //    printf("\td:%f", deriv_history[place%AVG_HISTORY_LENGTH][j]);
-        band_history[place%AVG_HISTORY_LENGTH][j] = beat_band[j];
-        if(deriv_history[place%AVG_HISTORY_LENGTH][j] > 1.4*avg[j])
-            is_beat[j] = 1;
-        else
-            is_beat[j] = 0;
-
-        beat_history[place%BEAT_HISTORY_LENGTH][j] = is_beat[j];
-        soundinfo->current_beats[j] = is_beat[j];
-        IFDEBUG
-        printf("\t%f\t%f\t%i",avg[j],var[j],is_beat[j]);
-    }
-    IFDEBUG
-    printf("\n\n");
-    place++;
-    soundinfo->frame_counter++;
-}
-
-

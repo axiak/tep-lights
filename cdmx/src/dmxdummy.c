@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <sys/signal.h>
+#include <math.h>
 
+
+#include "server.h"
 #include "dmx.h"
 #include "dmxdummy.h"
 
@@ -9,7 +12,7 @@
 #define FLOAT2CHAR(A) ((unsigned char)(256 * (MIN(MAX(A, 0), 0.999))))
 #endif
 
-#define BINSIZE 15
+#define BINSIZE 8
 
 float _getalpha(int i, int j, int width);
 
@@ -130,18 +133,17 @@ float _getalpha(int i, int j, int width)
 {
     double distance_squared;
     double center = width / 2.0;
+    double center_s = pow(center, 2.0);
 
-    distance_squared =
-        (i - center) * (i - center) +
-        (j - center) * (j - center);
+    distance_squared = pow(i - center, 2.0) + pow(j - center, 2.0);
 
     if (distance_squared < 2) {
         return 1;
     }
 
-    if (distance_squared > ((center) * (center))) {
+    if (distance_squared > center_s) {
         return 0;
     }
 
-    return 1 - distance_squared / (center * center);
+    return 1 - distance_squared / center_s;
 }

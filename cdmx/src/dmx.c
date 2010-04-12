@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#define __USE_XOPEN_EXTENDED 500 /* Or: #define _BSD_SOURCE */
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -12,6 +14,7 @@
 #include <time.h>
 
 #include "dmx.h"
+
 
 #define INTERFRAME 0.0332
 
@@ -146,7 +149,7 @@ void ledarray_destroy(LEDArray * ledarray)
 
 
 /* DMX Stuff */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int))
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int, int, int))
 {
     DMXPanel * panel;
     int bufsize;

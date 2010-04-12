@@ -2,21 +2,20 @@ CC = gcc
 CCFLAGS = -Wall -pedantic -std=c99 -D_SVID_SOURCE=1 -D_POSIX_SOURCE
 INCS = -I../inc -I.
 
-audioserver: *c *h
-	$(CC) $(INCS) -lfftw3 -ljack $(CCFLAGS) ipcstructs.c dmx.c server.c audioserver.c -o audioserver
+jackserver: *c *h
+	$(CC) $(INCS) -lfftw3 -ljack $(CCFLAGS) ipcstructs.c dmx.c server.c jackserver.c beat.c -o jackserver
 
 paserver: *c *h
-	$(CC) $(INCS) -lfftw3 -lpulse-simple $(CCFLAGS) ipcstructs.c dmx.c server.c paserver.c -o paserver
+	$(CC) $(INCS) -lfftw3 -lpulse-simple $(CCFLAGS) ipcstructs.c dmx.c server.c paserver.c beat.c -o paserver
 
 patestserver: *c *h
 	$(CC) $(INCS) -lSDL -lfftw3 -lpulse-simple $(CCFLAGS) -DTESTDUMMY dmxdummy.c ipcstructs.c dmx.c server.c paserver.c beat.c -o patestserver
 
-
 pluginlib: *c *h
 	$(CC) $(INCS) -shared -fPIC plugin.c ipcstructs.c dmx.c geom.c -o libdmxplugin.so
 
-audiotestserver: *c *h
-	$(CC) $(INCS) -lSDL -lfftw3 -ljack $(CCFLAGS) -DTESTDUMMY ipcstructs.c dmx.c server.c dmxdummy.c audioserver.c -o audiotestserver
+jacktestserver: *c *h
+	$(CC) $(INCS) -lSDL -lfftw3 -ljack $(CCFLAGS) -DTESTDUMMY beat.c ipcstructs.c dmx.c server.c dmxdummy.c jackserver.c -o jacktestserver
 
 server: *c *h
 	$(CC) $(INCS) $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
@@ -31,7 +30,7 @@ dmxdummy: dmxdummy.c
 	$(CC) $(INCS) -DDMXDUMMY -lSDL $(CCFLAGS) dmx.c dmxdummy.c -o dmxdummy
 
 clean:
-	rm -f dmxtest plugintest audiotestserver audioserver server libdmxplugin.so
+	rm -f dmxtest plugintest jacktestserver jackserver server libdmxplugin.so paserver patestserver
 
 install:
 	cp libdmxplugin.so /usr/lib/

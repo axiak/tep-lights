@@ -45,7 +45,7 @@ typedef struct {
 LEDArray * ledarray_create(SZ size);
 
 /* If mapfunc is null, then the default of (r + 12*(5 - c)) */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int));
+DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int, int, int));
 DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction);
 DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction);
 DMXPanelCollection * create_default_panels();

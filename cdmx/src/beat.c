@@ -40,7 +40,7 @@ void soundinfo_analyze(SoundInfo * s)
 
     static char init = 0;
 
-    if( init == 0 ) {
+    if (init == 0) {
         memset(band_history, 0, sizeof(band_history));
         memset(deriv_history, 0, sizeof(deriv_history));
         init = 1;
@@ -49,15 +49,34 @@ void soundinfo_analyze(SoundInfo * s)
 
     double volume = 0;
 
-    for(i = 0; i < BINS_TO_USE; i++) {
-        s->fft[i] = band_volume[i] = MAGNITUDE(s->_fft_out[i]);
-        volume += band_volume[i];
+    for(i = 0; i < FFT_WINDOW_SIZE; i++) {
+        s->fft[i] = MAGNITUDE(s->_fft_out[i + 1]);
+
+        if (i < BINS_TO_USE)
+            band_volume[i] = s->fft[i];
+
+        volume += s->fft[i];
+
+        if (s->fft[i] > s->short_avg[i])
+            s->short_avg[i] = s->short_avg[i] * 0.2 + s->fft[i] * 0.8;
+        else
+            s->short_avg[i] = s->short_avg[i] * 0.5 + s->short_avg[i] * 0.5;
+
+        if (place < 50)
+            s->long_avg[i] = s->long_avg[i] * 0.9 + s->fft[i] * 0.1;
+        else
+            s->long_avg[i] = s->long_avg[i] * 0.992 + s->fft[i] * 0.008;
+
+        if (fabsf(s->long_avg[i]) < 0.001) {
+            s->fft_rel[i] = 1.0;
+            s->avg_rel[i] = 1.0;
+        }
+        else {
+            s->fft_rel[i] = s->fft[i] / s->long_avg[i];
+            s->avg_rel[i] = s->short_avg[i] / s->long_avg[i];
+        }
     }
 
-    for (; i < FFT_WINDOW_SIZE; i++) {
-        s->fft[i] = MAGNITUDE(s->_fft_out[i]);
-        volume += s->fft[i];
-    }
     volume /= FFT_WINDOW_SIZE;
     volume = sqrt(volume);
 
@@ -91,7 +110,7 @@ void soundinfo_analyze(SoundInfo * s)
         avg[j] /= (float)AVG_HISTORY_LENGTH;
         var[j] = 0;
         for(i = 0; i < AVG_HISTORY_LENGTH; i++)
-            var[j] += pow(deriv_history[i][j]-avg[j],2);
+            var[j] += pow(deriv_history[i][j]-avg[j], 2);
         var[j] /= (float)AVG_HISTORY_LENGTH;
 
         //double cutoff = 1.5-.00002*var[j];

@@ -9,8 +9,12 @@
 #define BEAT_HISTORY_LENGTH 250
 
 typedef struct {
-    float fft[FFT_WINDOW_SIZE];
-    float volumehistory[24];
+    double fft[FFT_WINDOW_SIZE];
+    double short_avg[FFT_WINDOW_SIZE];
+    double long_avg[FFT_WINDOW_SIZE];
+    double fft_rel[FFT_WINDOW_SIZE];
+    double avg_rel[FFT_WINDOW_SIZE];
+    double volumehistory[24];
     char current_beats[BEAT_BANDS];
     unsigned char bpm;
     float bpm_certainty;
@@ -20,7 +24,8 @@ typedef struct {
     fftw_plan _fft_plan;
 } SoundInfo;
 
-void soundinfo_init_server(SoundInfo * s);
+void 
+soundinfo_init_server(SoundInfo * s);
 void soundinfo_analyze(SoundInfo * s);
 
 #endif

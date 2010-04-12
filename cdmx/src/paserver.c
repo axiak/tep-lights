@@ -9,6 +9,7 @@
 #include <math.h>
 #include <pulse/simple.h>
 #include <pulse/error.h>
+#include <pthread.h>
 
 #include "ipcstructs.h"
 #include "server.h"
@@ -19,17 +20,9 @@
 #include "dmxdummy.h"
 #endif
 
-double * in;
-fftw_complex * out;
-fftw_complex * in2;
-double * out2;
-fftw_plan ff_plan;
-fftw_plan ff_plan2;
-uint16_t buf[FFT_WINDOW_SIZE];
 
 int debug;
 
-void analyze(void);
 double _currenttime();
 
 SoundInfo * soundinfo;
@@ -37,6 +30,8 @@ SoundInfo * soundinfo;
 #define FPSDELAY 5
 
 #define IFDEBUG if (debug)  
+
+void * pulse_handler(void * arg);
 
 int main(int argc, char ** argv)
 {
@@ -46,20 +41,12 @@ int main(int argc, char ** argv)
     int frames = 0;
     double lastfpscount = _currenttime();
     double ctime;
-    int foreground_plugin = 301;
-    int error;
+    int pulseaudio = 0;
+    pthread_t pathread;
     char * dev = "alsa_output.pci-0000_00_14.2.analog-stereo.monitor";
-    pa_simple * s = NULL;
-    pa_sample_spec ss = {
-        .format = PA_SAMPLE_S16LE,
-        .rate = 44100,
-        .channels = 1
-    };
-
     if (argc > 1) {
         dev = argv[1];
     }
-    int pulseaudio = 0;
 
 #ifdef TESTDUMMY
     DMXDummyPanel * panel = dummypanel_create(60, 36);
@@ -68,16 +55,10 @@ int main(int argc, char ** argv)
 
     soundinfo = info->soundinfo;
 
-    // set up audio
-    printf("Connecting to pulseaudio...\n");
-    if (!(s = pa_simple_new(NULL, "lightbeat", PA_STREAM_RECORD, dev, "record", &ss, NULL, NULL, &error))) {
+    if (pthread_create(&pathread, NULL, pulse_handler, (void *)dev)) {
         fprintf(stderr,
-                "Pulseaudio initialization failed. Perhaps you should pass "
-                "in a pulseaudio device? Hint: `pactl list | grep monitor`\n");
-        fprintf(stderr, "Error: %s\n", pa_strerror(error));
-    }
-    else {
-        pulseaudio = 1;
+                "Could not start thread!\n");
+        exit(2);
     }
 
     ColorLayer * shimmering = colorlayer_create();
@@ -88,14 +69,6 @@ int main(int argc, char ** argv)
     int pluginfound = 0;
     int num_layers = 0;
     for (;;) {
-        if (pulseaudio) {
-            if (pa_simple_read(s, buf, sizeof(buf), &error) < 0) {
-                fprintf(stderr, "Could not read pulseaudio data: %s\n", pa_strerror(error));
-                return -1;
-            }
-            analyze();
-        }
-
         colorlayer_setall(shimmering, 0, 0, 0, 0);
         colorlayer_setall(circles, 0, 0, 0, 0);
         background = 0;
@@ -154,17 +127,40 @@ int main(int argc, char ** argv)
     dummypanel_destroy(panel);
 #endif
     destroy_serverenvironment(info);
-    if (s)
-        pa_simple_free(s);
     return 0;
 }
 
+void * pulse_handler(void * arg)
+{
+    int i, error;
+    uint16_t buf[FFT_WINDOW_SIZE];
+    pa_simple * s;
+    char * dev = (char *)arg;
+    pa_sample_spec ss = {
+        .format = PA_SAMPLE_S16LE,
+        .rate = 16000,
+        .channels = 1
+    };
 
-
-void analyze(void) {
-    int i;
-    for (i = 0; i < FFT_WINDOW_SIZE; i++) {
-        soundinfo->_fft_in[i] = (double)buf[i] / ((double)(SHRT_MAX + 1));
+    // set up audio
+    printf("Connecting to pulseaudio...\n");
+    if (!(s = pa_simple_new(NULL, "lightbeat", PA_STREAM_RECORD, dev, "record", &ss, NULL, NULL, &error))) {
+        fprintf(stderr,
+                "Pulseaudio initialization failed. Perhaps you should pass "
+                "in a pulseaudio device? Hint: `pactl list | grep monitor`\n");
+        fprintf(stderr, "Error: %s\n", pa_strerror(error));
+        return NULL;
     }
-    soundinfo_analyze(soundinfo);
+    for (;;) {
+        if (pa_simple_read(s, buf, sizeof(buf), &error) < 0) {
+            fprintf(stderr, "Could not read pulseaudio data: %s\n", pa_strerror(error));
+            exit(1);
+        }
+        for (i = 0; i < FFT_WINDOW_SIZE; i++) {
+            soundinfo->_fft_in[i] = (double)buf[i] / ((double)(SHRT_MAX + 1));
+        }
+        soundinfo_analyze(soundinfo);
+    }
+    if (s)
+        pa_simple_free(s);
 }

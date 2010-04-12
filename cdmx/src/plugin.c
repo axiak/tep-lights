@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#define __USE_XOPEN_EXTENDED 500 /* Or: #define _BSD_SOURCE */
 #include <unistd.h>
 
 #include <sys/types.h>

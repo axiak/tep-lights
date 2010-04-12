@@ -11,6 +11,8 @@
 #include <time.h>
 #include <errno.h>
 
+#include <fftw3.h>
+
 #include "ipcstructs.h"
 #include "server.h"
 #include "dmx.h"
@@ -63,6 +65,9 @@ ServerInfo * new_serverenvironment()
     info->ipcdata = (IPCData *)shmat(info->shmid, NULL, 0);
     info->soundinfo = &info->ipcdata->soundinfo;
     memset(info->ipcdata, 0, sizeof(IPCData));
+
+    /* Initialize sound information */
+    soundinfo_init_server(info->soundinfo);
 
     printf("Created key %d (%d)\n", key, sizeof(IPCData));
 
