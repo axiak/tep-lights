@@ -66,7 +66,7 @@ def handle_wall_image(args):
     run_plugins(wall_sr, [[prog, args['Scaling'].value, args['image'].value]])
 
 
-serv = sp.SquidServer("subzero", "zetazero.mit.edu", 2224, "Subzero")
+serv = sp.SquidServer("subzero", "subzero.mit.edu", 2222, "Subzero")
 
 d1 = sp.SquidDevice("dining-room-wall", "Dining room wall!")
 serv.add_device(d1)
