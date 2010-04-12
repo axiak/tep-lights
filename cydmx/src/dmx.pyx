@@ -3,7 +3,7 @@ cimport python_exc
 
 import traceback
 import time
-
+import os
 
 cdef class RGBPixel:
     cdef cdmx.RGBPixel * _rgbpixel
@@ -77,8 +77,10 @@ cdef class DefaultLightPanel:
     def __cinit__(self, int id=222):
         cdef int r, c
         cdef bytes name = "boo"
-        print "HMM"
-        print traceback.extract_stack(limit=10) #[0][0].split('.', 1)[0]
+        stack = traceback.extract_stack(limit=10)
+        if stack:
+            name = os.path.basename(stack[0][0])
+            name = name.rsplit('.', 1)[0]
         self.s = cdmx.plugin_register(name, id)
         if self.s is NULL:
             raise RuntimeError("Unable to register plugin")
