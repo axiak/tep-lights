@@ -58,7 +58,8 @@ def handle_wall_text(args):
     run_plugins(wall_sr, [[prog, args['text'].value,
                            str(args['color'].value[0]),
                            str(args['color'].value[1]),
-                           str(args['color'].value[2])]])
+                           str(args['color'].value[2]),
+                           str(args['speed'].value)]])
 
 def handle_wall_image(args):
     prog = os.path.join(DIR, 'cydmx', 'plugins', 'setimage.py')
@@ -91,7 +92,9 @@ d1.add_message(sp.SquidMessage("image",
 d1.add_message(sp.SquidMessage("text",
                                "Send text",
                                [sp.SquidArgument("text", sp.SquidStringValue),
-                                sp.SquidArgument("color", sp.SquidColorValue)],
+                                sp.SquidArgument("color", sp.SquidColorValue),
+                                sp.SquidArgument("speed", sp.SquidRangeValue,
+                                                 0.5),],
                                handle_wall_text))
 
 d1.add_message(sp.SquidMessage("extinguish",

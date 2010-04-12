@@ -72,7 +72,7 @@ def scroll(panel, text, box=None, color=(0,1,0), size=(6,7), clear=True, repeat=
             for char in text:
                 dist = 0
                 if char==' ' :
-                    dist = (size[0]+1)/2+1
+                    dist = (size[0]+1)/2 + max([lastkerning[1][i] for i in range(0, size[1])]) + 2
                     lastkerning = ([0 for i in range(0, size[1])],[0 for i in range(0, size[1])])
                 else :
                     dist = max([lastkerning[1][i] - KERNING[size][char][0][i] for i in range(0, size[1])]) + 2
@@ -578,4 +578,7 @@ if __name__ == "__main__" :
         print color
     else:
         color = (0.3,0.7,0)
-    scroll(d, text, size=(6,7), color=color, fps=20, scale=2)
+    fps = 20
+    if len(sys.argv) > 5:
+        fps = 5 + int(float(sys.argv[5]) * 20)
+    scroll(d, text, size=(6,7), color=color, fps=fps, scale=2)
