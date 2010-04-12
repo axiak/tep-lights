@@ -88,6 +88,7 @@ class Base64FileField(forms.FileField):
             return value.read().encode('base64')
         else:
             im = Image.open(value)
+            im = im.convert("RGB")
             im.thumbnail((320, 240))
             c = StringIO.StringIO()
             im.save(c, "JPEG")
