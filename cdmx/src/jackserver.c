@@ -125,6 +125,7 @@ int main(int argc, char ** argv)
         }
 
         if (!gotplugin) {
+            dmxpanelcltn_wait(info->panel);
             continue;
         }
 

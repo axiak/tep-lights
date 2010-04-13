@@ -100,6 +100,7 @@ int main(int argc, char ** argv)
             }
         }
         if (!gotplugin) {
+            dmxpanelcltn_wait(info->panel);
             continue;
         }
 
@@ -138,7 +139,7 @@ void * pulse_handler(void * arg)
     char * dev = (char *)arg;
     pa_sample_spec ss = {
         .format = PA_SAMPLE_S16LE,
-        .rate = 16000,
+        .rate = 44100,
         .channels = 1
     };
 

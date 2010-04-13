@@ -370,6 +370,18 @@ void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn)
     }
 }
 
+void dmxpanelcltn_wait(DMXPanelCollection * panelcltn)
+{
+    int i;
+    int max = panelcltn->width * panelcltn->height;
+    for (i=0; i < max; i++) {
+        if (panelcltn->panels[i]) {
+            dmxpanel_wait(panelcltn->panels[i]);
+            break;
+        }
+    }
+}
+
 DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column)
 {
     int x = row * panelcltn->width + column;

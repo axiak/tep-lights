@@ -11,26 +11,20 @@ paserver: *c *h
 patestserver: *c *h
 	$(CC) $(INCS) -lSDL -lfftw3 -lpulse-simple $(CCFLAGS) -DTESTDUMMY dmxdummy.c ipcstructs.c dmx.c server.c paserver.c beat.c -o patestserver
 
+naserver: *c *h
+	$(CC) $(INCS) -lfftw3 $(CCFLAGS) ipcstructs.c dmx.c server.c testserver.c beat.c -o naserver
+
+natestserver: *c *h
+	$(CC) $(INCS) -lSDL -lfftw3 $(CCFLAGS) -DTESTDUMMY dmxdummy.c ipcstructs.c dmx.c server.c testserver.c beat.c -o natestserver
+
 pluginlib: *c *h
 	$(CC) $(INCS) -shared -fPIC plugin.c ipcstructs.c dmx.c geom.c -o libdmxplugin.so
 
 jacktestserver: *c *h
 	$(CC) $(INCS) -lSDL -lfftw3 -ljack $(CCFLAGS) -DTESTDUMMY beat.c ipcstructs.c dmx.c server.c dmxdummy.c jackserver.c -o jacktestserver
 
-server: *c *h
-	$(CC) $(INCS) $(CCFLAGS) ipcstructs.c dmx.c testserver.c server.c -o testserver
-
-plugin: plugin.c plugin.h ipcstructs.h ipcstructs.c geom
-	$(CC) $(INCS) -DEFFECTTEST $(CCFLAGS) plugin.c ipcstructs.c -o plugintest
-
-dmxtest: dmx.c dmx.h
-	$(CC) $(INCS) -DDMX_TEST $(CCFLAGS) dmx.c -o dmxtest
-
-dmxdummy: dmxdummy.c
-	$(CC) $(INCS) -DDMXDUMMY -lSDL $(CCFLAGS) dmx.c dmxdummy.c -o dmxdummy
-
 clean:
-	rm -f dmxtest plugintest jacktestserver jackserver server libdmxplugin.so paserver patestserver
+	rm -f dmxtest plugintest jacktestserver jackserver server libdmxplugin.so paserver patestserver naserver natestserver
 
 install:
 	cp libdmxplugin.so /usr/lib/

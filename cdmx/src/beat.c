@@ -6,6 +6,7 @@
 
 #include "beat.h"
 
+
 #define MAGNITUDE(A) (pow((A)[0], 2.0) + pow((A)[1], 2.0))
 
 static inline float max(float x, float y)
@@ -16,6 +17,14 @@ static inline float max(float x, float y)
         return y;
 }
 __attribute__ ((always_inline))
+
+
+static inline double window_function(int input)
+{
+    return 0.5 * (1 - cos(2 * M_PI * input / (FFT_WINDOW_SIZE - 1)));
+}
+__attribute__ ((always_inline))
+
 
 void soundinfo_init_server(SoundInfo * s)
 {
@@ -29,7 +38,7 @@ void soundinfo_init_server(SoundInfo * s)
 
 void soundinfo_analyze(SoundInfo * s)
 {
-    int i, j;
+    register int i, j;
 
     static double band_volume[BINS_TO_USE];
     static double beat_band[BEAT_BANDS];
@@ -45,6 +54,11 @@ void soundinfo_analyze(SoundInfo * s)
         memset(deriv_history, 0, sizeof(deriv_history));
         init = 1;
     }
+
+    for (i = 0; i < FFT_WINDOW_SIZE; i++) {
+        s->_fft_in[i] *= window_function(i);
+    }
+
     fftw_execute(s->_fft_plan);
 
     double volume = 0;
