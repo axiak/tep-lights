@@ -141,7 +141,6 @@ void soundinfo_analyze(SoundInfo * s)
         s->current_beats[j] = is_beat[j];
     }
     place++;
-    s->frame_counter++;
 }
 
 

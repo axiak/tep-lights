@@ -102,6 +102,7 @@ int main(int argc, char ** argv)
         pluginfound = 0;
         num_layers = 0;
         info->soundinfo->frame_counter++;
+
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 layer = plugin_useotherlayer(info->ipcdata, i);
@@ -165,7 +166,6 @@ void j_shutdown(void *arg) {
 int j_receive(jack_nframes_t nframes, void * arg) {
     static int i = 0;
     int b;
-    
     jack_default_audio_sample_t *lin = (jack_default_audio_sample_t*)jack_port_get_buffer(j_lp, nframes);
     jack_default_audio_sample_t *rin = (jack_default_audio_sample_t*)jack_port_get_buffer(j_rp, nframes);
     

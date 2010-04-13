@@ -80,8 +80,7 @@ int main(int argc, char ** argv)
         pluginfound = 0;
         num_layers = 0;
 
-        if (!pulseaudio)
-            info->soundinfo->frame_counter++;
+        info->soundinfo->frame_counter++;
 
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
@@ -108,7 +107,6 @@ int main(int argc, char ** argv)
             dmxpanelcltn_wait(info->panel);
             continue;
         }
-
         colorlayer_pushtocollection(info->panel, circles);
 
 

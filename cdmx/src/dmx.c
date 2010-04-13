@@ -264,6 +264,7 @@ void dmxpanel_wait(DMXPanel * panel)
         usleep((int)(((future - current_time) * 1000000)) + 10);
         current_time = _currenttime();
     }
+    panel->lastupdate = current_time;
 }
 
 int dmxpanel_sendframe(DMXPanel * panel, int usecache)
