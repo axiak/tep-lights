@@ -2,6 +2,10 @@
 #define __BEAT_H
 #include <fftw3.h>
 
+#ifndef M_PI
+# define M_PI		3.14159265358979323846	/* pi */
+#endif
+
 #define FFT_WINDOW_SIZE 1024
 #define BEAT_BANDS 4
 #define BINS_TO_USE 36
