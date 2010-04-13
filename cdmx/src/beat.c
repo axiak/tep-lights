@@ -19,6 +19,7 @@ static inline float max(float x, float y)
 __attribute__ ((always_inline))
 
 
+/* Hann window function */
 static inline double window_function(int input)
 {
     return 0.5 * (1 - cos(2 * M_PI * input / (FFT_WINDOW_SIZE - 1)));

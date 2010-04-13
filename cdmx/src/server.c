@@ -52,7 +52,6 @@ ServerInfo * new_serverenvironment()
         if (shmid >= 0) {
             shmctl(shmid, IPC_RMID, &output);
         }
-        printf("%d\n", errno);
     }
 
     if ((info->shmid = shmget(key, SHMSIZE, IPC_CREAT | 0666)) < 0) {
