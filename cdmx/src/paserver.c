@@ -33,6 +33,8 @@ SoundInfo * soundinfo;
 
 void * pulse_handler(void * arg);
 
+char * _get_default_pa_monitor(void);
+
 int main(int argc, char ** argv)
 {
     ServerInfo * info = new_serverenvironment();
@@ -43,9 +45,12 @@ int main(int argc, char ** argv)
     double ctime;
     int pulseaudio = 0;
     pthread_t pathread;
-    char * dev = "alsa_output.pci-0000_00_14.2.analog-stereo.monitor";
+    char * dev = NULL;
     if (argc > 1) {
         dev = argv[1];
+    }
+    else {
+        dev = _get_default_pa_monitor();
     }
 
 #ifdef TESTDUMMY
@@ -145,7 +150,7 @@ void * pulse_handler(void * arg)
 
     // set up audio
     printf("Connecting to pulseaudio...\n");
-    if (!(s = pa_simple_new(NULL, "lightbeat", PA_STREAM_RECORD, dev, "record", &ss, NULL, NULL, &error))) {
+    if (!(s = pa_simple_new(NULL, "cDMXServer", PA_STREAM_RECORD, dev, "record", &ss, NULL, NULL, &error))) {
         fprintf(stderr,
                 "Pulseaudio initialization failed. Perhaps you should pass "
                 "in a pulseaudio device? Hint: `pactl list | grep monitor`\n");
@@ -164,4 +169,35 @@ void * pulse_handler(void * arg)
     }
     if (s)
         pa_simple_free(s);
+}
+
+
+/* Get the default pulseaudio monitor using pactl */
+char * _get_default_pa_monitor(void)
+{
+    char buffer[256];
+    char *result;
+    FILE * f = popen("pactl list", "r");
+    char * ptr;
+    int len;
+
+    if (!f) {
+        goto error;
+    }
+
+    while (fgets(buffer, 256, f)) {
+        if ((ptr = strstr(buffer, "Monitor Source:"))) {
+            ptr += 16;
+            len = strlen(ptr);
+            ptr[len - 1] = '\0';
+            result = (char *)malloc(len);
+            memcpy(result, ptr, len);
+            return result;
+        }
+    }
+
+ error:
+    fprintf(stderr, "Could not get default monitor device. Use `pactl list`.\n");
+    exit(2);
+
 }
