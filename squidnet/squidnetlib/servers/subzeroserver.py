@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import shlex
 from squidnet import sexp, squidprotocol as sp, squidserver as ss, dmx
 
 DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -8,6 +9,7 @@ print DIR
 
 wall_visualizations = {
     'Shimmering': 'cdmx/plugins/shimmering',
+    'Electric Sheep': '/usr/bin/mplayer /home/axiak/electricsheep-sample.mov -loop 0',
     'Surf Ball': 'cydmx/plugins/surfball.py',
     'Flames 2': 'cydmx/plugins/flames2.py',
     'Conway\'s Game of Life': 'cydmx/plugins/gol.py',
@@ -48,7 +50,7 @@ def handle_wall_viz(args):
     for v in viz:
         if isinstance(v, basestring):
             v = os.path.join(DIR, v)
-            v = [v]
+            v = shlex.split(v)
             args.append(v)
     print args
     run_plugins(wall_sr, args)
@@ -66,7 +68,7 @@ def handle_wall_image(args):
     run_plugins(wall_sr, [[prog, args['Scaling'].value, args['image'].value]])
 
 
-serv = sp.SquidServer("subzero", "subzero.mit.edu", 2222, "Subzero")
+serv = sp.SquidServer("subzero", "s0.mit.edu", 2222, "Subzero")
 
 d1 = sp.SquidDevice("dining-room-wall", "Dining room wall!")
 serv.add_device(d1)
