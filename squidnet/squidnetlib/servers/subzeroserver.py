@@ -8,6 +8,7 @@ print DIR
 
 wall_visualizations = {
     'Shimmering': 'cdmx/plugins/shimmering',
+    'Clock': 'cydmx/plugins/clock.py',
     'Surf Ball': 'cydmx/plugins/surfball.py',
     'Flames 2': 'cydmx/plugins/flames2.py',
     'Conway\'s Game of Life': 'cydmx/plugins/gol.py',
@@ -22,7 +23,7 @@ wall_sr = ss.ShellRunner()
 
 def run_plugins(sr, plugins):
     prog = os.path.join(DIR, 'cdmx', 'runner.py')
-    args = [prog, os.path.join(DIR, 'cdmx', 'src', 'audiotestserver')]
+    args = [prog]
     for plugin in plugins:
         args.append('--plugin')
         args.extend(plugin)
@@ -66,7 +67,7 @@ def handle_wall_image(args):
     run_plugins(wall_sr, [[prog, args['Scaling'].value, args['image'].value]])
 
 
-serv = sp.SquidServer("subzero", "zetazero.mit.edu", 2224, "Subzero")
+serv = sp.SquidServer("subzero", "s0.mit.edu", 2222, "Subzero")
 
 d1 = sp.SquidDevice("dining-room-wall", "Dining room wall!")
 serv.add_device(d1)

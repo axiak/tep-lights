@@ -4,7 +4,7 @@ import os
 import time
 import signal
 
-PROG = os.path.join(os.path.dirname(__file__), 'src', 'audioserver')
+PROG = os.path.join(os.path.dirname(__file__), 'src', 'jackserver')
 
 def main():
     main_prog, plugins = parse_args()
