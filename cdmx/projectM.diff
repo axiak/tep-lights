@@ -1,0 +1,123 @@
+Index: libprojectM/Renderer/CMakeLists.txt
+===================================================================
+--- libprojectM/Renderer/CMakeLists.txt	(revision 1334)
++++ libprojectM/Renderer/CMakeLists.txt	(working copy)
+@@ -21,4 +21,4 @@
+ INCLUDE_DIRECTORIES(${projectM_SOURCE_DIR})
+ ADD_LIBRARY(Renderer STATIC ${Renderer_SOURCES})
+ SET_TARGET_PROPERTIES(Renderer PROPERTIES VERSION 2.00 SOVERSION 2)
+-TARGET_LINK_LIBRARIES(Renderer ${MATH_LIBRARIES})
++TARGET_LINK_LIBRARIES(Renderer ${MATH_LIBRARIES} -ldmxplugin)
+Index: libprojectM/Renderer/Renderer.cpp
+===================================================================
+--- libprojectM/Renderer/Renderer.cpp	(revision 1334)
++++ libprojectM/Renderer/Renderer.cpp	(working copy)
+@@ -7,6 +7,9 @@
+ #include <iostream>
+ #include <algorithm>
+ #include <cassert>
++
++#include <cdmx/plugin.h>
++
+ #include "omptl/omptl"
+ #include "omptl/omptl_algorithm"
+ #include "UserTexture.hpp"
+@@ -21,6 +24,7 @@
+ 	int x;
+ 	int y;
+ 
++    this->dmx_s = plugin_register("projectM", 900);
+ 	this->totalframes = 1;
+ 	this->noSwitch = false;
+ 	this->showfps = false;
+@@ -111,6 +115,7 @@
+ 
+ 	delete (renderTarget);
+ 	renderTarget = new RenderTarget(texsize, vw, vh);
++    printf("ResetTextures(): %d, %d\n", vh, vh);
+ 	reset(vw, vh);
+ 
+ 	textureManager->Preload();
+@@ -191,6 +196,7 @@
+ 	//now we copy the texture from the FBO or framebuffer to
+ 	//video texture memory and render fullscreen.
+ 
++
+ 	/** Reset the viewport size */
+ #ifdef USE_FBO
+ 	if (renderTarget->renderToTexture)
+@@ -258,6 +264,7 @@
+ 	RenderItems(pipeline, pipelineContext);
+ 	FinishPass1();
+ 	Pass2(pipeline, pipelineContext);
++    DrawDMX(dmx_s, vw, vh);
+ }
+ 
+ void Renderer::Interpolation(const Pipeline &pipeline)
+@@ -772,3 +779,36 @@
+ 
+ }
+ 
++void Renderer::DrawDMX(LocalData * s, int width, int height)
++{
++    int r, c;
++    static uint8_t *pixels = NULL;
++    ColorLayer * layer = s->layer;
++
++    if (width != layer->width || height != layer->height) {
++        reset(layer->width, layer->height);
++        return;
++    }
++
++    if (pixels == NULL) {
++        pixels = (uint8_t *)malloc(layer->width * layer->height * 4);
++        if (!pixels) {
++            fprintf(stderr, "Could not allocate memory for pixel buffer!!\n");
++            return;
++        }
++    }
++
++    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixels);
++
++    for (r = 0; r < layer->height; r++) {
++        for (c = 0; c < layer->width; c++) {
++            rgbpixel_setintvalue(
++                              colorlayer_getpixel(layer, c, r),
++                              pixels[4 * (c + layer->width * r) + 3],
++                              pixels[4 * (c + layer->width * r) + 2],
++                              pixels[4 * (c + layer->width * r) + 1],
++                              255);
++        }
++    }
++    serverdata_commitlayer(s);
++}
+Index: libprojectM/Renderer/Renderer.hpp
+===================================================================
+--- libprojectM/Renderer/Renderer.hpp	(revision 1334)
++++ libprojectM/Renderer/Renderer.hpp	(working copy)
+@@ -6,6 +6,7 @@
+ #include "Common.hpp"
+ #include <string>
+ #include <set>
++#include <cdmx/plugin.h>
+ 
+ #ifdef USE_GLES1
+ #include <GLES/gl.h>
+@@ -87,7 +88,7 @@
+   }
+ 
+ private:
+-
++  LocalData * dmx_s;
+ 	PerPixelMesh mesh;
+   RenderTarget *renderTarget;
+   BeatDetect *beatDetect;
+@@ -140,6 +141,8 @@
+   void draw_title_to_screen(bool flip);
+   void draw_title_to_texture();
+ 
++  void DrawDMX(LocalData * s, int width, int height);
++
+ };
+ 
+ #endif
