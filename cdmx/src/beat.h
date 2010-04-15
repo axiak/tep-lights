@@ -28,8 +28,13 @@ typedef struct {
     fftw_plan _fft_plan;
 } SoundInfo;
 
-void 
-soundinfo_init_server(SoundInfo * s);
-void soundinfo_analyze(SoundInfo * s);
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void soundinfo_init_server(SoundInfo * s);
+    void soundinfo_analyze(SoundInfo * s);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

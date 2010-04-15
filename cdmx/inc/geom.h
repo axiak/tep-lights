@@ -11,6 +11,9 @@ extern RGBPixel YELLOW;
 extern RGBPixel ORANGE;
 extern RGBPixel PURPLE;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void draw_pixel(ColorLayer *, int x, int y, RGBPixel *);
 void draw_line(ColorLayer *,
 	       int x0, int y0,
@@ -28,5 +31,8 @@ void draw_circle(ColorLayer *, int x, int y, int radius, RGBPixel *);
 void draw_rectangle(ColorLayer *,
 		    int x0, int y0,
 		    int x1, int y1, RGBPixel *);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

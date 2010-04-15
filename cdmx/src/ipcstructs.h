@@ -42,40 +42,46 @@ typedef struct {
     ClientInfo plugins[MAXPLUGINS];
 } IPCData;
 
-/* Used to signal when you are reading. */
-int begin_lightread(ClientInfo * client);
-int end_lightread(ClientInfo * client);
+#ifdef __cplusplus
+extern "C" {
+#endif
+    /* Used to signal when you are reading. */
+    int begin_lightread(ClientInfo * client);
+    int end_lightread(ClientInfo * client);
 
-RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y);
-void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha);
-void rgbpixel_print(RGBPixel * pixel);
-ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src);
-ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
-ColorLayer * colorlayer_superpose(ColorLayer * top, ColorLayer * bottom);
-ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src);
+    RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y);
+    void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha);
+    void rgbpixel_print(RGBPixel * pixel);
+    ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src);
+    ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src);
+    ColorLayer * colorlayer_superpose(ColorLayer * top, ColorLayer * bottom);
+    ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src);
 
-ColorLayer * colorlayer_create();
-void colorlayer_destroy(ColorLayer * layer);
-void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer);
-ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src);
+    ColorLayer * colorlayer_create();
+    void colorlayer_destroy(ColorLayer * layer);
+    void colorlayer_pushtocollection(DMXPanelCollection * cltn, ColorLayer * layer);
+    ColorLayer * colorlayer_addalpha(ColorLayer * dst, ColorLayer * src);
 
-RGBPixel * rgbpixel_create(double red, double green, double blue, double alpha);
-void rgbpixel_destroy(RGBPixel * pixel);
+    RGBPixel * rgbpixel_create(double red, double green, double blue, double alpha);
+    void rgbpixel_destroy(RGBPixel * pixel);
 
-RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha);
+    RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha);
 
-RGBPixel * rgbpixel_setintvalue(RGBPixel * pixel, int red, int green, int blue, int alpha);
+    RGBPixel * rgbpixel_setintvalue(RGBPixel * pixel, int red, int green, int blue, int alpha);
 
-RGBPixel * rgbpixel_sethbsvalue(RGBPixel * pixel, float h, float b, float s, float alpha);
+    RGBPixel * rgbpixel_sethbsvalue(RGBPixel * pixel, float h, float b, float s, float alpha);
 
-RGBPixel * rgbpixel_copy(RGBPixel * dst, RGBPixel * src);
+    RGBPixel * rgbpixel_copy(RGBPixel * dst, RGBPixel * src);
 
-int num_clients(IPCData * data);
-int is_client_running(ClientInfo * info);
+    int num_clients(IPCData * data);
+    int is_client_running(ClientInfo * info);
 
-ColorLayer * plugin_useotherlayer(IPCData * data, int id);
-void plugin_disuseotherlayer(IPCData * data, int id);
+    ColorLayer * plugin_useotherlayer(IPCData * data, int id);
+    void plugin_disuseotherlayer(IPCData * data, int id);
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

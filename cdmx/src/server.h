@@ -12,9 +12,15 @@ typedef struct {
     int semid;
 } ServerInfo;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 ServerInfo * new_serverenvironment();
 
 void destroy_serverenvironment(ServerInfo * info);
 
 void destroy_shmdata(void);
+#ifdef __cplusplus
+}
+#endif
 #endif

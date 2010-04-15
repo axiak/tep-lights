@@ -41,31 +41,33 @@ typedef struct {
     int _ledheight;
 } DMXPanelCollection;
 
-/* Initializers */
-LEDArray * ledarray_create(SZ size);
+#ifdef __cplusplus
+extern "C" {
+#endif
+    /* Initializers */
+    LEDArray * ledarray_create(SZ size);
 
-/* If mapfunc is null, then the default of (r + 12*(5 - c)) */
-DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int, int, int));
-DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction);
-DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction);
-DMXPanelCollection * create_default_panels();
-DMXPanelCollection * dmxpanelcltn_create(int width, int height);
-RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * panelcltn, int row, int column);
-void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column);
-void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn);
-DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column);
-void dmxpanelcltn_wait(DMXPanelCollection * panelcltn);
-void dmxpanel_wait(DMXPanel * panel);
-void pixel_print(RGBLed * led);
+    /* If mapfunc is null, then the default of (r + 12*(5 - c)) */
+    DMXPanel * dmxpanel_create(char * ip, unsigned short port, int dmxport, SZ width, SZ height, int (* mapfunc)(int, int, int, int));
+    DMXPanel * dmxpanel_createhalfpanel(char * ip, unsigned short port, int dmxport, int direction);
+    DMXPanel * dmxpanel_createfullpanel(char * ip, unsigned short port, int dmxport, int direction);
+    DMXPanelCollection * create_default_panels();
+    DMXPanelCollection * dmxpanelcltn_create(int width, int height);
+    RGBLed * dmxpanelcltn_getpixel(DMXPanelCollection * panelcltn, int row, int column);
+    void dmxpanelcltn_setpanel(DMXPanelCollection * panelcltn, DMXPanel * panel, int row, int column);
+    void dmxpanelcltn_sendframe(DMXPanelCollection * panelcltn);
+    DMXPanel * dmxpanelcltn_getpanel(DMXPanelCollection * panelcltn, int row, int column);
+    void dmxpanelcltn_wait(DMXPanelCollection * panelcltn);
+    void dmxpanel_wait(DMXPanel * panel);
+    void pixel_print(RGBLed * led);
 
-/* Destroyers */
-void ledarray_destroy(LEDArray * ledarray);
-void dmxpanel_destroy(DMXPanel * dmxpanel);
-void dmxpanelcltn_destroy(DMXPanelCollection * panelcltn);
+    /* Destroyers */
+    void ledarray_destroy(LEDArray * ledarray);
+    void dmxpanel_destroy(DMXPanel * dmxpanel);
+    void dmxpanelcltn_destroy(DMXPanelCollection * panelcltn);
 
-/* Other functions */
-int dmxpanel_sendframe(DMXPanel * panel, int usecache);
-
+    /* Other functions */
+    int dmxpanel_sendframe(DMXPanel * panel, int usecache);
 
 static inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
 {
@@ -83,14 +85,17 @@ static inline RGBLed * dmxpanel_getpixel(DMXPanel * dmxpanel, SZ r, SZ c)
 }
 
 
-RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue);
-RGBLed * pixel_sethue(RGBLed * led, float hue, float brightness, float saturation);
+    RGBLed * pixel_setrgb(RGBLed * led, float red, float green, float blue);
+    RGBLed * pixel_sethue(RGBLed * led, float hue, float brightness, float saturation);
 
-/* These operate such that the destination is dst.
-   I.e.: dst <- dst * src
-*/
-RGBLed * pixel_add(RGBLed * dst, RGBLed * src);
-RGBLed * pixel_multiply(RGBLed * dst, RGBLed * src);
+    /* These operate such that the destination is dst.
+       I.e.: dst <- dst * src
+    */
+    RGBLed * pixel_add(RGBLed * dst, RGBLed * src);
+    RGBLed * pixel_multiply(RGBLed * dst, RGBLed * src);
+#ifdef __cplusplus
+}
+#endif
 
 #ifndef MIN
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))

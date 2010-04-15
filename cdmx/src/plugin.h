@@ -16,10 +16,15 @@ typedef struct {
     ColorLayer * layer;
 } LocalData;
 
-LocalData * plugin_register(char * filename, int id);
-int serverdata_update(LocalData * data);
-void serverdata_destroy(LocalData * data);
-void serverdata_commitlayer(LocalData * data);
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+    LocalData * plugin_register(char * filename, int id);
+    int serverdata_update(LocalData * data);
+    void serverdata_destroy(LocalData * data);
+    void serverdata_commitlayer(LocalData * data);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
