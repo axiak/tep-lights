@@ -127,6 +127,13 @@ cdef class DefaultLightPanel:
             time.sleep(1.0 / fps - endtime)
         self.t = time.time()
 
+    def setall_rgb(self, float red, float green, float blue):
+        cdmx.colorlayer_setall(self.layer, red, green, blue, 1)
+
+    def setall_hbs(self, float hue, float brightness, float saturation):
+        cdef cdmx.RGBPixel * led = cdmx.colorlayer_getpixel(self.layer, 0, 0)
+        cdmx.rgbpixel_sethbsvalue(led, hue, brightness, saturation, 1)
+        cdmx.colorlayer_setall(self.layer, led.red, led.green, led.blue, 1)
 
     def outputAndWait(self, float fps):
         self.output()
