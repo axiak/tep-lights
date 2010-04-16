@@ -25,10 +25,12 @@ int main(int argc, char ** argv)
 #endif
 
     ColorLayer * llayer = colorlayer_create();
+    ColorLayer * strobeconfl;
 
     for (;;) {
         info->soundinfo->frame_counter++;
         pluginfound = 0;
+        strobeconfl = NULL;
         newc = num_clients(info->ipcdata);
         if (newc != numc) {
             printf("Total clients: %d\n", newc);
@@ -38,6 +40,10 @@ int main(int argc, char ** argv)
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 layer = plugin_useotherlayer(info->ipcdata, i);
+                if (!strncmp("strobeconf", info->ipcdata->plugins[i].name, 10)) {
+                    strobeconfl = layer;
+                    continue;
+                }
                 if (pluginfound) {
                     if (!colorlayer_mult(llayer, layer)) {
                         printf("Bad plugin! '%s'\n", info->ipcdata->plugins[i].name);
@@ -55,10 +61,13 @@ int main(int argc, char ** argv)
             }
         }
 
-
         if (!pluginfound) {
             dmxpanelcltn_wait(info->panel);
             continue;
+        }
+
+        if (strobeconfl) {
+            colorlayer_colorize(llayer, strobeconfl);
         }
 
         colorlayer_pushtocollection(info->panel, llayer);

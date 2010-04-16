@@ -90,6 +90,7 @@ int main(int argc, char ** argv)
 
     ColorLayer * shimmering = colorlayer_create();
     ColorLayer * circles = colorlayer_create();
+    ColorLayer * strobeconfl;
 
     int gotplugin = 0;
     int background = 0;
@@ -101,11 +102,16 @@ int main(int argc, char ** argv)
         background = 0;
         pluginfound = 0;
         num_layers = 0;
+        strobeconfl = NULL;
         info->soundinfo->frame_counter++;
 
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 layer = plugin_useotherlayer(info->ipcdata, i);
+                if (!strncmp("strobeconf", info->ipcdata->plugins[i].name, 10)) {
+                    strobeconfl = layer;
+                    continue;
+                }
                 if (pluginfound) {
                     if (!colorlayer_mult(circles, layer)) {
                         printf("Bad plugin! '%s'\n", info->ipcdata->plugins[i].name);
@@ -128,6 +134,9 @@ int main(int argc, char ** argv)
         if (!gotplugin) {
             dmxpanelcltn_wait(info->panel);
             continue;
+        }
+        if (strobeconfl) {
+            colorlayer_colorize(circles, strobeconfl);
         }
 
         colorlayer_pushtocollection(info->panel, circles);

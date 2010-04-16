@@ -8,11 +8,17 @@
 #include <sys/sem.h>
 #include <signal.h>
 #include <errno.h>
+#include <math.h>
 
 #include <string.h>
 
 #include "dmx.h"
 #include "ipcstructs.h"
+
+#define MIN3(A, B, C) MIN(MIN((A), (B)), (C))
+#define MAX3(A, B, C) MAX(MAX((A), (B)), (C))
+#define CLAMP(A, LOWER, UPPER) MIN(MAX((A), (LOWER)), (UPPER))
+
 
 #define ASSERT_SIZES(A,B) \
     if ((A)->width != (B)->width || (A)->height != (B)->height) {   \
@@ -20,16 +26,6 @@
         return NULL; \
     }
 
-RGBPixel * colorlayer_getpixel(ColorLayer * layer, int x, int y)
-{
-    if (x >= layer->width || y >= layer->height) {
-        fprintf(stderr, "Invalid pixel called [%d x %d]: (%d, %d)\n",
-                layer->width, layer->height, x, y);
-        return NULL;
-    }
-    int i = x * layer->height + y;
-    return &layer->pixels[i];
-}
 
 void rgbpixel_print(RGBPixel * pixel)
 {
@@ -64,57 +60,123 @@ RGBPixel * rgbpixel_copy(RGBPixel * dst, RGBPixel * src)
 }
 
 RGBPixel * rgbpixel_sethbsvalue(RGBPixel * led, float hue, float brightness, float saturation, float alpha)
-/* Great "hsv" algorithm from kmill... */
 {
+    int i;
+    float f, p, q, t;
+    float *r = &led->red;
+    float *g = &led->green;
+    float *b = &led->blue;
+
+    /* Sanitize inputs */
+    brightness = CLAMP(brightness, 0, 1);
+    saturation = CLAMP(saturation, 0, 1);
+    saturation = 1 - saturation;
+
+    if (!brightness) {
+        /* black! */
+        *r = *g = *b = 0;
+        return led;
+    }
+
+    if (!saturation) {
+        /* No coloring */
+        *r = *g = *b = brightness;
+        return led;
+    }
+
     hue *= 6;
-    float angle = ((int)hue % 6) + (hue - (int)hue);
-
-    brightness = MIN(MAX(brightness, 0), 1);
-    saturation = MIN(MAX(saturation, 0), 1);
-
-    if (angle < 2) {
-        led->red = 1;
-        if (angle < 1) {
-            led->green = 0;
-            led->blue = 1 - angle;
-        }
-        else {
-            led->green = angle - 1;
-            led->blue = 0;
-        }
-    }
-    if (angle >= 2 && angle < 4) {
-        led->green = 1;
-        if (angle < 3) {
-            led->red = 3 - angle;
-            led->blue = 0;
-        }
-        else {
-            led->red = 0;
-            led->blue = angle - 3;
-        }
-    }
-    if (angle >= 4) {
-        led->blue = 1;
-        if (angle < 5) {
-            led->green = 5 - angle;
-            led->red = 0;
-        }
-        else {
-            led->green = 0;
-            led->red = angle - 5;
-        }
+    hue = fmod(hue, 6.0);
+    if (hue < 0) {
+        hue += 6;
     }
 
-    led->red = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
-                             led->red + saturation);
-    led->green = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
-                             led->green + saturation);
-    led->blue = brightness * (MIN(MAX(brightness - saturation, 0.0), 1.0) *
-                             led->blue + saturation);
+
+    i = floor(hue);
+    f = hue - i;
+    p = brightness * (1 - saturation);
+    q = brightness * (1 - saturation * f);
+    t = brightness * (1 - saturation * (1 - f));
+
+    /*printf("f: %0.2f, p: %0.2f, q: %0.2f, t: %0.2f\n",
+           f, p, q, t);
+    printf("%0.2f, %d\n", hue, i);
+    */
+
+
+    switch (i) {
+    case 0:
+        *r = brightness;
+        *g = t;
+        *b = p;
+        break;
+    case 1:
+        *r = q;
+        *g = brightness;
+        *b = p;
+        break;
+    case 2:
+        *r = p;
+        *g = brightness;
+        *b = t;
+        break;
+    case 3:
+        *r = p;
+        *g = q;
+        *b = brightness;
+        break;
+    case 4:
+        *r = t;
+        *g = p;
+        *b = brightness;
+        break;
+    default:
+        *r = brightness;
+        *g = p;
+        *b = q;
+    }
     led->alpha = alpha;
     return led;
 }
+
+void rgbpixel_gethbs(float * dest, RGBPixel * input)
+/* An attempt to reverse what's above */
+{
+    float min, max, delta;
+    float *h=&dest[0], *v=&dest[1], *s=&dest[2]; /* shortcut names */
+
+    max = MAX3(input->red, input->green, input->blue);
+    min = MIN3(input->red, input->green, input->blue);
+
+    *v = max;
+    
+    delta = max - min;
+    if (!max) {
+        *s = 0;
+        *h = -1;
+        return;
+    }
+    else {
+        *s = 1 - delta / max;
+    }
+
+    if (!delta) {
+        *h = 0;
+    }
+    else if (input->red == max) {
+        *h = (input->green - input->blue) / delta;
+    }
+    else if (input->green == max) {
+        *h = 2 + (input->blue - input->red) / delta;
+    }
+    else {
+        *h = 4 + (input->red - input->green) / delta;
+    }
+    *h /= 6.0;
+    if (*h < 0) {
+        *h += 1;
+    }
+}
+
 
 void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, float alpha)
 {
@@ -130,23 +192,6 @@ void colorlayer_setall(ColorLayer * layer, float red, float green, float blue, f
     }
 }
 
-RGBPixel * rgbpixel_setvalue(RGBPixel * pixel, float red, float green, float blue, float alpha)
-{
-    pixel->red = red;
-    pixel->green = green;
-    pixel->blue = blue;
-    pixel->alpha = alpha;
-    return pixel;
-}
-
-RGBPixel * rgbpixel_setintvalue(RGBPixel * pixel, int red, int green, int blue, int alpha)
-{
-    pixel->red = red / 255.0;
-    pixel->green = green / 255.0;
-    pixel->blue = blue / 255.0;
-    pixel->alpha = alpha / 255.0;
-    return pixel;
-}
 
 ColorLayer * colorlayer_add(ColorLayer * dst, ColorLayer * src)
 {
@@ -189,6 +234,26 @@ ColorLayer * colorlayer_mult(ColorLayer * dst, ColorLayer * src)
     }
     return dst;
 }
+
+ColorLayer * colorlayer_colorize(ColorLayer * dst, ColorLayer * alterator)
+{
+    ASSERT_SIZES(dst, alterator)
+    int n = dst->width * dst->height;
+    int i;
+    float hbs1[3] = {0, 0, 0};
+    float hbs2[3] = {0, 0, 0};
+    for (i = 0; i < n; i++) {
+        rgbpixel_gethbs(hbs2, &alterator->pixels[i]);
+        rgbpixel_gethbs(hbs1, &dst->pixels[i]);
+        rgbpixel_sethbsvalue(&dst->pixels[i],
+                             hbs1[0] + hbs2[0] * 2 - 1,
+                             hbs1[1] + hbs2[1] * 2 - 1,
+                             hbs1[2],
+                             dst->pixels[i].alpha);
+    }
+    return dst;
+}
+
 
 ColorLayer * colorlayer_copy(ColorLayer * dst, ColorLayer * src) {
     ASSERT_SIZES(dst, src)

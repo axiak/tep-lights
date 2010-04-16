@@ -43,9 +43,10 @@ int main(int argc, char ** argv)
     int frames = 0;
     double lastfpscount = _currenttime();
     double ctime;
-    int pulseaudio = 0;
     pthread_t pathread;
     char * dev = NULL;
+    ColorLayer * strobeconfl;
+
     if (argc > 1) {
         dev = argv[1];
     }
@@ -77,6 +78,7 @@ int main(int argc, char ** argv)
         colorlayer_setall(shimmering, 0, 0, 0, 0);
         colorlayer_setall(circles, 0, 0, 0, 0);
         background = 0;
+        strobeconfl = NULL;
         pluginfound = 0;
         num_layers = 0;
 
@@ -85,6 +87,10 @@ int main(int argc, char ** argv)
         for (i = 0; i < MAXPLUGINS; i++) {
             if (is_client_running(&info->ipcdata->plugins[i])) {
                 layer = plugin_useotherlayer(info->ipcdata, i);
+                if (!strncmp("strobeconf", info->ipcdata->plugins[i].name, 10)) {
+                    strobeconfl = layer;
+                    continue;
+                }
                 if (pluginfound) {
                     if (!colorlayer_mult(circles, layer)) {
                         printf("Bad plugin! '%s'\n", info->ipcdata->plugins[i].name);
@@ -107,6 +113,10 @@ int main(int argc, char ** argv)
             dmxpanelcltn_wait(info->panel);
             continue;
         }
+        if (strobeconfl) {
+            colorlayer_colorize(circles, strobeconfl);
+        }
+
         colorlayer_pushtocollection(info->panel, circles);
 
 
