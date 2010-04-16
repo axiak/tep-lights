@@ -12,6 +12,8 @@ cdef class RGBPixel:
     cdef int created
 
     def __cinit__(self, int row, int col, int create=1):
+        self.row = row
+        self.col = col
         if not create:
             self.created = 0
         else:
