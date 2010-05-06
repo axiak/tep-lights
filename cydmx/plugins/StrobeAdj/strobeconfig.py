@@ -14,7 +14,7 @@ global_data = {
     'strobeEnable': False,
     'strobeDuty': 1,
     'hueAdj': 0.5,
-    'brightnessAdj': 1,
+    'brightnessAdj': 0.5,
 }
 
 class Strober(dmxwidget.Widget):
@@ -41,7 +41,7 @@ class StrobeControlWin(wx.Frame):
         self.label_2 = wx.StaticText(self, -1, "Color Adjust:")
         self.slider_2 = wx.Slider(self, -1, 500, 0, 1000)
         self.label_3 = wx.StaticText(self, -1, "Brightness Adjust:")
-        self.slider_3 = wx.Slider(self, -1, 1000, 0, 1000)
+        self.slider_3 = wx.Slider(self, -1, 500, 0, 1000)
 
         self.__set_properties()
         self.__do_layout()
@@ -84,22 +84,18 @@ class StrobeControlWin(wx.Frame):
 
     def freqAdj(self, event): # wxGlade: StrobeControlWin.<event_handler>
         global_data['strobeDuty'] = min(max(int(-0.028 * self.slider_4.Value + 29), 1), 29)
-        print global_data
         event.Skip()
 
     def hueAdj(self, event): # wxGlade: StrobeControlWin.<event_handler>
         global_data['hueAdj'] = (self.slider_2.Value) / 1000.0
-        print global_data
         event.Skip()
 
     def adjBrightness(self, event): # wxGlade: StrobeControlWin.<event_handler>
         global_data['brightnessAdj'] = self.slider_3.Value / 1000.0
-        print global_data
         event.Skip()
 
     def enableStrobe(self, event): # wxGlade: StrobeControlWin.<event_handler>
         global_data['strobeEnable'] = self.checkbox_1.Value
-        print global_data
         event.Skip()
 
 # end of class StrobeControlWin
