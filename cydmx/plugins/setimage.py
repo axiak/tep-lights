@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import dmx
+from cydmx import dmx
 import sys
 import Image
 try:

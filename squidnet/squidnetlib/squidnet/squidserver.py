@@ -95,35 +95,43 @@ def run_server(server_info, daemon=False) :
 class ShellRunner(object):
    def __init__(self) :
        self.lock = thread.allocate_lock()
-       self.pid = None
-   def kill(self) :
-       self.lock.acquire()
-       if self.pid is not None :
+       self.pids = ()
+
+   def killpid(self, pid):
+       try:
+           os.kill(pid, signal.SIGINT)
+       except OSError:
            try:
-               os.kill(self.pid, signal.SIGINT)
-           except OSError:
+               os.waitpid(pid, 0)
+           except:
                pass
-           finally:
-               try :
-                   os.waitpid(self.pid, 0)
-               except :
-                   print "Mike doesn't know finally."
+
+   def kill(self):
+       self.lock.acquire()
+       if self.pids:
+           for pid in self.pids:
+               self.killpid(pid)
+       self.pids = ()
        self.lock.release()
-   def spawn(self, path, args=None) :
-       if args is None :
+
+
+   def spawn(self, path, args=None, *otherargs):
+       if args is None:
            args = [path]
+       if otherargs:
+           programs = [(path, args)] + list(otherargs)
+       else:
+           programs = [(path, args)]
+
        self.lock.acquire()
-       if self.pid is not None :
-           try:
-               os.kill(self.pid, signal.SIGINT)
-           except OSError:
-               pass
-           finally:
-               try :
-                   os.waitpid(self.pid, 0)
-               except :
-                   print "Mike doesn't know finally."
-       self.pid = os.spawnv(os.P_NOWAIT, path, args)
+
+       if self.pids:
+           for pid in pids:
+               self.killpid(pid)
+
+       self.pids = [os.spawnv(os.P_NOWAIT, path, args)
+                    for (path, args) in programs]
+
        self.lock.release()
 
 if __name__=="__main__" :
