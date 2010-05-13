@@ -126,7 +126,7 @@ class ShellRunner(object):
        self.lock.acquire()
 
        if self.pids:
-           for pid in pids:
+           for pid in self.pids:
                self.killpid(pid)
 
        self.pids = [os.spawnv(os.P_NOWAIT, path, args)
