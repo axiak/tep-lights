@@ -118,10 +118,9 @@ class ShellRunner(object):
    def spawn(self, path, args=None, *otherargs):
        if args is None:
            args = [path]
-       if otherargs:
-           programs = [(path, args)] + list(otherargs)
-       else:
-           programs = [(path, args)]
+       programs = [(path, args)]
+       for i in range(0, len(otherargs), 2):
+           programs.append((otherargs[i], otherargs[i + 1]))
 
        self.lock.acquire()
 
