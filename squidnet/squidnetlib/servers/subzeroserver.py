@@ -22,25 +22,19 @@ wall_visualizations = {
 
 wall_sr = ss.ShellRunner()
 
-def run_plugins(sr, plugins):
-    prog = os.path.join(DIR, 'cdmx', 'runner.py')
-    args = [prog, os.path.join(DIR, 'cdmx', 'src', 'audiotestserver')]
-    for plugin in plugins:
-        args.append('--plugin')
-        args.extend(plugin)
-    sr.spawn(prog, args)
-    print args
+server_sr = ss.ShellRunner()
+server_sr.spawn(os.path.join(DIR, 'cdmx', 'src', 'naserver'))
 
 
 def handle_wall_color(args):
     prog = os.path.join(DIR, 'cydmx', 'plugins', 'setcolor.py')
     arg = [str(c / 255.0) for c in args['color'].value]
     arg.insert(0, prog)
-    run_plugins(wall_sr, [arg])
+    wall_sr.spawn(prog, arg)
 
 def handle_extinguish(args):
     prog = os.path.join(DIR, 'cydmx', 'plugins', 'setcolor.py')
-    run_plugins(wall_sr, [[prog, '0', '0', '0', '1']])
+    wall_sr.spawn(prog, [prog, '0', '0', '0', '1'])
 
 def handle_wall_viz(args):
     viz = wall_visualizations[args['visualization'].value]
@@ -51,21 +45,23 @@ def handle_wall_viz(args):
         if isinstance(v, basestring):
             v = os.path.join(DIR, v)
             v = shlex.split(v)
+            args.append(v[0])
             args.append(v)
-    print args
-    run_plugins(wall_sr, args)
+    wall_sr.spawn(*args)
+
 
 def handle_wall_text(args):
     prog = os.path.join(DIR, 'cydmx', 'plugins', 'text.py')
-    run_plugins(wall_sr, [[prog, args['text'].value,
-                           str(args['color'].value[0]),
-                           str(args['color'].value[1]),
-                           str(args['color'].value[2]),
-                           str(args['speed'].value)]])
+    wall_sr.spawn(prog, [prog, args['text'].value,
+                         str(args['color'].value[0]),
+                         str(args['color'].value[1]),
+                         str(args['color'].value[2]),
+                         str(args['speed'].value)])
+
 
 def handle_wall_image(args):
     prog = os.path.join(DIR, 'cydmx', 'plugins', 'setimage.py')
-    run_plugins(wall_sr, [[prog, args['Scaling'].value, args['image'].value]])
+    wall_sr.spawn(prog, [prog, args['Scaling'].value, args['image'].value])
 
 
 serv = sp.SquidServer("subzero", "s0.mit.edu", 2222, "Subzero")
