@@ -35,6 +35,18 @@ def setcolor(args):
     color.insert(0, prog)
     sr.spawn(prog, color)
 
+def setcolortemp(args):
+    temp = 1800 + 7200 * args['temperature'].value
+    import kwrgb
+    kcon = kwrgb.kwrgb()
+    bgColor = kcon.convertKRGB(3200, temp, False)
+    sr.kill()
+    prog = os.path.join(BASE_DIR, 'setcolor', 'graph')
+    color = [str(x / 256.0) for x in bgColor]
+    color.insert(0, prog)
+    sr.spawn(prog, color)
+
+
 serv = sp.SquidServer("david-xen", "david-xen.mit.edu", 2222, "David's computer")
 d1 = sp.SquidDevice("eye-of-gorlack", "The Eye of Gorlack")
 serv.add_device(d1)
@@ -53,5 +65,12 @@ d1.add_message(sp.SquidMessage("set",
                                [sp.SquidArgument("color",
                                                  sp.SquidColorValue, [230, 255, 179])],
                                setcolor))
+
+d1.add_message(sp.SquidMessage("settemp",
+                               'Set color temperature',
+                               [sp.SquidArgument("temperature",
+                                                 sp.SquidRangeValue,
+                                                 0.2)],
+                               setcolortemp))
 
 ss.run_server(serv, daemon=True)
