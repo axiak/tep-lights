@@ -102,6 +102,10 @@ class ShellRunner(object):
            os.kill(pid, signal.SIGINT)
        except OSError:
            try:
+               os.kill(pid, signal.SIGKILL)
+           except OSError:
+               pass
+           try:
                os.waitpid(pid, 0)
            except:
                pass
@@ -127,6 +131,7 @@ class ShellRunner(object):
        if self.pids:
            for pid in self.pids:
                self.killpid(pid)
+           self.pids = ()
 
        self.pids = [os.spawnv(os.P_NOWAIT, path, args)
                     for (path, args) in programs]
