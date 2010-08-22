@@ -235,8 +235,8 @@ def getDefaultPanel() :
     return panel
 
 def _get_panel_info(i):
-    ips = {0: '18.224.0.194',
-           1: '18.224.0.238',}
+    ips = {0: '18.224.0.36',
+           1: '18.224.0.40',}
     ip = ips[i // 17]
     x, y = 6 * ((i - 1) % 10), 12 * ((30 - i) // 10)
     return ip, x, y

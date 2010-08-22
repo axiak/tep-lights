@@ -12,12 +12,12 @@ class Flames2 (dmxwidget.Widget) :
         self.nextstate(self.colorstate)
         for r in range(0, panel.height) :
             for c in range(0, panel.width) :
-                panel.lights[r][c].sethue(0.2-self.colorstate[r][c]*0.07,1-self.colorstate[r][c], 0.1*(1-self.colorstate[r][c]))
+                panel.lights[panel.height-1-r][c].sethue(0.9-self.colorstate[r][c]*0.07,1-self.colorstate[r][c], 0.1*(1-self.colorstate[r][c]))
         panel.outputAndWait(30)
 
     def nextstate(self, colorstate) :
-        k = 0.2
-        d = 0.99999
+        k = 0.05
+        d = 0.999999
         oldstate = [[x for x in row] for row in colorstate]
         for r in range(0, len(colorstate)) :
             for c in range(0, len(colorstate[r])) :
@@ -25,7 +25,10 @@ class Flames2 (dmxwidget.Widget) :
                 if r > 0 :
                     s = oldstate[r-1][c]
                 else :
-                    s = random.random()
+                    if False and 30 == c :
+                        s = 0
+                    else :
+                        s = random.random()
                 if c > 0 and r > 0 :
                     s += oldstate[r-1][c-1]/2
                     count += 1
