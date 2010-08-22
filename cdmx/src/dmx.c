@@ -418,8 +418,8 @@ DMXPanelCollection * create_default_panels()
     DMXPanelCollection * cltn;
     DMXPanel * ptr;
     int i;
-    char * IPS[3] = {"TEPILEPSY.MIT.EDU",
-                     "TEPILEPSY2.MIT.EDU",
+    char * IPS[3] = {"DINING-ROOM-WALL-1.MIT.EDU",
+                     "DINING-ROOM-WALL-2.MIT.EDU",
                      0};
 
     cltn = dmxpanelcltn_create(15, 3);
